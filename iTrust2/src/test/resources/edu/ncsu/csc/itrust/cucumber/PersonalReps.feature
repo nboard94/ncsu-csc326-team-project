@@ -28,3 +28,10 @@ When I login as a patient
 When I navigate to the personal representatives page
 When I choose to remove a personal representative with ID <id>
 Then they representative is removed from my list of personal representatives
+
+Scenario: Remove yourself as a Personal Representative
+Given I am assign as a personal representative
+When I login as a patient
+When I navigate to the personal representatives page
+When I select the patient I do not want to represent
+Then I am removed as their personal representative
