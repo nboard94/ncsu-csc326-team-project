@@ -1,50 +1,174 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns:th="http://www.thymeleaf.org">
-	<head th:include="layout :: head(title=~{::title},links=~{})">
-	<title>View Personal Representatives</title>
-	
-	<!-- Angular and Bootstrap files  -->
-	<link rel="stylesheet"
-		href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	
-	</head>
- 
-	<body th:include="layout :: body" th:with="content=~{::content}">
-		<div th:fragment="content">
-		
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>View Personal Representatives</title>
+
+<!-- Angular and Bootstrap files  -->
+<link rel="stylesheet"
+	href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
 		<script th:inline="javascript">
-		/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
-		/*<![CDATA[*/
+			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+			/*<![CDATA[*/
 			var app = angular.module("viewPersonalRepresentatives", []);
-			app.controller('controller', function($scope, $http) {
+			app.controller('repCtrl', function($scope, $http) {
 				// get all personal representatives of patient and display in table	
 				$scope.represntsMe = [];
 				$scope.iRepresent = [];
-				$http.get("/iTrust2/api/v1/diagnoses").then(
-						function(response) {
-							$scope.diagnoses = response.data;
-							$scope.message = "";
-						}, function(rejection) {
-							$scope.diagoses = [];
-							$scope.message = "Unable to display diagnoses";
-						});
-				
-				
+				$http.get("/iTrust2/api/v1/diagnoses").then(function(response) {
+					$scope.diagnoses = response.data;
+					$scope.message = "";
+				}, function(rejection) {
+					$scope.diagoses = [];
+					$scope.message = "Unable to display diagnoses";
+				});
+
 			});
 		</script>
-		
-		<div ng-app="viewPersonalRepresentatives" ng-controller="controller">
-		
+
+		<div ng-app="viewPersonalRepresentatives" ng-controller="repCtrl">
+
 			<!-- Info on tables from https://hello-angularjs.appspot.com/removetablerow -->
 			<div class="container">
-				<h4 style="color:red" ng-model="message"></h4>
-				
-				<h2>Patient Representatives</h2>
+				<h2>Personal Representatives</h2>
+			</div>
+
+			<!-- List of patients representatives -->
+			<div class="container">
+				<div class="row">
+
+					<!-- Column that represents patient representatives -->
+					<div class="col-sm-4">
+						<div class="panel panel-primary">
+
+							<!-- Header for patients Representatives -->
+							<div class="panel-heading">
+								<h3>Your Representatives</h3>
+							</div>
+							<ul>
+								<li ng-repeat="item in representMe">{{item}}</li>
+							</ul>
+
+							<form class="form-horizontal" role="form" name="viewLogForm"
+								ng-submit="delcareRep()">
+
+								<!-- row that contains all interactive fields -->
+								<div class="row">
+
+									<!-- Patient MID -->
+									<div class="col-md-5">
+										<div class="row">
+											<div class="col-md-7">
+												<input type="text" class="form-control"
+													placeholder="Patient MID" name="repUsername" ng-model="addRep"
+													required />
+													<br>
+												<button type="submit" class="btn btn-success"
+													ng-disabled="!viewLogForm.$valid" name="submit">Add
+													Representative</button>
+											</div>
+
+										</div>
+									</div>
+
+									<!-- row that contains interactive fields -->
+									<div class="row">
+										<div class="col-md-12"></div>
+									</div>
+
+								</div>
+							</form>
+							
+							<form class="form-horizontal" role="form" name="viewLogForm"
+								ng-submit="undelcareRep()">
+								<br>
+
+								<!-- row that contains all interactive fields -->
+								<div class="row">
+
+									<!-- Patient MID -->
+									<div class="col-md-5">
+										<div class="row">
+											<div class="col-md-7">
+												<input type="text" class="form-control"
+													placeholder="Patient MID" name="removeUsername" ng-model="removeRep"
+													required />
+													<br>
+												<button type="submit" class="btn btn-success"
+													ng-disabled="!viewLogForm.$valid" name="submit">Remove
+													Representative</button>
+											</div>
+
+										</div>
+									</div>
+
+									<!-- row that contains interactive fields -->
+									<div class="row">
+										<div class="col-md-12"></div>
+									</div>
+
+								</div>
+							</form>
+
+						</div>
+					</div>
+
+					<!-- Column that represents patients  -->
+					<div class="col-sm-4">
+						<div class="panel panel-primary">
+
+							<!-- Header for patients Representatives -->
+							<div class="panel-heading">
+								<h3>Patients that You Represent</h3>
+							</div>
+							<ul>
+								<li ng-repeat="item in iRepresent">{{item}}</li>
+							</ul>
+							<form class="form-horizontal" role="form"
+								ng-submit="undelcareSelfAsRep()">
+								<br>
+
+								<!-- row that contains all interactive fields -->
+								<div class="row">
+
+									<!-- Patient MID -->
+									<div class="col-md-5">
+										<div class="row">
+											<div class="col-md-7">
+												<input type="text" class="form-control"
+													placeholder="Patient MID" name="undeclareUsername" ng-model="undeclaredSelf"
+													required />
+													<br>
+												<button type="submit" class="btn btn-success"
+													ng-disabled="!viewLogForm.$valid" name="submit">Remove
+													Self</button>
+											</div>
+
+										</div>
+									</div>
+
+									<!-- row that contains interactive fields -->
+									<div class="row">
+										<div class="col-md-12"></div>
+									</div>
+
+								</div>
+							</form>
+
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-		
-		</div>
-	</body>
+
+	</div>
+</body>
 </html>
