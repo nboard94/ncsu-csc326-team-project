@@ -30,6 +30,19 @@ public class HCPController {
     }
 
     /**
+     * Returns the page that allows HCPs to view personal representatives
+     *
+     * @param model
+     *            the date for the front end
+     * @return page to display the personal representatives
+     */
+    @GetMapping ( "/hcp/personalRepresentatives" )
+    @PreAuthorize ( "hasRole('ROLE_HCP')" )
+    public String viewPersonalRepresentatives ( final Model model ) {
+        return "/hcp/personalRepresentatives";
+    }
+
+    /**
      * Returns the page allowing HCPs to edit patient demographics
      *
      * @return The page to display

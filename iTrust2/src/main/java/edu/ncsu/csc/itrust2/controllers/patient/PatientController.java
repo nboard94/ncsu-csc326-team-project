@@ -41,6 +41,19 @@ public class PatientController {
     }
 
     /**
+     * Returns the page that allows patients to view personal representatives
+     *
+     * @param model
+     *            the date for the front end
+     * @return page to display the personal representatives
+     */
+    @GetMapping ( "/patient/personalRepresentatives" )
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    public String viewPersonalRepresentatives ( final Model model ) {
+        return "/patient/personalRepresentatives";
+    }
+
+    /**
      * Returns the form page for a patient to view all prescriptions
      *
      * @param model
