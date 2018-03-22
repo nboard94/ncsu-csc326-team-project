@@ -5,9 +5,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -15,6 +18,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -45,6 +50,14 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      * Randomly generated ID.
      */
     private static final long serialVersionUID = 4617248041239679701L;
+
+    @ManyToMany ( cascade = ( CascadeType.ALL ) )
+    @JoinTable ( name = "PERSONAL_REPRESENTATIVES", joinColumns = { @JoinColumn ( name = "Represents" ) },
+            inverseJoinColumns = { @JoinColumn ( name = "Represented" ) } )
+    private Set<Patient>      representsMe     = new HashSet<Patient>();
+
+    @ManyToMany ( mappedBy = "representsMe" )
+    private Set<Patient>      representedByMe  = new HashSet<Patient>();
 
     /**
      * Get all patients in the database
@@ -724,6 +737,44 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      */
     public void setGender ( final Gender gender ) {
         this.gender = gender;
+    }
+
+    /**
+     * Get the set of people who represent the patient.
+     *
+     * @return the set of patients.
+     */
+    public Set<Patient> getMyRepresentatives () {
+        return representsMe;
+    }
+
+    /**
+     * Set the set of patients who are my representatives
+     *
+     * @param representsMe
+     *            the set of patients
+     */
+    public void setMyRepresentatives ( final Set<Patient> representsMe ) {
+        this.representsMe = representsMe;
+    }
+
+    /**
+     * Get the set of people the patient represents
+     *
+     * @return the set of patients
+     */
+    public Set<Patient> getRepresentedByMe () {
+        return representedByMe;
+    }
+
+    /**
+     * Set the set of patient who I represent
+     *
+     * @param representedByMe
+     *            the set of patients
+     */
+    public void setRepresentedByMe ( final Set<Patient> representedByMe ) {
+        this.representedByMe = representedByMe;
     }
 
 }
