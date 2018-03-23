@@ -19,54 +19,80 @@
 			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
 			/*<![CDATA[*/
 			var app = angular.module("viewPersonalRepresentatives", []);
-			app.controller('repCtrl', function($scope, $http) {
-				// get all personal representatives of patient and display in table	
-				$scope.represntsMe = [];
-				$scope.iRepresent = [];
-				$http.get("/iTrust2/api/v1/diagnoses").then(function(response) {
-					$scope.diagnoses = response.data;
-					$scope.message = "";
-				}, function(rejection) {
-					$scope.diagoses = [];
-					$scope.message = "Unable to display diagnoses";
-				});
-			
-				$scope.isValid = true;
-				
-				$scope.declareRep = function(repUsername) {
-					$http.host("/iTrust2/api/v1/reps/" + repUsername).then(
-							function(response) {
-								$scope.representsMe.push(repUsername);
-								$scope.message = "";
-							}, function(rejection) {
-								$scope.message = "Could not add personal representative."
-							});
-				}
-				
-				$scope.underclaseRep = function(username) {
-					$http.post("/iTrust2/api/v1/reps/" + username).then(
-							function(response) {
-								var index = representsMe.indexOf(username);
-								$scope.representsMe.remove(index);
-								$scope.message = "";
-							}, function(rejection) {
-								$scope.message = "Could not remove personal representative."
-							});
-				}
-				
-				$scope.undeclareSelfAsRep = function(username) {
-					$http.post("iTrust2/api/v1/reps/" + username).then(
-							function(response) { 
-								var index = iRepresent.indexOf(username);
-								$scope.iRepresent.remove(index);
-								$scope.message = "";
-							}, function(rejection) {
-								$scope.message = "Could not remove self as personal representative."
-							});
-				}
+			app
+					.controller(
+							'repCtrl',
+							function($scope, $http) {
+								// get all personal representatives of patient and display in table	
+								$scope.represntsMe = [];
+								$scope.iRepresent = [];
+								$http
+										.get("/iTrust2/api/v1/diagnoses")
+										.then(
+												function(response) {
+													$scope.diagnoses = response.data;
+													$scope.message = "";
+												},
+												function(rejection) {
+													$scope.diagoses = [];
+													$scope.message = "Unable to display diagnoses";
+												});
 
-				
-			});
+								$scope.isValid = true;
+
+								$scope.declareRep = function(repUsername) {
+									$http
+											.host(
+													"/iTrust2/api/v1/reps/"
+															+ repUsername)
+											.then(
+													function(response) {
+														$scope.representsMe
+																.push(repUsername);
+														$scope.message = "";
+													},
+													function(rejection) {
+														$scope.message = "Could not add personal representative."
+													});
+								}
+
+								$scope.undeclareRep = function(username) {
+									$http
+											.post(
+													"/iTrust2/api/v1/reps/"
+															+ username)
+											.then(
+													function(response) {
+														var index = representsMe
+																.indexOf(username);
+														$scope.representsMe
+																.remove(index);
+														$scope.message = "";
+													},
+													function(rejection) {
+														$scope.message = "Could not remove personal representative."
+													});
+								}
+
+								$scope.undeclareSelfAsRep = function(username) {
+									$http
+											.post(
+													"iTrust2/api/v1/reps/"
+															+ username)
+											.then(
+													function(response) {
+														var index = iRepresent
+																.indexOf(username);
+														$scope.iRepresent
+																.remove(index);
+														$scope.message = "";
+													},
+													function(rejection) {
+														$scope.message = "Could not remove self as personal representative."
+													});
+								}
+
+							});
 		</script>
 
 		<div ng-app="viewPersonalRepresentatives" ng-controller="repCtrl">
@@ -81,128 +107,146 @@
 				<div class="row">
 
 					<!-- Column that represents patient representatives -->
-					<div class="col-sm-4">
+					<div class="col-md-6">
 						<div class="panel panel-primary">
 
 							<!-- Header for patients Representatives -->
 							<div class="panel-heading">
 								<h3>Your Representatives</h3>
 							</div>
-							<ul>
-								<li ng-repeat="item in representMe">{{item}}</li>
-							</ul>
+							<div class="panel-body">
+								<ul>
+									<li ng-repeat="item in representMe">{{item}}</li>
+								</ul>
 
-							<form class="form-horizontal" role="form" name="viewLogForm"
-								ng-submit="delcareRep()">
 
-								<!-- row that contains all interactive fields -->
+								<!-- container for adding representatives -->
 								<div class="row">
+									<div class="col-md-12">
+										<div class="panel panel-default">
+											<div class="panel-heading ">Declare Personal
+												Representative</div>
+											<div class="panel-body">
+												<form class="form-horizontal" role="form" name="declareRepForm"
+													ng-submit="delcareRep()">
 
-									<!-- Patient MID -->
-									<div class="col-md-5">
-										<div class="row">
-											<div class="col-md-7">
-												<input type="text" class="form-control"
-													placeholder="Patient MID" name="repUsername"
-													ng-model="addRep" required /> <br>
-												<button type="submit" class="btn btn-success"
-													ng-disabled="!viewLogForm.$valid" name="submit">Add
-													Representative</button>
-												<span ng-if="!isValid"> {{errorMessage}} </span>
+													<!-- Patient MID -->
+													<div class="col-md-8">
+														<div class="row">
+															<input type="text" class="form-control"
+																placeholder="Patient MID" name="declareUsername" 
+																required />
+														</div>
+													</div>
+
+													<!-- Submit Button -->
+													<div class="col-md-4">
+														<button type="submit" class="btn btn-success"
+															ng-disabled="!declareRepForm.$valid" name="submit">Submit
+														</button>
+														<span ng-if="!isValid"> {{errorMessage}} </span>
+													</div>
+
+
+												</form>
 											</div>
-
 										</div>
 									</div>
-
-									<!-- row that contains interactive fields -->
-									<div class="row">
-										<div class="col-md-12"></div>
-									</div>
-
 								</div>
-							</form>
 
-							<form class="form-horizontal" role="form" name="viewLogForm"
-								ng-submit="undelcareRep()">
-								<br>
 
-								<!-- row that contains all interactive fields -->
+								<!-- container for removing representatives -->
 								<div class="row">
+									<div class="col-md-12">
+										<div class="panel panel-default">
+											<div class="panel-heading ">Undeclare Personal
+												Representative</div>
+											<div class="panel-body">
+												<form class="form-horizontal" role="form" name="undeclareRepForm"
+													ng-submit="undelcareRep()">
 
-									<!-- Patient MID -->
-									<div class="col-md-5">
-										<div class="row">
-											<div class="col-md-7">
-												<input type="text" class="form-control"
-													placeholder="Patient MID" name="removeUsername"
-													ng-model="removeRep" required /> <br>
-												<button type="submit" class="btn btn-success"
-													ng-disabled="!viewLogForm.$valid" name="submit">Remove
-													Representative</button>
-												<span ng-if="!isValid"> {{errorMessage}} </span>
+													<!-- Patient MID -->
+													<div class="col-md-8">
+														<div class="row">
+															<input type="text" class="form-control"
+																placeholder="Patient MID" name="undeclareUsername" 
+																required />
+														</div>
+													</div>
+
+													<!-- Submit Button -->
+													<div class="col-md-4">
+														<button type="submit" class="btn btn-success"
+															ng-disabled="!undeclareRepForm.$valid" name="submit">Submit
+														</button>
+														<span ng-if="!isValid"> {{errorMessage}} </span>
+													</div>
+
+
+												</form>
 											</div>
-
 										</div>
 									</div>
-
-									<!-- row that contains interactive fields -->
-									<div class="row">
-										<div class="col-md-12"></div>
-									</div>
-
 								</div>
-							</form>
-
+							</div>
 						</div>
 					</div>
 
-					<!-- Column that represents patients  -->
-					<div class="col-sm-4">
+
+					<!-- Column that represents patients that user represents  -->
+					<div class="col-md-6">
 						<div class="panel panel-primary">
 
 							<!-- Header for patients Representatives -->
 							<div class="panel-heading">
 								<h3>Patients that You Represent</h3>
 							</div>
-							<ul>
-								<li ng-repeat="item in iRepresent">{{item}}</li>
-							</ul>
-							<form class="form-horizontal" role="form"
-								ng-submit="undelcareSelfAsRep()">
-								<br>
-
-								<!-- row that contains all interactive fields -->
+							<div class="panel-body">
+								<ul>
+									<li ng-repeat="item in iRepresent">{{item}}</li>
+								</ul>
+								
+								<!-- container for removing self as representatives -->
 								<div class="row">
+									<div class="col-md-12">
+										<div class="panel panel-default">
+											<div class="panel-heading ">Undeclare Yourself as Personal
+												Representative</div>
+											<div class="panel-body">
+												<form class="form-horizontal" role="form" name="undeclareSelfRepForm"
+													ng-submit="undeclareSelfAsRep()">
 
-									<!-- Patient MID -->
-									<div class="col-md-5">
-										<div class="row">
-											<div class="col-md-7">
-												<input type="text" class="form-control"
-													placeholder="Patient MID" name="undeclareUsername"
-													ng-model="undeclaredSelf" required /> <br>
-												<button type="submit" class="btn btn-success"
-													ng-disabled="!viewLogForm.$valid" name="submit">Remove
-													Self</button>
-												<span ng-if="!isValid"> {{errorMessage}} </span>
+													<!-- Patient MID -->
+													<div class="col-md-8">
+														<div class="row">
+															<input type="text" class="form-control"
+																placeholder="Patient MID" name="undeclareSelfUsername" 
+																required />
+														</div>
+													</div>
+
+													<!-- Submit Button -->
+													<div class="col-md-4">
+														<button type="submit" class="btn btn-success"
+															ng-disabled="!undeclareSelfRepForm.$valid" name="submit">Submit
+														</button>
+														<span ng-if="!isValid"> {{errorMessage}} </span>
+													</div>
+
+
+												</form>
 											</div>
-
 										</div>
 									</div>
-
-									<!-- row that contains interactive fields -->
-									<div class="row">
-										<div class="col-md-12"></div>
-									</div>
-
 								</div>
-							</form>
-
+								
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
 
 	</div>
 </body>

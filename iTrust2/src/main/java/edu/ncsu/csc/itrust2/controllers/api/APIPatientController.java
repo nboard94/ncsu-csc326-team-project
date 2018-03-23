@@ -178,4 +178,17 @@ public class APIPatientController extends APIController {
         }
     }
 
+    /**
+     * Adds a representative to the current user's list of representatices
+     *
+     * @param username
+     *            the username the patient that is to be added to the list of
+     *            representatives
+     * @return response the http status of the request
+     */
+    @PostMapping ( BASE_PATH + "/reps" )
+    public ResponseEntity addRepresentative ( @PathVariable final String username ) {
+        return null;
+    }
+
 }
