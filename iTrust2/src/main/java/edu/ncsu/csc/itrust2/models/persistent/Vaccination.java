@@ -1,5 +1,7 @@
 package edu.ncsu.csc.itrust2.models.persistent;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -7,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.criterion.Criterion;
 
 import edu.ncsu.csc.itrust2.forms.admin.VaccinationForm;
 
@@ -171,5 +175,60 @@ public class Vaccination extends DomainObject<Vaccination> {
      */
     public void setComments ( final String comments ) {
         this.comments = comments;
+    }
+
+    /**
+     * Gets a list of vaccinations that match the given query
+     *
+     * @param where
+     *            List of Criterion to and together and search records by
+     * @return the collection of matching drugs
+     */
+    @SuppressWarnings ( "unchecked" )
+    private static List<Vaccination> getWhere ( final List<Criterion> where ) {
+        return (List<Vaccination>) getWhere( Vaccination.class, where );
+    }
+
+    /**
+     * Returns the vaccination whose id matches the given value
+     *
+     * @param id
+     *            the id to search for
+     * @return the matching vaccination or null if none is found
+     */
+    public static Vaccination getById ( final Long id ) {
+        try {
+            return getWhere( createCriterionAsList( ID, id ) ).get( 0 );
+        }
+        catch ( final Exception e ) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the vaccination wit hthe cptCode matching the given value. Returns
+     * null if none found.
+     *
+     * @param code
+     *            the code to search for
+     * @return the matching vaccination
+     */
+    public static Vaccination getByCode ( final int code ) {
+        try {
+            return getWhere( createCriterionAsList( "cptCode", code ) ).get( 0 );
+        }
+        catch ( final Exception e ) {
+            return null;
+        }
+    }
+
+    /**
+     * Collects and returns all drugs in the system
+     *
+     * @return all saved vaccinations
+     */
+    @SuppressWarnings ( "unchecked" )
+    public static List<Vaccination> getAll () {
+        return (List<Vaccination>) DomainObject.getAll( Vaccination.class );
     }
 }

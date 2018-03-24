@@ -266,7 +266,24 @@ public enum TransactionType {
     /**
      * An email would be sent but email address is missing.
      */
-    CREATE_MISSING_EMAIL_LOG ( 1404, "Email notification could not be sent due to missing email address", true );
+    CREATE_MISSING_EMAIL_LOG ( 1404, "Email notification could not be sent due to missing email address", true ),
+
+    /**
+     * Admin created a new vaccination
+     */
+    VACCINATION_CREATE ( 1901, "Admin created a new vaccination", true ),
+    /**
+     * Admin edited an existing vaccination
+     */
+    VACCINATION_EDIT ( 1902, "Admin edited an existing vaccination", true ),
+    /**
+     * Admin deleted an existing vaccination
+     */
+    VACCINATION_DELETE ( 1903, "Admin deleted an existing vaccination", true ),
+    /**
+     * Admin views all vaccinations in the system
+     */
+    VACCINATION_VIEW ( 1904, "Admin views all vaccinations in the system", true );
 
     /**
      * Creates a TransactionType for logging events
