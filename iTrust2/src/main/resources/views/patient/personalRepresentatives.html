@@ -19,80 +19,54 @@
 			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
 			/*<![CDATA[*/
 			var app = angular.module("viewPersonalRepresentatives", []);
-			app
-					.controller(
-							'repCtrl',
-							function($scope, $http) {
-								// get all personal representatives of patient and display in table	
-								$scope.represntsMe = [];
-								$scope.iRepresent = [];
-								$http
-										.get("/iTrust2/api/v1/diagnoses")
-										.then(
-												function(response) {
-													$scope.diagnoses = response.data;
-													$scope.message = "";
-												},
-												function(rejection) {
-													$scope.diagoses = [];
-													$scope.message = "Unable to display diagnoses";
-												});
+			app.controller('repCtrl', function($scope, $http) {
+				// get all personal representatives of patient and display in table	
+				$scope.represntsMe = [];
+				$scope.iRepresent = [];
+				$http.get("/iTrust2/api/v1/diagnoses").then(
+					function(response) {
+						$scope.diagnoses = response.data;
+						$scope.message = "";
+					}, function(rejection) {
+						$scope.diagoses = [];
+						$scope.message = "Unable to display diagnoses";
+					});
 
-								$scope.isValid = true;
+				$scope.isValid = true;
+				
+				$scope.declareRep = function(repUsername) {
+					$http.post("/iTrust2/api/v1/reps/" + repUsername).then(
+						function(response) {
+							$scope.representsMe.push(repUsername);
+							$scope.message = "";
+						}, function(rejection) {
+							$scope.message = "Could not add personal representative."
+						});
+				}
 
-								$scope.declareRep = function(repUsername) {
-									$http
-											.host(
-													"/iTrust2/api/v1/reps/"
-															+ repUsername)
-											.then(
-													function(response) {
-														$scope.representsMe
-																.push(repUsername);
-														$scope.message = "";
-													},
-													function(rejection) {
-														$scope.message = "Could not add personal representative."
-													});
-								}
+				$scope.undeclareRep = function(username) {
+					$http.post("/iTrust2/api/v1/reps/"+ username).then(
+						function(response) {
+							var index = representsMe.indexOf(username);
+							$scope.representsMe.remove(index);
+							$scope.message = "";
+						}, function(rejection) {
+							$scope.message = "Could not remove personal representative."
+						});
+				}
 
-								$scope.undeclareRep = function(username) {
-									$http
-											.post(
-													"/iTrust2/api/v1/reps/"
-															+ username)
-											.then(
-													function(response) {
-														var index = representsMe
-																.indexOf(username);
-														$scope.representsMe
-																.remove(index);
-														$scope.message = "";
-													},
-													function(rejection) {
-														$scope.message = "Could not remove personal representative."
-													});
-								}
+				$scope.undeclareSelfAsRep = function(username) {
+					$http.post("iTrust2/api/v1/reps/" + username).then(
+						function(response) {
+							var index = iRepresent.indexOf(username);
+							scope.iRepresent.remove(index);
+							$scope.message = "";
+						}, function(rejection) {
+							$scope.message = "Could not remove self as personal representative."
+						});
+				}
 
-								$scope.undeclareSelfAsRep = function(username) {
-									$http
-											.post(
-													"iTrust2/api/v1/reps/"
-															+ username)
-											.then(
-													function(response) {
-														var index = iRepresent
-																.indexOf(username);
-														$scope.iRepresent
-																.remove(index);
-														$scope.message = "";
-													},
-													function(rejection) {
-														$scope.message = "Could not remove self as personal representative."
-													});
-								}
-
-							});
+		});
 		</script>
 
 		<div ng-app="viewPersonalRepresentatives" ng-controller="repCtrl">
@@ -246,8 +220,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
-
 	</div>
 </body>
 </html>
