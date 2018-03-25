@@ -10,38 +10,163 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	
 	</head>
- 
-	<body th:include="layout :: body" th:with="content=~{::content}">
-		<div th:fragment="content">
-		
+ <body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
 		<script th:inline="javascript">
-		/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
-		/*<![CDATA[*/
-			var app = angular.module("viewDiagnoses", []);
-			app.controller('controller', function($scope, $http) {
-				// get all diagnoses of patient and display in table			
-				$http.get("/iTrust2/api/v1/diagnoses").then(
+			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+			/*<![CDATA[*/
+			var app = angular.module("viewPersonalRepresentatives", []);
+			app.controller('repCtrl', function($scope, $http) {
+				// get all personal representatives of patient and display in table	
+				$scope.represntsMe = [];
+				$scope.iRepresent = [];
+
+				$scope.isValid = true;
+				
+				$scope.userFound = false;
+				
+				$scope.getReps = function(username) {
+					$http.get("/iTrust2/api/v1/patient/getReps/" + username).then(
 						function(response) {
-							$scope.diagnoses = response.data;
+							$scope.userFound = true;
+							$scope.representsMe = response.data;
 							$scope.message = "";
 						}, function(rejection) {
-							$scope.diagoses = [];
-							$scope.message = "Unable to display diagnoses";
+							$scope.userFound = false;
+							$scope.message = "Could not find patient."
 						});
+				}
 				
+				$scope.declareRep = function(username) {
+					$http.post("/iTrust2/api/v1/patient/declareRep/" + username).then(
+						function(response) {
+							$scope.representsMe.push(repUsername);
+							$scope.message = "";
+						}, function(rejection) {
+							$scope.message = "Could not add personal representative."
+						});
+				}
+
 			});
 		</script>
-		
-		<div ng-app="viewDiagnoses" ng-controller="controller">
-		
+
+		<div ng-app="viewPersonalRepresentatives" ng-controller="repCtrl">
+
 			<!-- Info on tables from https://hello-angularjs.appspot.com/removetablerow -->
 			<div class="container">
-				<h4 style="color:red" ng-model="message"></h4>
-				
-				<h2>Patient Representatives</h2>
+				<h2>View Patient Personal Representatives</h2>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6">
+					<div class="panel panel-default">
+						<div class="panel-heading ">Search for Patient Personal
+							Representatives</div>
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" name="searchRepForm"
+								ng-submit="getReps()">
+
+								<!-- Patient MID -->
+								<div class="col-md-8">
+									<div class="row">
+										<input type="text" class="form-control"
+											placeholder="Patient MID" name="searchUsername" 
+											required />
+									</div>
+								</div>
+
+								<!-- Submit Button -->
+								<div class="col-md-4">
+									<button type="submit" class="btn btn-success"
+										ng-disabled="!searchRepForm.$valid" name="submit">Submit
+									</button>
+									<span ng-if="!isValid"> {{errorMessage}} </span>
+								</div>
+
+
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- List of patients representatives -->
+			<div class="container" ng-hide="!userFound">
+				<div class="row">
+
+					<!-- Column that represents patient representatives -->
+					<div class="col-md-6">
+						<div class="panel panel-primary">
+
+							<!-- Header for patients Representatives -->
+							<div class="panel-heading">
+								<h3>Patient's Representatives</h3>
+							</div>
+							<div class="panel-body">
+								<ul>
+									<li ng-repeat="item in representMe">{{item}}</li>
+								</ul>
+
+
+								<!-- container for adding representatives -->
+								<div class="row">
+									<div class="col-md-12">
+										<div class="panel panel-default">
+											<div class="panel-heading ">Declare Personal
+												Representative</div>
+											<div class="panel-body">
+												<form class="form-horizontal" role="form" name="declareRepForm"
+													ng-submit="delcareRep()">
+
+													<!-- Patient MID -->
+													<div class="col-md-8">
+														<div class="row">
+															<input type="text" class="form-control"
+																placeholder="Patient MID" name="declareUsername" 
+																required />
+														</div>
+													</div>
+
+													<!-- Submit Button -->
+													<div class="col-md-4">
+														<button type="submit" class="btn btn-success"
+															ng-disabled="!declareRepForm.$valid" name="submit">Submit
+														</button>
+														<span ng-if="!isValid"> {{errorMessage}} </span>
+													</div>
+
+
+												</form>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<!-- Column that represents patients that user represents  -->
+					<div class="col-md-6">
+						<div class="panel panel-primary">
+
+							<!-- Header for patients Representatives -->
+							<div class="panel-heading">
+								<h3>People that Patient Represents</h3>
+							</div>
+							<div class="panel-body">
+								<ul>
+									<li ng-repeat="item in iRepresent">{{item}}</li>
+								</ul>
+								
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-		
-		</div>
-	</body>
+	</div>
+</body>
+	
 </html>
