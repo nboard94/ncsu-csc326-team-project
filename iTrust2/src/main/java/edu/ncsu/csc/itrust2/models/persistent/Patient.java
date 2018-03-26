@@ -14,6 +14,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -51,13 +52,13 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      */
     private static final long serialVersionUID = 4617248041239679701L;
 
-    @ManyToMany ( cascade = ( CascadeType.ALL ) )
-    @JoinTable ( name = "PERSONAL_REPRESENTATIVES", joinColumns = { @JoinColumn ( name = "Represents" ) },
-            inverseJoinColumns = { @JoinColumn ( name = "Represented" ) } )
-    private Set<Patient>      representsMe     = new HashSet<Patient>();
+    @ManyToMany ( cascade = { CascadeType.ALL }, fetch=FetchType.EAGER )
+    @JoinTable ( name = "PERSONAL_REPRESENTATIVES", joinColumns = { @JoinColumn ( name = "WHOIREPRESENT" ) },
+            inverseJoinColumns = { @JoinColumn ( name = "IAMREPRESENTEDBY" ) } )
+    private Set<Patient>      representer     = new HashSet<Patient>();
 
-    @ManyToMany ( mappedBy = "representsMe" )
-    private Set<Patient>      representedByMe  = new HashSet<Patient>();
+    @ManyToMany ( mappedBy = "representer", fetch=FetchType.EAGER )
+    private Set<Patient>      represented  = new HashSet<Patient>();
 
     /**
      * Get all patients in the database
@@ -745,7 +746,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      * @return the set of patients.
      */
     public Set<Patient> getMyRepresentatives () {
-        return representsMe;
+        return representer;
     }
 
     /**
@@ -755,7 +756,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      *            the set of patients
      */
     public void setMyRepresentatives ( final Set<Patient> representsMe ) {
-        this.representsMe = representsMe;
+        this.representer = representsMe;
     }
 
     /**
@@ -764,7 +765,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      * @return the set of patients
      */
     public Set<Patient> getRepresentedByMe () {
-        return representedByMe;
+        return represented;
     }
 
     /**
@@ -774,7 +775,17 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      *            the set of patients
      */
     public void setRepresentedByMe ( final Set<Patient> representedByMe ) {
-        this.representedByMe = representedByMe;
+        this.represented = representedByMe;
+    }
+
+    /**
+     * Adds a representative to the patients list of reps
+     *
+     * @param rep
+     *            the patient that is to be added to the patients list of reps
+     */
+    public void addRepresentative ( final Patient rep ) {
+        this.representer.add( rep );
     }
 
 }

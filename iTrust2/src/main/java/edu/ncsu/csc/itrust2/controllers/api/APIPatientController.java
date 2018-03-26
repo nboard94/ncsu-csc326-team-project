@@ -179,16 +179,41 @@ public class APIPatientController extends APIController {
     }
 
     /**
-     * Adds a representative to the current user's list of representatices
+     * Adds a representative to the current user's list of representatives
      *
      * @param username
      *            the username the patient that is to be added to the list of
      *            representatives
-     * @return response the http status of the request
+     * @return response
      */
-    @PostMapping ( BASE_PATH + "/reps" )
-    public ResponseEntity addRepresentative ( @PathVariable final String username ) {
+    @PostMapping ( BASE_PATH + "/patient/declareRep/{username}" )
+    public ResponseEntity declareRepresentative ( @PathVariable final String username ) {
         return null;
+    }
+
+    /**
+     * Adds a representative to a patient's list of representatives as a HCP
+     *
+     * @param usernames
+     *            the usernames of the representative that is being added to the
+     *            list and the patient that the representative is being added to
+     * @return response
+     */
+    @PreAuthorize ( "hasRole('ROLE_HCP')" )
+    @PostMapping ( BASE_PATH + "/patient/declareRepAsHCP/{usernames}" )
+    public ResponseEntity declareRepresentativeAsHCP ( @PathVariable final String usernames ) {
+        final String[] names = usernames.split( "-" );
+        final Patient patient = Patient.getByName( names[0] );
+        final Patient rep = Patient.getByName( names[1] );
+        if ( patient == null ) {
+            return new ResponseEntity( errorResponse( "Input Patient not found" ), HttpStatus.NOT_FOUND );
+        }
+        else if ( rep == null ) {
+            return new ResponseEntity( errorResponse( "Input Representative not found" ), HttpStatus.NOT_FOUND );
+        }
+        patient.addRepresentative( rep );
+
+        return new ResponseEntity( successResponse( "Representative successfully Added" ), HttpStatus.OK );
     }
 
 }

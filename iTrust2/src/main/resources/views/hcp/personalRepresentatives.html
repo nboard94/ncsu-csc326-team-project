@@ -19,29 +19,35 @@
 			var app = angular.module("viewPersonalRepresentatives", []);
 			app.controller('repCtrl', function($scope, $http) {
 				// get all personal representatives of patient and display in table	
-				$scope.represntsMe = [];
-				$scope.iRepresent = [];
+				$scope.representsPatient = [];
+				$scope.patientRepresents = [];
 
 				$scope.isValid = true;
 				
 				$scope.userFound = false;
 				
+				$scope.currentPatient = "";
+				
 				$scope.getReps = function(username) {
-					$http.get("/iTrust2/api/v1/patient/getReps/" + username).then(
+					$http.get("/iTrust2/api/v1/patients/" + username).then(
 						function(response) {
 							$scope.userFound = true;
-							$scope.representsMe = response.data;
+							$scope.currentPatient = username;
+							$scope.representsPatient = response.data.representer;	
+							$scope.patientRepresents = response.data.represented;
 							$scope.message = "";
 						}, function(rejection) {
+							console.log(rejection);
 							$scope.userFound = false;
+							$scope.currentPatient = "";
 							$scope.message = "Could not find patient."
 						});
 				}
 				
 				$scope.declareRep = function(username) {
-					$http.post("/iTrust2/api/v1/patient/declareRep/" + username).then(
+					$http.post("/iTrust2/api/v1/patient/declareRepAsHCP/" + $scope.currentPatient + "-" + username).then(
 						function(response) {
-							$scope.representsMe.push(repUsername);
+							$scope.representsPatient.push(username);
 							$scope.message = "";
 						}, function(rejection) {
 							$scope.message = "Could not add personal representative."
@@ -65,14 +71,14 @@
 							Representatives</div>
 						<div class="panel-body">
 							<form class="form-horizontal" role="form" name="searchRepForm"
-								ng-submit="getReps()">
+								ng-submit="getReps(searchUsername)">
 
 								<!-- Patient MID -->
 								<div class="col-md-8">
 									<div class="row">
 										<input type="text" class="form-control"
 											placeholder="Patient MID" name="searchUsername" 
-											required />
+											ng-model="searchUsername" required />
 									</div>
 								</div>
 
@@ -105,7 +111,7 @@
 							</div>
 							<div class="panel-body">
 								<ul>
-									<li ng-repeat="item in representMe">{{item}}</li>
+									<li ng-repeat="item in representsPatient">{{item}}</li>
 								</ul>
 
 
@@ -117,14 +123,14 @@
 												Representative</div>
 											<div class="panel-body">
 												<form class="form-horizontal" role="form" name="declareRepForm"
-													ng-submit="delcareRep()">
+													ng-submit="declareRep(declareUsername)">
 
 													<!-- Patient MID -->
 													<div class="col-md-8">
 														<div class="row">
 															<input type="text" class="form-control"
 																placeholder="Patient MID" name="declareUsername" 
-																required />
+																ng-model="declareUsername" required />
 														</div>
 													</div>
 
@@ -157,7 +163,7 @@
 							</div>
 							<div class="panel-body">
 								<ul>
-									<li ng-repeat="item in iRepresent">{{item}}</li>
+									<li ng-repeat="item in patientRepresents">{{item}}</li>
 								</ul>
 								
 							</div>
