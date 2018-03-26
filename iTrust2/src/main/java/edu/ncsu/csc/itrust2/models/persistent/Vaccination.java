@@ -8,9 +8,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import org.hibernate.criterion.Criterion;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import edu.ncsu.csc.itrust2.forms.admin.VaccinationForm;
 
@@ -27,22 +29,27 @@ public class Vaccination extends DomainObject<Vaccination> {
     @GeneratedValue ( strategy = GenerationType.AUTO )
     private Long   id;
 
-    @NotNull
+    @NotEmpty
+    @Pattern ( regexp = "^\\d{5}$" )
     @JoinColumn ( name = "cpt_code" )
     private int    cptCode;
 
-    @NotNull
+    @NotEmpty
+    @Length ( max = 128 )
     @JoinColumn ( name = "cpt_description" )
     private String cptDescription;
 
-    @NotNull
+    @NotEmpty
+    @Length ( min = 2, max = 3 )
     @JoinColumn ( name = "cvx_code" )
     private int    cvxCode;
 
-    @NotNull
+    @NotEmpty
+    @Length ( max = 128 )
     @JoinColumn ( name = "vaccine_name" )
     private String vaccineName;
 
+    @Length ( max = 1024 )
     @JoinColumn ( name = "comments" )
     private String comments;
 
@@ -59,7 +66,12 @@ public class Vaccination extends DomainObject<Vaccination> {
      *            the vaccination form
      */
     public Vaccination ( final VaccinationForm form ) {
-
+        setId( form.getId() );
+        setCptCode( form.getCptCode() );
+        setCptDescription( form.getCptDescription() );
+        setCvxCode( form.getCvxCode() );
+        setVaccineName( form.getVaccineName() );
+        setComments( form.getComments() );
     }
 
     /**
@@ -182,7 +194,7 @@ public class Vaccination extends DomainObject<Vaccination> {
      *
      * @param where
      *            List of Criterion to and together and search records by
-     * @return the collection of matching drugs
+     * @return the collection of matching vaccinations
      */
     @SuppressWarnings ( "unchecked" )
     private static List<Vaccination> getWhere ( final List<Criterion> where ) {
@@ -223,7 +235,7 @@ public class Vaccination extends DomainObject<Vaccination> {
     }
 
     /**
-     * Collects and returns all drugs in the system
+     * Collects and returns all vaccinations in the system
      *
      * @return all saved vaccinations
      */

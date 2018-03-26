@@ -74,7 +74,7 @@ public class APIVaccinationController extends APIController {
      */
     @PreAuthorize ( "hasRole('ROLE_ADMIN')" )
     @PutMapping ( BASE_PATH + "/vaccinations" )
-    public ResponseEntity vaccinationDrug ( @RequestBody final VaccinationForm form ) {
+    public ResponseEntity editVaccination ( @RequestBody final VaccinationForm form ) {
         try {
             final Vaccination vaccination = new Vaccination( form );
 
@@ -111,8 +111,8 @@ public class APIVaccinationController extends APIController {
      * permissions.
      *
      * @param id
-     *            the id of the drug to delete
-     * @return the id of the deleted drug
+     *            the id of the vaccination to delete
+     * @return the id of the deleted vaccination
      */
     @PreAuthorize ( "hasRole('ROLE_ADMIN')" )
     @DeleteMapping ( BASE_PATH + "/vaccinations/{id}" )
@@ -123,7 +123,8 @@ public class APIVaccinationController extends APIController {
             if ( vaccination == null ) {
                 LoggerUtil.log( TransactionType.VACCINATION_DELETE, LoggerUtil.currentUser(),
                         "Could not find vaccination with id " + id );
-                return new ResponseEntity( errorResponse( "No drug found with id " + id ), HttpStatus.NOT_FOUND );
+                return new ResponseEntity( errorResponse( "No vaccination found with id " + id ),
+                        HttpStatus.NOT_FOUND );
             }
 
             vaccination.delete();
