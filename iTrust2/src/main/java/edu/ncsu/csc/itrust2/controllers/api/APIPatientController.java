@@ -233,25 +233,38 @@ public class APIPatientController extends APIController {
     /**
      * Removes a representative to the current user's list of representatives
      *
-     * @param usernames
-     *            the usernames of the patient and the representative that is to
-     *            be added to the list of reps
+     * @param format
+     *            the username of the representative and the mode whether the
+     *            patient is removing the rep or removing self as rep
      * @return response
      */
-    @PostMapping ( BASE_PATH + "/patient/declareRep/{usernames}" )
-    public ResponseEntity undeclareRepresentative ( @PathVariable final String usernames ) {
-        String[] names = usernames.split( "-" );
-        Patient patient = Patient.getByName( names[0] );
-        Patient rep = Patient.getByName( names[1] );
-        if ( patient == null ) {
+    @PostMapping ( BASE_PATH + "/patient/undeclareRep/{format}" )
+    public ResponseEntity undeclareRepresentative ( @PathVariable final String format ) {
+        String[] fromFront = format.split( "-" );
+        String mode = fromFront[0];
+        Patient patient1 = Patient.getByName( LoggerUtil.currentUser() );
+        Patient patient2 = Patient.getByName( fromFront[1] );
+
+        if ( patient1 == null ) {
             return new ResponseEntity( errorResponse( "Input Patient not found" ), HttpStatus.NOT_FOUND );
         }
-        else if ( rep == null ) {
+        else if ( patient2 == null ) {
             return new ResponseEntity( errorResponse( "Input Representative not found" ), HttpStatus.NOT_FOUND );
         }
-        patient.removeRepresentative( rep );
-        patient.save();
-        return new ResponseEntity( rep, HttpStatus.OK );
+
+        Patient sendToFront = null;
+        if ( mode.equals( "0" ) ) {
+            patient1.removeRepresentative( patient2 );
+            patient1.save();
+            sendToFront = patient2;
+        }
+        else if ( mode.equals( "1" ) ) {
+            patient2.removeRepresentative( patient1 );
+            patient2.save();
+            sendToFront = patient1;
+
+        }
+        return new ResponseEntity( sendToFront, HttpStatus.OK );
     }
 
 }
