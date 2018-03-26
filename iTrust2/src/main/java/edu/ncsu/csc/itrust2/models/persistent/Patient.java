@@ -787,5 +787,17 @@ public class Patient extends DomainObject<Patient> implements Serializable {
     public void addRepresentative ( final Patient rep ) {
         this.representer.add( rep );
     }
+    
+    /**
+     * Removes a representative to the patients list of reps
+     *
+     * @param rep
+     *            the patient that is to be removed to the patients list of reps
+     */
+    public void removeRepresentative ( final Patient rep ) {
+        this.representer.remove( rep );
+    }
+    
+    
 
 }

@@ -188,7 +188,20 @@ public class APIPatientController extends APIController {
      */
     @PostMapping ( BASE_PATH + "/patient/declareRep/{username}" )
     public ResponseEntity declareRepresentative ( @PathVariable final String username ) {
-        return null;
+        String currentUser = LoggerUtil.currentUser();
+        Patient patient = Patient.getByName( currentUser );
+        Patient rep = Patient.getByName( username );
+        if ( patient == null ) {
+            return new ResponseEntity( errorResponse( "Current patient could not be found" ), HttpStatus.NOT_FOUND );
+        }
+        if ( rep == null ) {
+            return new ResponseEntity( errorResponse( "User with username: " + username + " could not be found" ),
+                    HttpStatus.NOT_FOUND );
+        }
+        patient.addRepresentative( rep );
+        patient.save();
+
+        return new ResponseEntity( rep, HttpStatus.OK );
     }
 
     /**
@@ -212,8 +225,33 @@ public class APIPatientController extends APIController {
             return new ResponseEntity( errorResponse( "Input Representative not found" ), HttpStatus.NOT_FOUND );
         }
         patient.addRepresentative( rep );
+        patient.save();
 
-        return new ResponseEntity( successResponse( "Representative successfully Added" ), HttpStatus.OK );
+        return new ResponseEntity( rep, HttpStatus.OK );
+    }
+
+    /**
+     * Removes a representative to the current user's list of representatives
+     *
+     * @param usernames
+     *            the usernames of the patient and the representative that is to
+     *            be added to the list of reps
+     * @return response
+     */
+    @PostMapping ( BASE_PATH + "/patient/declareRep/{usernames}" )
+    public ResponseEntity undeclareRepresentative ( @PathVariable final String usernames ) {
+        String[] names = usernames.split( "-" );
+        Patient patient = Patient.getByName( names[0] );
+        Patient rep = Patient.getByName( names[1] );
+        if ( patient == null ) {
+            return new ResponseEntity( errorResponse( "Input Patient not found" ), HttpStatus.NOT_FOUND );
+        }
+        else if ( rep == null ) {
+            return new ResponseEntity( errorResponse( "Input Representative not found" ), HttpStatus.NOT_FOUND );
+        }
+        patient.removeRepresentative( rep );
+        patient.save();
+        return new ResponseEntity( rep, HttpStatus.OK );
     }
 
 }
