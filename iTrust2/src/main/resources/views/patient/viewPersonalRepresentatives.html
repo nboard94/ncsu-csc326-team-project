@@ -105,7 +105,7 @@
 									<!-- Rep entry for every row -->
 									<tbody>
 										<tr name="repTableRow" ng-repeat="rep in representsMe">
-											<td name="patientMIDCell">{{rep.self_id}}</td>
+											<td name="patientMIDCell">{{rep.self.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
 										</tr>
@@ -210,7 +210,7 @@
 									<!-- Rep entry for every row -->
 									<tbody>
 										<tr name="repTableRow" ng-repeat="rep in iRepresent">
-											<td name="patientMIDCell">{{rep.self_id}}</td>
+											<td name="patientMIDCell">{{rep.self.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
 										</tr>

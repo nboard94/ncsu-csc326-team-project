@@ -32,25 +32,26 @@
 					$http.get("/iTrust2/api/v1/patients/" + username).then(
 						function(response) {
 							$scope.userFound = true;
+							$scope.isValid = true;
 							$scope.currentPatient = username;
 							$scope.representsPatient = response.data.representer;	
 							$scope.patientRepresents = response.data.represented;
-							$scope.message = "";
+							$scope.errorMessage = "";
 						}, function(rejection) {
-							console.log(rejection);
 							$scope.userFound = false;
+							$scope.isValid = false;
 							$scope.currentPatient = "";
-							$scope.message = "Could not find patient."
+							$scope.errorMessage = response.message;
 						});
 				}
 				
 				$scope.declareRep = function(username) {
 					$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "-" + username).then(
 						function(response) {
-							$scope.representsPatient.push(username);
-							$scope.message = "";
+							$scope.representsPatient.push(response.data);
+							$scope.errorMessage = "";
 						}, function(rejection) {
-							$scope.message = "Could not add personal representative."
+							$scope.errorMessage = "Could not add personal representative."
 						});
 				}
 
@@ -125,7 +126,7 @@
 									<!-- Rep entry for every row -->
 									<tbody>
 										<tr name="repTableRow" ng-repeat="rep in representsPatient">
-											<td name="patientMIDCell">{{rep.self_id}}</td>
+											<td name="patientMIDCell">{{rep.self.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
 										</tr>
