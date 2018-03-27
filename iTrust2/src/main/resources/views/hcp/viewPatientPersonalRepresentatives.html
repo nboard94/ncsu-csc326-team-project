@@ -45,7 +45,7 @@
 				}
 				
 				$scope.declareRep = function(username) {
-					$http.post("/iTrust2/api/v1/patient/declareRepAsHCP/" + $scope.currentPatient + "-" + username).then(
+					$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "-" + username).then(
 						function(response) {
 							$scope.representsPatient.push(username);
 							$scope.message = "";
@@ -110,9 +110,27 @@
 								<h3>Patient's Representatives</h3>
 							</div>
 							<div class="panel-body">
-								<ul>
-									<li ng-repeat="item in representsPatient">{{item}}</li>
-								</ul>
+								
+								<table class="table table-bordered">
+	
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Patient MID</th>
+											<th>First Name</th>
+											<th>Last Name</th>
+										</tr>
+									</thead>
+	
+									<!-- Rep entry for every row -->
+									<tbody>
+										<tr name="repTableRow" ng-repeat="rep in representsPatient">
+											<td name="patientMIDCell">{{rep.self_id}}</td>
+											<td name="firstNameCell">{{rep.firstName}}</td>
+											<td name="lastNameCell">{{rep.lastName}}</td>
+										</tr>
+									</tbody>
+								</table>
 
 
 								<!-- container for adding representatives -->
@@ -162,10 +180,27 @@
 								<h3>People that Patient Represents</h3>
 							</div>
 							<div class="panel-body">
-								<ul>
-									<li ng-repeat="item in patientRepresents">{{item}}</li>
-								</ul>
 								
+								<table class="table table-bordered">
+	
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Patient MID</th>
+											<th>First Name</th>
+											<th>Last Name</th>
+										</tr>
+									</thead>
+	
+									<!-- Rep entry for every row -->
+									<tbody>
+										<tr name="repTableRow" ng-repeat="rep in patientRepresents">
+											<td name="patientMIDCell">{{rep.self_id}}</td>
+											<td name="firstNameCell">{{rep.firstName}}</td>
+											<td name="lastNameCell">{{rep.lastName}}</td>
+										</tr>
+									</tbody>
+								</table>
 							</div>
 						</div>
 					</div>

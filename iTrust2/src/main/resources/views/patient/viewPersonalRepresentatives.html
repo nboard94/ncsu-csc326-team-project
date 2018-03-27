@@ -21,21 +21,22 @@
 			var app = angular.module("viewPersonalRepresentatives", []);
 			app.controller('repCtrl', function($scope, $http) {
 				// get all personal representatives of patient and display in table	
-				$scope.represntsMe = [];
+				$scope.representsMe = [];
 				$scope.iRepresent = [];
-				$http.get("/iTrust2/api/v1/diagnoses").then(
+				$http.get("/iTrust2/api/v1/patient").then(
 					function(response) {
-						$scope.diagnoses = response.data;
+						$scope.representsMe = response.data.representer;
+						$scope.iRepresent = response.data.represented;
 						$scope.message = "";
 					}, function(rejection) {
 						$scope.diagoses = [];
-						$scope.message = "Unable to display diagnoses";
+						$scope.message = "Unable to display representatives";
 					});
 
 				$scope.isValid = true;
 				
 				$scope.declareRep = function(repUsername) {
-					$http.post("/iTrust2/api/v1/patient/declareRep/" + repUsername).then(
+					$http.post("/iTrust2/api/v1/declareRep/" + repUsername).then(
 						function(response) {
 							$scope.representsMe.push(response.data);
 							$scope.message = "";
@@ -45,7 +46,7 @@
 				}
 
 				$scope.undeclareRep = function(username) {
-					$http.post("/iTrust2/api/v1/patient/undeclareRep/0-" + username).then(
+					$http.post("/iTrust2/api/v1/undeclareRep/0-" + username).then(
 						function(response) {
 							var index = representsMe.indexOf(reponse.data);
 							$scope.representsMe.remove(index);
@@ -56,7 +57,7 @@
 				}
 
 				$scope.undeclareSelfAsRep = function(username) {
-					$http.post("iTrust2/api/v1/patient/undeclareRep/1-" + username).then(
+					$http.post("iTrust2/api/v1/undeclareRep/1-" + username).then(
 						function(response) {
 							var index = iRepresent.indexOf(response.data);
 							scope.iRepresent.remove(index);
@@ -89,9 +90,27 @@
 								<h3>Your Representatives</h3>
 							</div>
 							<div class="panel-body">
-								<ul>
-									<li ng-repeat="item in representsMe">{{item}}</li>
-								</ul>
+							
+								<table class="table table-bordered">
+	
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Patient MID</th>
+											<th>First Name</th>
+											<th>Last Name</th>
+										</tr>
+									</thead>
+	
+									<!-- Rep entry for every row -->
+									<tbody>
+										<tr name="repTableRow" ng-repeat="rep in representsMe">
+											<td name="patientMIDCell">{{rep.self_id}}</td>
+											<td name="firstNameCell">{{rep.firstName}}</td>
+											<td name="lastNameCell">{{rep.lastName}}</td>
+										</tr>
+									</tbody>
+								</table>
 
 
 								<!-- container for adding representatives -->
@@ -176,9 +195,27 @@
 								<h3>Patients that You Represent</h3>
 							</div>
 							<div class="panel-body">
-								<ul>
-									<li ng-repeat="item in iRepresent">{{item}}</li>
-								</ul>
+								
+								<table class="table table-bordered">
+	
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Patient MID</th>
+											<th>First Name</th>
+											<th>Last Name</th>
+										</tr>
+									</thead>
+	
+									<!-- Rep entry for every row -->
+									<tbody>
+										<tr name="repTableRow" ng-repeat="rep in iRepresent">
+											<td name="patientMIDCell">{{rep.self_id}}</td>
+											<td name="firstNameCell">{{rep.firstName}}</td>
+											<td name="lastNameCell">{{rep.lastName}}</td>
+										</tr>
+									</tbody>
+								</table>
 								
 								<!-- container for removing self as representatives -->
 								<div class="row">
