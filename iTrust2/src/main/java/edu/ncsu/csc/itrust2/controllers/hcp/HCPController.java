@@ -36,10 +36,10 @@ public class HCPController {
      *            the date for the front end
      * @return page to display the personal representatives
      */
-    @GetMapping ( "/hcp/personalRepresentatives" )
+    @GetMapping ( "/hcp/viewPatientPersonalRepresentatives" )
     @PreAuthorize ( "hasRole('ROLE_HCP')" )
     public String viewPersonalRepresentatives ( final Model model ) {
-        return "/hcp/personalRepresentatives";
+        return "/hcp/viewPatientPersonalRepresentatives";
     }
 
     /**

@@ -47,10 +47,10 @@ public class PatientController {
      *            the date for the front end
      * @return page to display the personal representatives
      */
-    @GetMapping ( "/patient/personalRepresentatives" )
+    @GetMapping ( "/patient/viewPersonalRepresentatives" )
     @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
     public String viewPersonalRepresentatives ( final Model model ) {
-        return "/patient/personalRepresentatives";
+        return "/patient/viewPersonalRepresentatives";
     }
 
     /**
