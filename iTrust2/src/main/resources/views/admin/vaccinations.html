@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:include="layout :: head(title=~{::title},links=~{})">
-  <title>Admin Immunizations</title>
+  <title>Admin Vaccinations</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 </head>
@@ -13,92 +13,92 @@
     <script th:inline="javascript">
       /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
       /*<![CDATA[*/
-      var app = angular.module("immunizationsApp", []);
-      app.controller('immunizationsCtrl', function ($scope, $http) {
+      var app = angular.module("vaccinationsApp", []);
+      app.controller('vaccinationsCtrl', function ($scope, $http) {
     	  
-    	var checkValidImmunization = function(immunization) {
+    	var checkValidVaccination = function(vaccination) {
     		var err = [];
-    		if (immunization.description.length > 1024) {
+    		if (vaccination.description.length > 1024) {
     			err.push("Description exceeds character limit of 1024");
     		}
-    		if (immunization.name.length > 64) {
+    		if (vaccination.name.length > 64) {
     			err.push("Name exceeds the character limit of 64");
     		}
-    		if (!/^\d{5}$/.test(immunization.code)) {
+    		if (!/^\d{5}$/.test(vaccination.code)) {
     			err.push("Code must be in the format XXXXX");
     		}
     		return err.join(". ");
     	}
 
-        $scope.immunizations = [];
+        $scope.vaccinations = [];
         $scope.loadTable = function () {
-          $http.get("/iTrust2/api/v1/immunizations").then(
+          $http.get("/iTrust2/api/v1/vaccinations").then(
             function (response) {
-              $scope.immunizations = response.data;
+              $scope.vaccinations = response.data;
               $scope.message = "";
             }, function (rejection) {
-              $scope.immunizations = [];
-              $scope.message = "Could not display immunizations";
+              $scope.vaccinations = [];
+              $scope.message = "Could not display vaccinations";
             });
         }
 
-        $scope.addImmunization = function () {
-          var err = checkValidImmunization($scope.immunization);
+        $scope.addVaccination = function () {
+          var err = checkValidVaccination($scope.vaccination);
           if (err) {
             $scope.errorAdding = err;
           } else {
-            $http.post("/iTrust2/api/v1/immunizations", $scope.immunization).then(
+            $http.post("/iTrust2/api/v1/vaccinations", $scope.vaccination).then(
               function (response) {
                 $scope.loadTable();
-                $scope.immunization.name = "";
-                $scope.immunization.code = "";
-                $scope.immunization.description = "";
+                $scope.vaccination.name = "";
+                $scope.vaccination.code = "";
+                $scope.vaccination.description = "";
                 $scope.errorAdding = "";
               }, function (rejection) {
-                $scope.errorAdding = "Could not add immunization";
+                $scope.errorAdding = "Could not add vaccination";
               });
           }
 
         }
 
-        $scope.deleteImmunization = function (immunization) {
-          $http.delete('/iTrust2/api/v1/immunizations/' + immunization.id).then(
+        $scope.deleteVaccination = function (vaccination) {
+          $http.delete('/iTrust2/api/v1/vaccinations/' + vaccination.id).then(
             function (response) {
               $scope.loadTable();
               $scope.message = "";
             }, function (rejection) {
-              $scope.message = "Could not remove immunization";
+              $scope.message = "Could not remove vaccination";
             })
         }
 
         // gets the template to ng-include for a table row / item
-        $scope.selectedImmunization = {};
+        $scope.selectedVaccination = {};
 
-        $scope.getTemplate = function (immunization) {
-          if (immunization.id === $scope.selectedImmunization.id) return 'edit';
+        $scope.getTemplate = function (vaccination) {
+          if (vaccination.id === $scope.selectedVaccination.id) return 'edit';
           else return 'view';
         };
 
-        $scope.editImmunization = function (immunization) {
-          $scope.selectedImmunization = angular.copy(immunization);
+        $scope.editVaccination = function (vaccination) {
+          $scope.selectedVaccination = angular.copy(vaccination);
         };
-        $scope.saveImmunization = function () {
-       	  var err = checkValidImmunization($scope.selectedImmunization);
+        $scope.saveVaccination = function () {
+       	  var err = checkValidVaccination($scope.selectedVaccination);
           if (err) {
             $scope.errorAdding = err;
           } else {
-            $http.put("/iTrust2/api/v1/immunizations", $scope.selectedImmunization).then(
+            $http.put("/iTrust2/api/v1/vaccinations", $scope.selectedVaccination).then(
               function (response) {
                 $scope.loadTable();
                 $scope.resetSelected();
               }, function (rejection) {
-                $scope.errorAdding = "Failed to edit immunization";
+                $scope.errorAdding = "Failed to edit vaccination";
               });
           }
         };
 
         $scope.resetSelected = function () {
-          $scope.selectedImmunization = {};
+          $scope.selectedVaccination = {};
         };
 
         // load table initially
@@ -109,27 +109,27 @@
 
 
 
-    <div ng-app="immunizationsApp" ng-controller="immunizationsCtrl">
+    <div ng-app="vaccinationsApp" ng-controller="vaccinationsCtrl">
       <div class="container">
         <div class="row">
           <div class="col-md-12">
             <div class="panel panel-primary">
               <div class="panel-heading">
-                <h3>Admin Manage Immunizations</h3>
+                <h3>Admin Manage Vaccinations</h3>
               </div>
               <div class="panel-body">
                 <table class="table table-bordered">
                   <caption>Existing Medications:</caption>
                   <thead>
                     <tr>
-                      <th>Immunization Name</th>
+                      <th>Vaccination Name</th>
                       <th>CPT Code</th>
                       <th>Description</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr name="immunizationTableRow" ng-repeat="i in immunizations | orderBy: 'name'" ng-include="getTemplate(i)" immunizationId={{i.id}}>
+                    <tr name="vaccinationTableRow" ng-repeat="i in vaccinations | orderBy: 'name'" ng-include="getTemplate(i)" vaccinationId={{i.id}}>
                     </tr>
                   </tbody>
                 </table>
@@ -141,10 +141,10 @@
                   <td>
                     <div class="row text-center">
                       <div class="col-md-6">
-                        <input type="button" value="Edit" class="btn btn-primary" name="editImmunization" ng-click="editImmunization(i)" />                         
+                        <input type="button" value="Edit" class="btn btn-primary" name="editVaccination" ng-click="editVaccination(i)" />                         
                       </div>
                       <div class="col-md-6">
-                          <input type="button" value="Delete" class="btn btn-danger" name="deleteImmunization" ng-click="deleteImmunization(i)" />                          
+                          <input type="button" value="Delete" class="btn btn-danger" name="deleteVaccination" ng-click="deleteVaccination(i)" />                          
                       </div>
                     </div>
                   </td>
@@ -153,18 +153,18 @@
                 <!-- table in edit mode -->
                 <script type="text/ng-template" id="edit">
                   <td name="editNameCell">
-                    <input type="text" class="form-control" ng-model="selectedImmunization.name" />
+                    <input type="text" class="form-control" ng-model="selectedVaccination.name" />
                   </td>
                   <td name="editCodeCell">
-                    <input type="text" class="form-control" ng-model="selectedImmunization.code" />
+                    <input type="text" class="form-control" ng-model="selectedVaccination.code" />
                   </td>
                   <td name="editDescriptionCell">
-                    <input type="text" class="form-control" ng-model="selectedImmunization.description" />
+                    <input type="text" class="form-control" ng-model="selectedVaccination.description" />
                   </td>
                   <td>
                     <div class="row text-center">
                       <div class="col-md-6">
-                          <input type="button" value="Save" class="btn btn-success" name="saveImmunization" ng-click="saveImmunization()" />                          
+                          <input type="button" value="Save" class="btn btn-success" name="saveVaccination" ng-click="saveVaccination()" />                          
                       </div>
                       <div class="col-md-6">
                           <input type="button" value="Cancel" class="btn btn-danger" name="cancelEdit" ng-click="resetSelected()" />                            
@@ -177,21 +177,21 @@
                 <div class="row">
                   <div class="col-md-12">
                     <div class="panel panel-default">
-                      <div class="panel-heading ">Add a Immunization</div>
+                      <div class="panel-heading ">Add a Vaccination</div>
                       <div class="panel-body">
-                        <form class="form-horizontal" role="form" name="addImmunizationForm" ng-submit="addImmunization(addImmunizationForm.$valid)">
+                        <form class="form-horizontal" role="form" name="addVaccinationForm" ng-submit="addVaccination(addVaccinationForm.$valid)">
                           <div class="row">
                             <div class="col-md-4">
                               <label>Name</label>
-                              <input type="text" class="form-control" name="immunization" ng-model="immunization.name" required/>
+                              <input type="text" class="form-control" name="vaccination" ng-model="vaccination.name" required/>
                             </div>
                             <div class="col-md-4">
                               <label>CPT Code</label>
-                              <input type="text" class="form-control" placeholder="xxxxx" name="code" ng-model="immunization.code" required />
+                              <input type="text" class="form-control" placeholder="xxxxx" name="code" ng-model="vaccination.code" required />
                             </div>
                             <div class="col-md-4">
                               <label>Description</label>
-                              <textarea class="form-control" rows="5" name="description" ng-model="immunization.description" required ng-minlength="1"></textarea>
+                              <textarea class="form-control" rows="5" name="description" ng-model="vaccination.description" required ng-minlength="1"></textarea>
                             </div>
                           </div>
                           <div class="row">

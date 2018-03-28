@@ -36,7 +36,7 @@
 		<mapping class="edu.ncsu.csc.itrust2.models.persistent.LoginAttempt"/>
 		<mapping class="edu.ncsu.csc.itrust2.models.persistent.LoginLockout"/>
 		<mapping class="edu.ncsu.csc.itrust2.models.persistent.LoginBan"/>
-		<mapping class="edu.ncsu.csc.itrust2.models.persistent.Immunization" />
+		<mapping class="edu.ncsu.csc.itrust2.models.persistent.Vaccination" />
 
 	</session-factory>
 </hibernate-configuration>

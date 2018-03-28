@@ -1,15 +1,15 @@
 
 package edu.ncsu.csc.itrust2.forms.admin;
 
-import edu.ncsu.csc.itrust2.models.persistent.Immunization;
+import edu.ncsu.csc.itrust2.models.persistent.Vaccination;
 
 /**
  * A form for REST API communication. Contains fields for constructing
- * immunization objects.
+ * vaccination objects.
  *
  * @author Nick
  */
-public class ImmunizationForm {
+public class VaccinationForm {
 
     private Long   id;
     private String name;
@@ -17,36 +17,36 @@ public class ImmunizationForm {
     private String description;
 
     /**
-     * Empty constructor for filling in fields without a immunization object.
+     * Empty constructor for filling in fields without a vaccination object.
      */
-    public ImmunizationForm () {
+    public VaccinationForm () {
     }
 
     /**
-     * Constructs a new form with information from the given immunization.
+     * Constructs a new form with information from the given vaccination.
      *
-     * @param immunization
-     *            the immunization object
+     * @param vaccination
+     *            the vaccination object
      */
-    public ImmunizationForm ( final Immunization immunization ) {
-        setId( immunization.getId() );
-        setName( immunization.getName() );
-        setCode( immunization.getCode() );
-        setDescription( immunization.getDescription() );
+    public VaccinationForm ( final Vaccination vaccination ) {
+        setId( vaccination.getId() );
+        setName( vaccination.getName() );
+        setCode( vaccination.getCode() );
+        setDescription( vaccination.getDescription() );
     }
 
     /**
-     * Sets the immunization's id to the given value. All saved immunizations
-     * must have unique ids.
+     * Sets the vaccination's id to the given value. All saved vaccinations must
+     * have unique ids.
      *
-     * @return the immunization id
+     * @return the vaccination id
      */
     public Long getId () {
         return id;
     }
 
     /**
-     * Returns the immunization's code
+     * Returns the vaccination's code
      *
      * @return the code
      */
@@ -55,16 +55,16 @@ public class ImmunizationForm {
     }
 
     /**
-     * The name of the immunization.
+     * The name of the vaccination.
      *
-     * @return the immunization's name
+     * @return the vaccination's name
      */
     public String getName () {
         return name;
     }
 
     /**
-     * Gets this immunization's description.
+     * Gets this vaccination's description.
      *
      * @return this description
      */
@@ -73,10 +73,10 @@ public class ImmunizationForm {
     }
 
     /**
-     * Sets the id associated with this immunization.
+     * Sets the id associated with this vaccination.
      *
      * @param id
-     *            the immunization's id
+     *            the vaccination's id
      */
     public void setId ( final Long id ) {
         this.id = id;
@@ -93,17 +93,17 @@ public class ImmunizationForm {
     }
 
     /**
-     * Sets the immunization name.
+     * Sets the vaccination name.
      *
      * @param name
-     *            the name of the immunization
+     *            the name of the vaccination
      */
     public void setName ( final String name ) {
         this.name = name;
     }
 
     /**
-     * Sets this immunization's description to the given value.
+     * Sets this vaccination's description to the given value.
      *
      * @param description
      *            the description

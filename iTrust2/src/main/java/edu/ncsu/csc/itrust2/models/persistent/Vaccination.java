@@ -14,28 +14,28 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import edu.ncsu.csc.itrust2.forms.admin.ImmunizationForm;
+import edu.ncsu.csc.itrust2.forms.admin.VaccinationForm;
 
 /**
- * Represents an immunization in the NDC format.
+ * Represents a vaccination in the NDC format.
  *
  * @author Nick Board
  */
 @Entity
-@Table ( name = "Immunizations" )
-public class Immunization extends DomainObject<Immunization> {
+@Table ( name = "Vaccinations" )
+public class Vaccination extends DomainObject<Vaccination> {
 
     /** For Hibernate/Thymeleaf _must_ be an empty constructor */
-    public Immunization () {
+    public Vaccination () {
     }
 
     /**
      * Constructs a new form from the details in the given form
      *
      * @param form
-     *            the form to base the new immunization on
+     *            the form to base the new vaccination on
      */
-    public Immunization ( final ImmunizationForm form ) {
+    public Vaccination ( final VaccinationForm form ) {
         setId( form.getId() );
         setCode( form.getCode() );
         setName( form.getName() );
@@ -58,8 +58,8 @@ public class Immunization extends DomainObject<Immunization> {
     private String description;
 
     /**
-     * Sets the immunization's id to the given value. All saved immunizations
-     * must have unique ids.
+     * Sets the vaccination's id to the given value. All saved vaccinations must
+     * have unique ids.
      *
      * @param id
      *            the new id
@@ -69,7 +69,7 @@ public class Immunization extends DomainObject<Immunization> {
     }
 
     /**
-     * Returns the id associated with this immunization.
+     * Returns the id associated with this vaccination.
      *
      * @return the id
      */
@@ -79,7 +79,7 @@ public class Immunization extends DomainObject<Immunization> {
     }
 
     /**
-     * Returns the immunization's code
+     * Returns the vaccination's code
      *
      * @return the code
      */
@@ -98,26 +98,26 @@ public class Immunization extends DomainObject<Immunization> {
     }
 
     /**
-     * The name of the immunization.
+     * The name of the vaccination.
      *
-     * @return the immunization's name
+     * @return the vaccination's name
      */
     public String getName () {
         return name;
     }
 
     /**
-     * Sets the immunization name.
+     * Sets the vaccination name.
      *
      * @param name
-     *            the name of the immunization
+     *            the name of the vaccination
      */
     public void setName ( final String name ) {
         this.name = name;
     }
 
     /**
-     * Gets this immunization's description.
+     * Gets this vaccination's description.
      *
      * @return this description
      */
@@ -126,7 +126,7 @@ public class Immunization extends DomainObject<Immunization> {
     }
 
     /**
-     * Sets this immunization's description to the given value.
+     * Sets this vaccination's description to the given value.
      *
      * @param description
      *            the description
@@ -136,25 +136,25 @@ public class Immunization extends DomainObject<Immunization> {
     }
 
     /**
-     * Gets a list of immunizations that match the given query.
+     * Gets a list of vaccinations that match the given query.
      *
      * @param where
      *            List of Criterion to and together and search for records by
-     * @return the collection of matching immunizations
+     * @return the collection of matching vaccinations
      */
     @SuppressWarnings ( "unchecked" )
-    private static List<Immunization> getWhere ( final List<Criterion> where ) {
-        return (List<Immunization>) getWhere( Immunization.class, where );
+    private static List<Vaccination> getWhere ( final List<Criterion> where ) {
+        return (List<Vaccination>) getWhere( Vaccination.class, where );
     }
 
     /**
-     * Returns the immunization whose id matches the given value.
+     * Returns the vaccination whose id matches the given value.
      *
      * @param id
      *            the id to search for
-     * @return the matching immunization or null if none is found
+     * @return the matching vaccination or null if none is found
      */
-    public static Immunization getById ( final Long id ) {
+    public static Vaccination getById ( final Long id ) {
         try {
             return getWhere( createCriterionAsList( ID, id ) ).get( 0 );
         }
@@ -164,14 +164,14 @@ public class Immunization extends DomainObject<Immunization> {
     }
 
     /**
-     * Gets the immunization with the code matching the given value. Returns
-     * null if none found.
+     * Gets the vaccination with the code matching the given value. Returns null
+     * if none found.
      *
      * @param code
      *            the code to search for
-     * @return the matching immunization
+     * @return the matching vaccination
      */
-    public static Immunization getByCode ( final String code ) {
+    public static Vaccination getByCode ( final String code ) {
         try {
             return getWhere( createCriterionAsList( "code", code ) ).get( 0 );
         }
@@ -181,13 +181,13 @@ public class Immunization extends DomainObject<Immunization> {
     }
 
     /**
-     * Collects and returns all immunizations in the system
+     * Collects and returns all vaccinations in the system
      *
-     * @return all saved immunizations
+     * @return all saved vaccinations
      */
     @SuppressWarnings ( "unchecked" )
-    public static List<Immunization> getAll () {
-        return (List<Immunization>) DomainObject.getAll( Immunization.class );
+    public static List<Vaccination> getAll () {
+        return (List<Vaccination>) DomainObject.getAll( Vaccination.class );
     }
 
 }
