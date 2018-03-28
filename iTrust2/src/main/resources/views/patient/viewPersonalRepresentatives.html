@@ -49,7 +49,7 @@
 				$scope.undeclareRep = function(username) {
 					$http.post("/iTrust2/api/v1/undeclareRep/0-" + username).then(
 						function(response) {
-							var index = representsMe.indexOf(reponse.data);
+							var index = representsMe.indexOf(response.data);
 							$scope.representsMe.remove(index);
 							$scope.isValid = true;
 							$scope.errorMessage = "";
