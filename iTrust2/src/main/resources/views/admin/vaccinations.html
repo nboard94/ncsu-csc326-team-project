@@ -135,7 +135,7 @@
                       <th>CPT Description</th>
                       <th>CVX Code</th>
                       <th>Vaccine Name</th>
-                      <th>Comments</th>th>
+                      <th>Comments</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -193,21 +193,21 @@
                 <div class="row">
                   <div class="col-md-12">
                     <div class="panel panel-default">
-                      <div class="panel-heading ">Add a Drug</div>
+                      <div class="panel-heading ">Add a Vaccination</div>
                       <div class="panel-body">
                         <form class="form-horizontal" role="form" name="addVaccinationForm" ng-submit="addVaccination(addVaccinationForm.$valid)">
                           <div class="row">
                             <div class="col-md-4">
                               <label>CPT Code</label>
-                              <input type="text" class="form-control" name="cptCode" ng-model="vaccination.cptCode" required/>
+                              <input type="text" class="form-control" name="cptCode" placeholder = "xxxxx" ng-model="vaccination.cptCode" required/>
                             </div>
                             <div class="col-md-4">
                               <label>CPT Description</label>
                               <input type="text" class="form-control" name="cptDescription" ng-model="vaccination.cptDescription" required />
                             </div>
                             <div class="col-md-4">
-                              <label>CVX Description</label>
-                              <input type="text" class="form-control" name="cvxCode" ng-model="vaccination.cvxCode" required />
+                              <label>CVX Code</label>
+                              <input type="text" class="form-control" name="cvxCode" placeholder = "xxx" ng-model="vaccination.cvxCode" required />
                             </div>
                             <div class="col-md-4">
                               <label>Vaccine Name</label>
@@ -215,7 +215,7 @@
                             </div>
                             <div class="col-md-4">
                               <label>Comments</label>
-                              <input type="text" class="form-control" name="comments" ng-model="vaccination.comments" required />
+                              <textarea class="form-control" rows="5" name="comments" ng-model="vaccination.comments" ng-minlength="1"></textarea>
                             </div>
                           </div>
                           <div class="row">

@@ -47,7 +47,7 @@ public class APIVaccinationController extends APIController {
                         "Conflict: vaccination with CPT Code " + vaccination.getCptCode() + " already exists" );
                 return new ResponseEntity(
                         errorResponse( "Vaccination with code " + vaccination.getCptCode() + " already exists" ),
-                        HttpStatus.CONFLICT );
+                        HttpStatus.OK );
             }
 
             vaccination.save();
@@ -58,8 +58,7 @@ public class APIVaccinationController extends APIController {
         catch ( final Exception e ) {
             LoggerUtil.log( TransactionType.VACCINATION_CREATE, LoggerUtil.currentUser(),
                     "Failed to create vaccination" );
-            return new ResponseEntity( errorResponse( "Could not add vaccination: " + e.getMessage() ),
-                    HttpStatus.BAD_REQUEST );
+            return new ResponseEntity( errorResponse( "Could not add vaccination: " + e.getMessage() ), HttpStatus.OK );
         }
     }
 
