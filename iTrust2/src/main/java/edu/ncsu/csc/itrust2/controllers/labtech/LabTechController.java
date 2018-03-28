@@ -24,9 +24,9 @@ public class LabTechController {
      * @return The page to display
      */
     @RequestMapping ( value = "labtech/index" )
-    @PreAuthorize ( "hasRole('ROLE_LABTECH" )
+    @PreAuthorize ( "hasRole('ROLE_LABTECH')" )
     public String index ( final Model model ) {
-        return edu.ncsu.csc.itrust2.models.enums.Role.ROLE_LABTECH;
+        return edu.ncsu.csc.itrust2.models.enums.Role.ROLE_LABTECH.getLanding();
     }
 
     @GetMapping ( "/labtech/editPatientDemographics" )
