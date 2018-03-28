@@ -23,25 +23,26 @@
 				// get all personal representatives of patient and display in table	
 				$scope.representsMe = [];
 				$scope.iRepresent = [];
-				$http.get("/iTrust2/api/v1/patient").then(
+				$http.get("/iTrust2/api/v1/reps").then(
 					function(response) {
-						$scope.representsMe = response.data.representer;
-						$scope.iRepresent = response.data.represented;
-						$scope.message = "";
+						$scope.representsMe = response.data[0];
+						$scope.iRepresent = response.data[1];
+						$scope.isValid = true;
+						$scope.errorMessage = "";
 					}, function(rejection) {
-						$scope.diagoses = [];
-						$scope.message = "Unable to display representatives";
+						$scope.isValid = false;
+						$scope.errorMessage = rejection.data.message;
 					});
-
-				$scope.isValid = true;
 				
 				$scope.declareRep = function(repUsername) {
 					$http.post("/iTrust2/api/v1/declareRep/" + repUsername).then(
 						function(response) {
 							$scope.representsMe.push(response.data);
-							$scope.message = "";
+							$scope.isValid = true;
+							$scope.errorMessage = "";
 						}, function(rejection) {
-							$scope.message = "Could not add personal representative."
+							$scope.isValid = false;
+							$scope.errorMessage = rejection.data.message;
 						});
 				}
 
@@ -50,9 +51,11 @@
 						function(response) {
 							var index = representsMe.indexOf(reponse.data);
 							$scope.representsMe.remove(index);
-							$scope.message = "";
+							$scope.isValid = true;
+							$scope.errorMessage = "";
 						}, function(rejection) {
-							$scope.message = "Could not remove personal representative."
+							$scope.isValid = false;
+							$scope.errorMessage = rejection.data.message;
 						});
 				}
 
@@ -61,9 +64,11 @@
 						function(response) {
 							var index = iRepresent.indexOf(response.data);
 							scope.iRepresent.remove(index);
-							$scope.message = "";
+							$scope.isValid = true;
+							$scope.errorMessage = "";
 						}, function(rejection) {
-							$scope.message = "Could not remove self as personal representative."
+							$scope.isValid = false;
+							$scope.errorMessage = rejection.data.message;
 						});
 				}
 
@@ -75,6 +80,7 @@
 			<!-- Info on tables from https://hello-angularjs.appspot.com/removetablerow -->
 			<div class="container">
 				<h2>Personal Representatives</h2>
+				<span ng-if="!isValid"> {{errorMessage}} </span>	
 			</div>
 
 			<!-- List of patients representatives -->
@@ -105,7 +111,7 @@
 									<!-- Rep entry for every row -->
 									<tbody>
 										<tr name="repTableRow" ng-repeat="rep in representsMe">
-											<td name="patientMIDCell">{{rep.self.username}}</td>
+											<td name="patientMIDCell">{{rep.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
 										</tr>
@@ -137,10 +143,7 @@
 														<button type="submit" class="btn btn-success"
 															ng-disabled="!declareRepForm.$valid" name="submit">Submit
 														</button>
-														<span ng-if="!isValid"> {{errorMessage}} </span>
 													</div>
-
-
 												</form>
 											</div>
 										</div>
@@ -172,10 +175,7 @@
 														<button type="submit" class="btn btn-success"
 															ng-disabled="!undeclareRepForm.$valid" name="submit">Submit
 														</button>
-														<span ng-if="!isValid"> {{errorMessage}} </span>
 													</div>
-
-
 												</form>
 											</div>
 										</div>
@@ -210,7 +210,7 @@
 									<!-- Rep entry for every row -->
 									<tbody>
 										<tr name="repTableRow" ng-repeat="rep in iRepresent">
-											<td name="patientMIDCell">{{rep.self.username}}</td>
+											<td name="patientMIDCell">{{rep.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
 										</tr>
@@ -241,16 +241,12 @@
 														<button type="submit" class="btn btn-success"
 															ng-disabled="!undeclareSelfRepForm.$valid" name="submit">Submit
 														</button>
-														<span ng-if="!isValid"> {{errorMessage}} </span>
 													</div>
-
-
 												</form>
 											</div>
 										</div>
 									</div>
 								</div>
-								
 							</div>
 						</div>
 					</div>

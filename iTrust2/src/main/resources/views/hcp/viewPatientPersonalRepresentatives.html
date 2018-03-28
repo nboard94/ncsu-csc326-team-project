@@ -29,13 +29,13 @@
 				$scope.currentPatient = "";
 				
 				$scope.getReps = function(username) {
-					$http.get("/iTrust2/api/v1/patients/" + username).then(
+					$http.get("/iTrust2/api/v1/reps/" + username).then(
 						function(response) {
 							$scope.userFound = true;
 							$scope.isValid = true;
 							$scope.currentPatient = username;
-							$scope.representsPatient = response.data.representer;	
-							$scope.patientRepresents = response.data.represented;
+							$scope.representsPatient = response.data[0];	
+							$scope.patientRepresents = response.data[1];
 							$scope.errorMessage = "";
 						}, function(rejection) {
 							$scope.userFound = false;
@@ -63,6 +63,7 @@
 			<!-- Info on tables from https://hello-angularjs.appspot.com/removetablerow -->
 			<div class="container">
 				<h2>View Patient Personal Representatives</h2>
+				<span ng-if="!isValid"> {{errorMessage}} </span>
 			</div>
 			
 			<div class="row">
@@ -92,7 +93,6 @@
 
 
 							</form>
-							<span ng-if="!isValid"> {{errorMessage}} </span>
 						</div>
 					</div>
 				</div>
@@ -126,7 +126,7 @@
 									<!-- Rep entry for every row -->
 									<tbody>
 										<tr name="repTableRow" ng-repeat="rep in representsPatient">
-											<td name="patientMIDCell">{{rep.self.username}}</td>
+											<td name="patientMIDCell">{{rep.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
 										</tr>
@@ -158,7 +158,6 @@
 														<button type="submit" class="btn btn-success"
 															ng-disabled="!declareRepForm.$valid" name="submit">Submit
 														</button>
-														<span ng-if="!isValid"> {{errorMessage}} </span>
 													</div>
 
 
@@ -196,7 +195,7 @@
 									<!-- Rep entry for every row -->
 									<tbody>
 										<tr name="repTableRow" ng-repeat="rep in patientRepresents">
-											<td name="patientMIDCell">{{rep.self_id}}</td>
+											<td name="patientMIDCell">{{rep.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
 										</tr>
