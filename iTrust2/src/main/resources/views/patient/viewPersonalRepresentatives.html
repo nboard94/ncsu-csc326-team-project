@@ -85,8 +85,7 @@
 
 			<!-- Info on tables from https://hello-angularjs.appspot.com/removetablerow -->
 			<div class="container">
-				<h2>Personal Representatives</h2>
-				<span ng-if="!isValid"> {{errorMessage}} </span>	
+				<h2>Personal Representatives</h2>	
 			</div>
 
 			<!-- List of patients representatives -->
@@ -111,6 +110,7 @@
 											<th>Patient MID</th>
 											<th>First Name</th>
 											<th>Last Name</th>
+											<th>Action</th>
 										</tr>
 									</thead>
 	
@@ -120,6 +120,11 @@
 											<td name="patientMIDCell">{{rep.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
+											<td name="actionCell">
+												<button type="submit" class="btn btn-danger"
+													ng-click="undeclareRep(0, rep.username)" 
+													name="deleteUser">Delete</button>
+											</td>
 										</tr>
 									</tbody>
 								</table>
@@ -151,38 +156,7 @@
 														</button>
 													</div>
 												</form>
-											</div>
-										</div>
-									</div>
-								</div>
-
-
-								<!-- container for removing representatives -->
-								<div class="row">
-									<div class="col-md-12">
-										<div class="panel panel-default">
-											<div class="panel-heading ">Undeclare Personal
-												Representative</div>
-											<div class="panel-body">
-												<form class="form-horizontal" role="form" name="undeclareRepForm"
-													ng-submit="undeclareRep(0, undeclareUsername)">
-
-													<!-- Patient MID -->
-													<div class="col-md-8">
-														<div class="row">
-															<input type="text" class="form-control"
-																placeholder="Patient MID" name="undeclareUsername" 
-																ng-model="undeclareUsername" required />
-														</div>
-													</div>
-
-													<!-- Submit Button -->
-													<div class="col-md-4">
-														<button type="submit" class="btn btn-success"
-															ng-disabled="!undeclareRepForm.$valid" name="submit">Submit
-														</button>
-													</div>
-												</form>
+												<span ng-if="!isValid"> {{errorMessage}} </span>
 											</div>
 										</div>
 									</div>
@@ -210,6 +184,7 @@
 											<th>Patient MID</th>
 											<th>First Name</th>
 											<th>Last Name</th>
+											<th>Action</th>
 										</tr>
 									</thead>
 	
@@ -219,40 +194,14 @@
 											<td name="patientMIDCell">{{rep.username}}</td>
 											<td name="firstNameCell">{{rep.firstName}}</td>
 											<td name="lastNameCell">{{rep.lastName}}</td>
+											<td name="actionCell">
+												<button type="submit" class="btn btn-danger"
+													ng-click="undeclareRep(1, rep.username)" 
+													name="deleteSelfUser">Delete</button>
+											</td>
 										</tr>
 									</tbody>
 								</table>
-								
-								<!-- container for removing self as representatives -->
-								<div class="row">
-									<div class="col-md-12">
-										<div class="panel panel-default">
-											<div class="panel-heading ">Undeclare Yourself as Personal
-												Representative</div>
-											<div class="panel-body">
-												<form class="form-horizontal" role="form" name="undeclareSelfRepForm"
-													ng-submit="undeclareRep(1, undeclareSelfUsername)">
-
-													<!-- Patient MID -->
-													<div class="col-md-8">
-														<div class="row">
-															<input type="text" class="form-control"
-																placeholder="Patient MID" name="undeclareSelfUsername" 
-																ng-model="undeclareSelfUsername" required />
-														</div>
-													</div>
-
-													<!-- Submit Button -->
-													<div class="col-md-4">
-														<button type="submit" class="btn btn-success"
-															ng-disabled="!undeclareSelfRepForm.$valid" name="submit">Submit
-														</button>
-													</div>
-												</form>
-											</div>
-										</div>
-									</div>
-								</div>
 							</div>
 						</div>
 					</div>
