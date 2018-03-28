@@ -41,7 +41,7 @@
 							$scope.userFound = false;
 							$scope.isValid = false;
 							$scope.currentPatient = "";
-							$scope.errorMessage = response.message;
+							$scope.errorMessage = rejection.data.message;
 						});
 				}
 				
@@ -51,7 +51,7 @@
 							$scope.representsPatient.push(response.data);
 							$scope.errorMessage = "";
 						}, function(rejection) {
-							$scope.errorMessage = "Could not add personal representative."
+							$scope.errorMessage = rejection.data.message;
 						});
 				}
 
@@ -88,11 +88,11 @@
 									<button type="submit" class="btn btn-success"
 										ng-disabled="!searchRepForm.$valid" name="submit">Submit
 									</button>
-									<span ng-if="!isValid"> {{errorMessage}} </span>
 								</div>
 
 
 							</form>
+							<span ng-if="!isValid"> {{errorMessage}} </span>
 						</div>
 					</div>
 				</div>
