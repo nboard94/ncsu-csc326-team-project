@@ -41,6 +41,35 @@ public class APIRepresentativeController extends APIController {
                     HttpStatus.NOT_FOUND );
         }
 
+        return new ResponseEntity( wrapRepresentatives( patient ), HttpStatus.OK );
+    }
+
+    /**
+     * Retrieves the total list of representatives of a passed in username
+     *
+     * @param username
+     *            the patient's username
+     * @return the complete list of the patient's representatives
+     */
+    @GetMapping ( BASE_PATH + "/reps/{username}" )
+    public ResponseEntity getRepresentativesHCP ( @PathVariable final String username ) {
+        final Patient patient = Patient.getByName( username );
+        if ( patient == null ) {
+            return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
+                    HttpStatus.NOT_FOUND );
+        }
+        return new ResponseEntity( wrapRepresentatives( patient ), HttpStatus.OK );
+    }
+
+    /**
+     * Private helper method that wraps up a patient's representatives and list
+     * of people they represent into a list that can be sent to the frontend
+     *
+     * @param patient
+     *            the patient who's representatives are being wrapped
+     * @return a list of all of the patient's representatives
+     */
+    private List<List<RepView>> wrapRepresentatives ( final Patient patient ) {
         final List<RepView> representer = new ArrayList<RepView>();
         for ( final Patient p : patient.getMyRepresentatives() ) {
             representer.add( new RepView( p ) );
@@ -53,7 +82,7 @@ public class APIRepresentativeController extends APIController {
         final List<List<RepView>> allReps = new ArrayList<List<RepView>>();
         allReps.add( representer );
         allReps.add( represented );
-        return new ResponseEntity( allReps, HttpStatus.OK );
+        return allReps;
     }
 
     /**
@@ -73,7 +102,7 @@ public class APIRepresentativeController extends APIController {
             return new ResponseEntity( errorResponse( "Current patient could not be found" ), HttpStatus.NOT_FOUND );
         }
         if ( rep == null ) {
-            return new ResponseEntity( errorResponse( "User with username: " + username + " could not be found" ),
+            return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
         patient.addRepresentative( rep );
@@ -97,15 +126,17 @@ public class APIRepresentativeController extends APIController {
         final Patient patient = Patient.getByName( names[0] );
         final Patient rep = Patient.getByName( names[1] );
         if ( patient == null ) {
-            return new ResponseEntity( errorResponse( "Input Patient not found" ), HttpStatus.NOT_FOUND );
+            return new ResponseEntity( errorResponse( "Patient with username: " + names[0] + " could not be found" ),
+                    HttpStatus.NOT_FOUND );
         }
         else if ( rep == null ) {
-            return new ResponseEntity( errorResponse( "Input Representative not found" ), HttpStatus.NOT_FOUND );
+            return new ResponseEntity( errorResponse( "Patient with username: " + names[1] + " could not be found" ),
+                    HttpStatus.NOT_FOUND );
         }
         patient.addRepresentative( rep );
         patient.save();
 
-        return new ResponseEntity( rep, HttpStatus.OK );
+        return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
     }
 
     /**
@@ -124,10 +155,12 @@ public class APIRepresentativeController extends APIController {
         final Patient patient2 = Patient.getByName( fromFront[1] );
 
         if ( patient1 == null ) {
-            return new ResponseEntity( errorResponse( "Input Patient not found" ), HttpStatus.NOT_FOUND );
+            return new ResponseEntity( errorResponse( "Current patient could not be found" ), HttpStatus.NOT_FOUND );
         }
         else if ( patient2 == null ) {
-            return new ResponseEntity( errorResponse( "Input Representative not found" ), HttpStatus.NOT_FOUND );
+            return new ResponseEntity(
+                    errorResponse( "Patient with username: " + fromFront[1] + " could not be found" ),
+                    HttpStatus.NOT_FOUND );
         }
 
         Patient sendToFront = null;
@@ -144,7 +177,7 @@ public class APIRepresentativeController extends APIController {
             sendToFront = patient1;
 
         }
-        return new ResponseEntity( sendToFront, HttpStatus.OK );
+        return new ResponseEntity( new RepView( sendToFront ), HttpStatus.OK );
     }
 
     /**
@@ -156,8 +189,11 @@ public class APIRepresentativeController extends APIController {
      */
     @SuppressWarnings ( "unused" )
     private class RepView {
+        /** Username of the patient */
         private final String username;
+        /** First name of the patient */
         private final String firstName;
+        /** Last name of the patient */
         private final String lastName;
 
         /**
