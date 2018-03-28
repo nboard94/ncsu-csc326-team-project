@@ -1,13 +1,18 @@
 package edu.ncsu.csc.itrust2.controllers.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
+import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 
 /**
@@ -20,6 +25,36 @@ import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 @RestController
 @SuppressWarnings ( { "rawtypes", "unchecked" } )
 public class APIRepresentativeController extends APIController {
+
+    /**
+     * Convenient method that gets the list of representatives of the logged in
+     * user
+     *
+     * @return response
+     */
+    @GetMapping ( BASE_PATH + "/reps" )
+    public ResponseEntity getRepresentatives () {
+        final User self = User.getByName( LoggerUtil.currentUser() );
+        final Patient patient = Patient.getPatient( self );
+        if ( patient == null ) {
+            return new ResponseEntity( errorResponse( "Could not find a patient entry for you, " + self.getUsername() ),
+                    HttpStatus.NOT_FOUND );
+        }
+
+        final List<RepView> representer = new ArrayList<RepView>();
+        for ( final Patient p : patient.getMyRepresentatives() ) {
+            representer.add( new RepView( p ) );
+        }
+        final List<RepView> represented = new ArrayList<RepView>();
+        for ( final Patient p : patient.getRepresentedByMe() ) {
+            represented.add( new RepView( p ) );
+        }
+
+        final List<List<RepView>> allReps = new ArrayList<List<RepView>>();
+        allReps.add( representer );
+        allReps.add( represented );
+        return new ResponseEntity( allReps, HttpStatus.OK );
+    }
 
     /**
      * Adds a representative to the current user's list of representatives
@@ -44,7 +79,7 @@ public class APIRepresentativeController extends APIController {
         patient.addRepresentative( rep );
         patient.save();
 
-        return new ResponseEntity( rep, HttpStatus.OK );
+        return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
     }
 
     /**
@@ -112,4 +147,31 @@ public class APIRepresentativeController extends APIController {
         return new ResponseEntity( sendToFront, HttpStatus.OK );
     }
 
+    /**
+     * Private Inner class that is used for sending a patient's information to
+     * the front end without giving up all of the patients info
+     *
+     * @author Jacob Struckmeyer
+     *
+     */
+    @SuppressWarnings ( "unused" )
+    private class RepView {
+        private final String username;
+        private final String firstName;
+        private final String lastName;
+
+        /**
+         * Constructor that makes a representative view item from a patient's
+         * username, first name, and last name
+         *
+         * @param patient
+         *            that patient that is to be converted into a view object
+         */
+        public RepView ( final Patient patient ) {
+            username = patient.getSelf().getId();
+            firstName = patient.getFirstName();
+            lastName = patient.getLastName();
+        }
+
+    }
 }
