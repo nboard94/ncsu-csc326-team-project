@@ -151,33 +151,38 @@ public class APIRepresentativeController extends APIController {
     public ResponseEntity undeclareRepresentative ( @PathVariable final String format ) {
         final String[] fromFront = format.split( "-" );
         final String mode = fromFront[0];
-        final Patient patient1 = Patient.getByName( LoggerUtil.currentUser() );
-        final Patient patient2 = Patient.getByName( fromFront[1] );
+        final String username = fromFront[1];
 
-        if ( patient1 == null ) {
-            return new ResponseEntity( errorResponse( "Current patient could not be found" ), HttpStatus.NOT_FOUND );
+        Patient patient;
+        Patient rep;
+
+        // Current user is undeclaring rep
+        if ( mode.equals( "0" ) ) {
+            patient = Patient.getByName( LoggerUtil.currentUser() );
+            rep = Patient.getByName( username );
         }
-        else if ( patient2 == null ) {
-            return new ResponseEntity(
-                    errorResponse( "Patient with username: " + fromFront[1] + " could not be found" ),
+        // Current user is undeclaring themselves as rep to another patient
+        else if ( mode.equals( "1" ) ) {
+            patient = Patient.getByName( username );
+            rep = Patient.getByName( LoggerUtil.currentUser() );
+        }
+        else {
+            return new ResponseEntity( errorResponse( "Mode for undeclaring representative not correct" ),
+                    HttpStatus.NOT_ACCEPTABLE );
+        }
+
+        // Error checking to see if input user exists
+        if ( patient == null || rep == null ) {
+            return new ResponseEntity( errorResponse( "Could not find Patient with username: " + username ),
                     HttpStatus.NOT_FOUND );
         }
-
-        Patient sendToFront = null;
-        // 0 == remove representative
-        if ( mode.equals( "0" ) ) {
-            patient1.removeRepresentative( patient2 );
-            patient1.save();
-            sendToFront = patient2;
+        if ( !patient.removeRepresentative( rep ) ) {
+            return new ResponseEntity( errorResponse( "Could not undeclare Patient with username: " + username ),
+                    HttpStatus.EXPECTATION_FAILED );
         }
-        // 1 == remove self as representative
-        else if ( mode.equals( "1" ) ) {
-            patient2.removeRepresentative( patient1 );
-            patient2.save();
-            sendToFront = patient1;
+        patient.save();
 
-        }
-        return new ResponseEntity( new RepView( sendToFront ), HttpStatus.OK );
+        return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
     }
 
     /**
