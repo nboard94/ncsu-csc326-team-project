@@ -24,8 +24,8 @@
     		if (immunization.name.length > 64) {
     			err.push("Name exceeds the character limit of 64");
     		}
-    		if (!/^\d{4}-\d{4}-\d{2}$/.test(immunization.code)) {
-    			err.push("Code must be in the format XXXX-XXXX-XX");
+    		if (!/^\d{5}$/.test(immunization.code)) {
+    			err.push("Code must be in the format XXXXX");
     		}
     		return err.join(". ");
     	}
@@ -122,8 +122,8 @@
                   <caption>Existing Medications:</caption>
                   <thead>
                     <tr>
-                      <th>Immunization</th>
-                      <th>Code</th>
+                      <th>Immunization Name</th>
+                      <th>CPT Code</th>
                       <th>Description</th>
                       <th>Action</th>
                     </tr>
@@ -186,8 +186,8 @@
                               <input type="text" class="form-control" name="immunization" ng-model="immunization.name" required/>
                             </div>
                             <div class="col-md-4">
-                              <label>Code</label>
-                              <input type="text" class="form-control" placeholder="xxxx-xxxx-xx" name="code" ng-model="immunization.code" required />
+                              <label>CPT Code</label>
+                              <input type="text" class="form-control" placeholder="xxxxx" name="code" ng-model="immunization.code" required />
                             </div>
                             <div class="col-md-4">
                               <label>Description</label>

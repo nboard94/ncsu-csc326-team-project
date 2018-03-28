@@ -66,12 +66,12 @@ public class APIImmunizationTest {
     public void testImmunizationAPI () throws UnsupportedEncodingException, Exception {
         // Create immunizations for testing
         final ImmunizationForm form1 = new ImmunizationForm();
-        form1.setCode( "0000-0000-00" );
+        form1.setCode( "00000" );
         form1.setName( "TEST1" );
         form1.setDescription( "DESC1" );
 
         final ImmunizationForm form2 = new ImmunizationForm();
-        form2.setCode( "0000-0000-01" );
+        form2.setCode( "00001" );
         form2.setName( "TEST2" );
         form2.setDescription( "Desc2" );
 

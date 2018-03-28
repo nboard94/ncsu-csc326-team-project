@@ -46,7 +46,7 @@ public class Immunization extends DomainObject<Immunization> {
     @GeneratedValue ( strategy = GenerationType.AUTO )
     private Long   id;
 
-    @Pattern ( regexp = "^\\d{4}-\\d{4}-\\d{2}$" )
+    @Pattern ( regexp = "^\\d{5}$" )
     private String code;
 
     @NotEmpty
