@@ -122,7 +122,7 @@ public class APIRepresentativeController extends APIController {
     @PreAuthorize ( "hasRole('ROLE_HCP')" )
     @PostMapping ( BASE_PATH + "/declareRepHCP/{usernames}" )
     public ResponseEntity declareRepresentativeAsHCP ( @PathVariable final String usernames ) {
-        final String[] names = usernames.split( "-" );
+        final String[] names = usernames.split( "," );
         final Patient patient = Patient.getByName( names[0] );
         final Patient rep = Patient.getByName( names[1] );
         if ( patient == null ) {
@@ -149,7 +149,7 @@ public class APIRepresentativeController extends APIController {
      */
     @PostMapping ( BASE_PATH + "/undeclareRep/{format}" )
     public ResponseEntity undeclareRepresentative ( @PathVariable final String format ) {
-        final String[] fromFront = format.split( "-" );
+        final String[] fromFront = format.split( "," );
         final String mode = fromFront[0];
         final String username = fromFront[1];
 

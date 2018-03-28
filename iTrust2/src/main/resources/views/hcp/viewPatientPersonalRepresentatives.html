@@ -29,30 +29,57 @@
 				$scope.currentPatient = "";
 				
 				$scope.getReps = function(username) {
-					$http.get("/iTrust2/api/v1/reps/" + username).then(
-						function(response) {
-							$scope.userFound = true;
-							$scope.isValid = true;
-							$scope.currentPatient = username;
-							$scope.representsPatient = response.data[0];	
-							$scope.patientRepresents = response.data[1];
-							$scope.errorMessage = "";
-						}, function(rejection) {
-							$scope.userFound = false;
-							$scope.isValid = false;
-							$scope.currentPatient = "";
-							$scope.errorMessage = rejection.data.message;
-						});
+					if (!checkInput(username)) {
+						$scope.isValid = false;
+					} else {
+						$http.get("/iTrust2/api/v1/reps/" + username).then(
+							function(response) {
+								$scope.userFound = true;
+								$scope.isValid = true;
+								$scope.currentPatient = username;
+								$scope.representsPatient = response.data[0];	
+								$scope.patientRepresents = response.data[1];
+								$scope.errorMessage = "";
+							}, function(rejection) {
+								$scope.userFound = false;
+								$scope.isValid = false;
+								$scope.currentPatient = "";
+								$scope.errorMessage = rejection.data.message;
+							});
+					}
 				}
 				
 				$scope.declareRep = function(username) {
-					$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "-" + username).then(
-						function(response) {
-							$scope.representsPatient.push(response.data);
-							$scope.errorMessage = "";
-						}, function(rejection) {
-							$scope.errorMessage = rejection.data.message;
-						});
+					if (!checkInput(username)) {
+						$scope.isValid = false;
+					} else {
+						$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "," + username).then(
+							function(response) {
+								$scope.representsPatient.push(response.data);
+								$scope.errorMessage = "";
+							}, function(rejection) {
+								$scope.errorMessage = rejection.data.message;
+							});
+					}
+				}
+				
+				var checkInput = function(username) {
+					var count = username.length;
+					if (count < 6 || count > 20) {
+						$scope.errorMessage = "Username must be between 6 and 20 characters.";
+						return false;
+					}
+					for (var i = 0; i < count; i++) {
+						var c = username.charCodeAt(i);
+						 if (!(c > 47 && c < 58) &&
+							 !(c > 64 && c < 91) && 
+							 !(c > 96 && c < 123) &&
+							 !(c == "-" || c == "_" )) {
+							 $scope.errorMessage = "Username must not have any special characters other than '-' or '_'.";
+							return false;
+						}
+					}
+					return true;
 				}
 
 			});

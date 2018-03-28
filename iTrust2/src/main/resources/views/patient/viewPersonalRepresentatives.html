@@ -35,15 +35,20 @@
 					});
 				
 				$scope.declareRep = function(repUsername) {
-					$http.post("/iTrust2/api/v1/declareRep/" + repUsername).then(
-						function(response) {
-							$scope.representsMe.push(response.data);
-							$scope.isValid = true;
-							$scope.errorMessage = "";
-						}, function(rejection) {
-							$scope.isValid = false;
-							$scope.errorMessage = rejection.data.message;
-						});
+					if (!checkInput(repUsername)) {
+						$scope.isValid = false;
+					} else {
+					
+						$http.post("/iTrust2/api/v1/declareRep/" + repUsername).then(
+							function(response) {
+								$scope.representsMe.push(response.data);
+								$scope.isValid = true;
+								$scope.errorMessage = "";
+							}, function(rejection) {
+								$scope.isValid = false;
+								$scope.errorMessage = rejection.data.message;
+							});
+						}
 				}
 				
 				var removeRep = function(mode, rep) {
@@ -65,7 +70,7 @@
 				}
 
 				$scope.undeclareRep = function(mode, username) {
-					$http.post("/iTrust2/api/v1/undeclareRep/" + mode + "-" + username).then(
+					$http.post("/iTrust2/api/v1/undeclareRep/" + mode + "," + username).then(
 						function(response) {
 							removeRep(mode, response.data);
 							$scope.isValid = true;
@@ -74,6 +79,25 @@
 							$scope.isValid = false;
 							$scope.errorMessage = rejection.data.message;
 						});
+				}
+				
+				var checkInput = function(username) {
+					var count = username.length;
+					if (count < 6 || count > 20) {
+						$scope.errorMessage = "Username must be between 6 and 20 characters.";
+						return false;
+					}
+					for (var i = 0; i < count; i++) {
+						var c = username.charCodeAt(i);
+						 if (!(c > 47 && c < 58) &&
+							 !(c > 64 && c < 91) && 
+							 !(c > 96 && c < 123) &&
+							 !(c == "-" || c == "_" )) {
+							 $scope.errorMessage = "Username must not have any special characters other than '-' or '_'.";
+							return false;
+						}
+					}
+					return true;
 				}
 				
 
