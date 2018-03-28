@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns:th="http://www.thymeleaf.org">
+	<head th:include="layout :: head(title=~{::title},links=~{})">
+	<title>View Diagnoses</title>
+	
+	<!-- Angular and Bootstrap files  -->
+	<link rel="stylesheet"
+		href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	
+	</head>
+ <body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
+		<script th:inline="javascript">
+			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+			/*<![CDATA[*/
+			var app = angular.module("viewPersonalRepresentatives", []);
+			app.controller('repCtrl', function($scope, $http) {
+				// get all personal representatives of patient and display in table	
+				$scope.representsPatient = [];
+				$scope.patientRepresents = [];
+
+				$scope.isValid = true;
+				
+				$scope.userFound = false;
+				
+				$scope.currentPatient = "";
+				
+				$scope.getReps = function(username) {
+					if (!checkInput(username)) {
+						$scope.isValid = false;
+					} else {
+						$http.get("/iTrust2/api/v1/reps/" + username).then(
+							function(response) {
+								$scope.userFound = true;
+								$scope.isValid = true;
+								$scope.currentPatient = username;
+								$scope.representsPatient = response.data[0];	
+								$scope.patientRepresents = response.data[1];
+								$scope.errorMessage = "";
+							}, function(rejection) {
+								$scope.userFound = false;
+								$scope.isValid = false;
+								$scope.currentPatient = "";
+								$scope.errorMessage = rejection.data.message;
+							});
+					}
+				}
+				
+				$scope.declareRep = function(username) {
+					if (!checkInput(username)) {
+						$scope.isValid = false;
+					} else {
+						$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "," + username).then(
+							function(response) {
+								$scope.representsPatient.push(response.data);
+								$scope.errorMessage = "";
+							}, function(rejection) {
+								$scope.errorMessage = rejection.data.message;
+							});
+					}
+				}
+				
+				var checkInput = function(username) {
+					var count = username.length;
+					if (count < 6 || count > 20) {
+						$scope.errorMessage = "Username must be between 6 and 20 characters.";
+						return false;
+					}
+					for (var i = 0; i < count; i++) {
+						var c = username.charCodeAt(i);
+						 if (!(c > 47 && c < 58) &&
+							 !(c > 64 && c < 91) && 
+							 !(c > 96 && c < 123) &&
+							 !(c == "-" || c == "_" )) {
+							 $scope.errorMessage = "Username must not have any special characters other than '-' or '_'.";
+							return false;
+						}
+					}
+					return true;
+				}
+
+			});
+		</script>
+
+		<div ng-app="viewPersonalRepresentatives" ng-controller="repCtrl">
+
+			<!-- Info on tables from https://hello-angularjs.appspot.com/removetablerow -->
+			<div class="container">
+				<h2>View Patient Personal Representatives</h2>
+				<span ng-if="!isValid"> {{errorMessage}} </span>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6">
+					<div class="panel panel-default">
+						<div class="panel-heading ">Search for Patient Personal
+							Representatives</div>
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" name="searchRepForm"
+								ng-submit="getReps(searchUsername)">
+
+								<!-- Patient MID -->
+								<div class="col-md-8">
+									<div class="row">
+										<input type="text" class="form-control"
+											placeholder="Patient MID" name="searchUsername" 
+											ng-model="searchUsername" required />
+									</div>
+								</div>
+
+								<!-- Submit Button -->
+								<div class="col-md-4">
+									<button type="submit" class="btn btn-success"
+										ng-disabled="!searchRepForm.$valid" name="submit">Submit
+									</button>
+								</div>
+
+
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- List of patients representatives -->
+			<div class="container" ng-hide="!userFound">
+				<div class="row">
+
+					<!-- Column that represents patient representatives -->
+					<div class="col-md-6">
+						<div class="panel panel-primary">
+
+							<!-- Header for patients Representatives -->
+							<div class="panel-heading">
+								<h3>Patient's Representatives</h3>
+							</div>
+							<div class="panel-body">
+								
+								<table class="table table-bordered">
+	
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Patient MID</th>
+											<th>First Name</th>
+											<th>Last Name</th>
+										</tr>
+									</thead>
+	
+									<!-- Rep entry for every row -->
+									<tbody>
+										<tr name="repTableRow" ng-repeat="rep in representsPatient">
+											<td name="patientMIDCell">{{rep.username}}</td>
+											<td name="firstNameCell">{{rep.firstName}}</td>
+											<td name="lastNameCell">{{rep.lastName}}</td>
+										</tr>
+									</tbody>
+								</table>
+
+
+								<!-- container for adding representatives -->
+								<div class="row">
+									<div class="col-md-12">
+										<div class="panel panel-default">
+											<div class="panel-heading ">Declare Personal
+												Representative</div>
+											<div class="panel-body">
+												<form class="form-horizontal" role="form" name="declareRepForm"
+													ng-submit="declareRep(declareUsername)">
+
+													<!-- Patient MID -->
+													<div class="col-md-8">
+														<div class="row">
+															<input type="text" class="form-control"
+																placeholder="Patient MID" name="declareUsername" 
+																ng-model="declareUsername" required />
+														</div>
+													</div>
+
+													<!-- Submit Button -->
+													<div class="col-md-4">
+														<button type="submit" class="btn btn-success"
+															ng-disabled="!declareRepForm.$valid" name="submit">Submit
+														</button>
+													</div>
+
+
+												</form>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<!-- Column that represents patients that user represents  -->
+					<div class="col-md-6">
+						<div class="panel panel-primary">
+
+							<!-- Header for patients Representatives -->
+							<div class="panel-heading">
+								<h3>People that Patient Represents</h3>
+							</div>
+							<div class="panel-body">
+								
+								<table class="table table-bordered">
+	
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Patient MID</th>
+											<th>First Name</th>
+											<th>Last Name</th>
+										</tr>
+									</thead>
+	
+									<!-- Rep entry for every row -->
+									<tbody>
+										<tr name="repTableRow" ng-repeat="rep in patientRepresents">
+											<td name="patientMIDCell">{{rep.username}}</td>
+											<td name="firstNameCell">{{rep.firstName}}</td>
+											<td name="lastNameCell">{{rep.lastName}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+	
+</html>
