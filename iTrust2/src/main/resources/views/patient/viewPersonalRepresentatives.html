@@ -45,12 +45,29 @@
 							$scope.errorMessage = rejection.data.message;
 						});
 				}
+				
+				var removeRep = function(mode, rep) {
+					if (mode == 0) {
+						for (var i = 0; i < $scope.representsMe.length; i++) {
+							if (rep.username == $scope.representsMe[i].username) {
+								$scope.representsMe.splice(i, 1);
+								break;
+							}
+						}
+					} else if (mode == 1) {
+						for (var i = 0; i < $scope.iRepresent.length; i++) {
+							if (rep.username == $scope.iRepresent[i].username) {
+								$scope.iRepresent.splice(i, 1);
+								break;
+							}
+						}
+					}
+				}
 
-				$scope.undeclareRep = function(username) {
-					$http.post("/iTrust2/api/v1/undeclareRep/0-" + username).then(
+				$scope.undeclareRep = function(mode, username) {
+					$http.post("/iTrust2/api/v1/undeclareRep/" + mode + "-" + username).then(
 						function(response) {
-							var index = representsMe.indexOf(response.data);
-							$scope.representsMe.remove(index);
+							removeRep(mode, response.data);
 							$scope.isValid = true;
 							$scope.errorMessage = "";
 						}, function(rejection) {
@@ -58,19 +75,8 @@
 							$scope.errorMessage = rejection.data.message;
 						});
 				}
+				
 
-				$scope.undeclareSelfAsRep = function(username) {
-					$http.post("iTrust2/api/v1/undeclareRep/1-" + username).then(
-						function(response) {
-							var index = iRepresent.indexOf(response.data);
-							scope.iRepresent.remove(index);
-							$scope.isValid = true;
-							$scope.errorMessage = "";
-						}, function(rejection) {
-							$scope.isValid = false;
-							$scope.errorMessage = rejection.data.message;
-						});
-				}
 
 			});
 		</script>
@@ -159,7 +165,7 @@
 												Representative</div>
 											<div class="panel-body">
 												<form class="form-horizontal" role="form" name="undeclareRepForm"
-													ng-submit="undeclareRep(undeclareUsername)">
+													ng-submit="undeclareRep(0, undeclareUsername)">
 
 													<!-- Patient MID -->
 													<div class="col-md-8">
@@ -225,7 +231,7 @@
 												Representative</div>
 											<div class="panel-body">
 												<form class="form-horizontal" role="form" name="undeclareSelfRepForm"
-													ng-submit="undeclareSelfAsRep(undeclareSelfUsername)">
+													ng-submit="undeclareRep(1, undeclareSelfUsername)">
 
 													<!-- Patient MID -->
 													<div class="col-md-8">

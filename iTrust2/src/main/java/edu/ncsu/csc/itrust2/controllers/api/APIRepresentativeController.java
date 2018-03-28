@@ -182,7 +182,9 @@ public class APIRepresentativeController extends APIController {
         }
         patient.save();
 
-        return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
+        final RepView toFront = mode.equals( "0" ) ? new RepView( rep ) : new RepView( patient );
+
+        return new ResponseEntity( toFront, HttpStatus.OK );
     }
 
     /**
