@@ -55,10 +55,10 @@ public class Patient extends DomainObject<Patient> implements Serializable {
     @ManyToMany ( cascade = { CascadeType.ALL }, fetch = FetchType.EAGER )
     @JoinTable ( name = "PERSONAL_REPRESENTATIVES", joinColumns = { @JoinColumn ( name = "WHOIREPRESENT" ) },
             inverseJoinColumns = { @JoinColumn ( name = "IAMREPRESENTEDBY" ) } )
-    private Set<Patient>      representer      = new HashSet<Patient>();
+    private Set<Patient>      representsMe     = new HashSet<Patient>();
 
-    @ManyToMany ( mappedBy = "representer", fetch = FetchType.EAGER )
-    private Set<Patient>      represented      = new HashSet<Patient>();
+    @ManyToMany ( mappedBy = "representsMe", fetch = FetchType.EAGER )
+    private Set<Patient>      whoIRepresent    = new HashSet<Patient>();
 
     /**
      * Get all patients in the database
@@ -746,7 +746,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      * @return the set of patients.
      */
     public Set<Patient> getMyRepresentatives () {
-        return representer;
+        return representsMe;
     }
 
     /**
@@ -756,7 +756,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      *            the set of patients
      */
     public void setMyRepresentatives ( final Set<Patient> representsMe ) {
-        this.representer = representsMe;
+        this.representsMe = representsMe;
     }
 
     /**
@@ -765,7 +765,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      * @return the set of patients
      */
     public Set<Patient> getRepresentedByMe () {
-        return represented;
+        return whoIRepresent;
     }
 
     /**
@@ -775,7 +775,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      *            the set of patients
      */
     public void setRepresentedByMe ( final Set<Patient> representedByMe ) {
-        this.represented = representedByMe;
+        this.whoIRepresent = representedByMe;
     }
 
     /**
@@ -785,7 +785,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      *            the patient that is to be added to the patients list of reps
      */
     public void addRepresentative ( final Patient rep ) {
-        this.representer.add( rep );
+        this.representsMe.add( rep );
     }
 
     /**
@@ -796,7 +796,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      * @return whether the remove was successful or not
      */
     public boolean removeRepresentative ( final Patient rep ) {
-        return representer.remove( rep );
+        return representsMe.remove( rep );
     }
 
     /*
