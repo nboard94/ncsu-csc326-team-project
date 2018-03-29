@@ -283,7 +283,24 @@ public enum TransactionType {
     /**
      * Admin views all vaccinations in the system
      */
-    VACCINATION_VIEW ( 1904, "Admin views all vaccinations in the system", true );
+    VACCINATION_VIEW ( 1904, "Admin views all vaccinations in the system", true ),
+
+    /**
+     * HCP created a new vacrecord
+     */
+    VACRECORD_CREATE ( 1910, "HCP created a new vaccination record", true ),
+    /**
+     * HCP edited an existing vacrecord
+     */
+    VACRECORD_EDIT ( 1911, "HCP edited an existing vaccination record", true ),
+    /**
+     * HCP deleted an existing vacrecord
+     */
+    VACRECORD_DELETE ( 1912, "HCP deleted an existing vaccination record", true ),
+    /**
+     * User viewed an existing vacrecord
+     */
+    VACRECORD_VIEW ( 1913, "User viewed an existing vaccination record", true );
 
     /**
      * Creates a TransactionType for logging events
