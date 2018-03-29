@@ -64,6 +64,7 @@ public class APIRepresentativeTest {
      * @throws Exception
      */
     @Test
+    @WithMockUser ( username = "hcp", roles = { "HCP" } )
     public void testGetValidRepresentative () throws Exception {
 
         mvc.perform( get( "/api/v1/reps/patient" ) ).andExpect( status().isOk() );
@@ -109,6 +110,9 @@ public class APIRepresentativeTest {
         // Attempt to add user that doesn't exist
         mvc.perform( post( "/api/v1/declareRep/nonexistent" ) ).andExpect( status().isNotFound() );
 
+        // Attempt to add rep as self
+        mvc.perform( post( "/api/v1/declareRep/patient" ) ).andExpect( status().isNotAcceptable() );
+
     }
 
     /**
@@ -127,6 +131,10 @@ public class APIRepresentativeTest {
 
         // Attempt to add rep to invalid patient
         mvc.perform( post( "/api/v1/declareRepHCP/nonexistent,AliceThirteen" ) ).andExpect( status().isNotFound() );
+
+        // Attempt to add patient as own rep
+        mvc.perform( post( "/api/v1/declareRepHCP/AliceThirteen,AliceThirteen" ) )
+                .andExpect( status().isNotAcceptable() );
     }
 
     /**

@@ -52,7 +52,7 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      */
     private static final long serialVersionUID = 4617248041239679701L;
 
-    @ManyToMany ( cascade = { CascadeType.ALL }, fetch = FetchType.EAGER )
+    @ManyToMany ( cascade = { CascadeType.MERGE }, fetch = FetchType.EAGER )
     @JoinTable ( name = "PERSONAL_REPRESENTATIVES", joinColumns = { @JoinColumn ( name = "WHOIREPRESENT" ) },
             inverseJoinColumns = { @JoinColumn ( name = "IAMREPRESENTEDBY" ) } )
     private Set<Patient>      representsMe     = new HashSet<Patient>();

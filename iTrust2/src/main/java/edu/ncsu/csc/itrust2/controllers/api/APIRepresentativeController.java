@@ -98,12 +98,15 @@ public class APIRepresentativeController extends APIController {
      */
     @PostMapping ( BASE_PATH + "/declareRep/{username}" )
     public ResponseEntity declareRepresentative ( @PathVariable final String username ) {
-        final String currentUser = LoggerUtil.currentUser();
-        final Patient patient = Patient.getByName( currentUser );
+        final Patient patient = Patient.getByName( LoggerUtil.currentUser() );
         final Patient rep = Patient.getByName( username );
         if ( rep == null ) {
             return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
                     HttpStatus.NOT_FOUND );
+        }
+        if ( patient.equals( rep ) ) {
+            return new ResponseEntity( errorResponse( "Cannot declare self as representative" ),
+                    HttpStatus.NOT_ACCEPTABLE );
         }
         patient.addRepresentative( rep );
         patient.save();
@@ -133,6 +136,11 @@ public class APIRepresentativeController extends APIController {
         else if ( rep == null ) {
             return new ResponseEntity( errorResponse( "Patient with username: " + names[1] + " could not be found" ),
                     HttpStatus.NOT_FOUND );
+        }
+
+        if ( patient.equals( rep ) ) {
+            return new ResponseEntity( errorResponse( "Cannot add patient as its own representative" ),
+                    HttpStatus.NOT_ACCEPTABLE );
         }
         patient.addRepresentative( rep );
         patient.save();
