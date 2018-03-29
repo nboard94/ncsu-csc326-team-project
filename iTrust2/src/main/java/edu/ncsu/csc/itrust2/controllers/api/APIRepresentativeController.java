@@ -98,9 +98,6 @@ public class APIRepresentativeController extends APIController {
         final String currentUser = LoggerUtil.currentUser();
         final Patient patient = Patient.getByName( currentUser );
         final Patient rep = Patient.getByName( username );
-        if ( patient == null ) {
-            return new ResponseEntity( errorResponse( "Current patient could not be found" ), HttpStatus.NOT_FOUND );
-        }
         if ( rep == null ) {
             return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
                     HttpStatus.NOT_FOUND );
