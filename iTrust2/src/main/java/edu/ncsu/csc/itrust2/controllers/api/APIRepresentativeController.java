@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
@@ -40,7 +41,7 @@ public class APIRepresentativeController extends APIController {
             return new ResponseEntity( errorResponse( "Could not find a patient entry for you, " + self.getUsername() ),
                     HttpStatus.NOT_FOUND );
         }
-
+        LoggerUtil.log( TransactionType.VIEW_REPS, self );
         return new ResponseEntity( wrapRepresentatives( patient ), HttpStatus.OK );
     }
 
@@ -54,10 +55,12 @@ public class APIRepresentativeController extends APIController {
     @GetMapping ( BASE_PATH + "/reps/{username}" )
     public ResponseEntity getRepresentativesHCP ( @PathVariable final String username ) {
         final Patient patient = Patient.getByName( username );
+        final User self = User.getByName( LoggerUtil.currentUser() );
         if ( patient == null ) {
             return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
+        LoggerUtil.log( TransactionType.VIEW_REPS, self, patient.getSelf() );
         return new ResponseEntity( wrapRepresentatives( patient ), HttpStatus.OK );
     }
 
@@ -105,6 +108,7 @@ public class APIRepresentativeController extends APIController {
         patient.addRepresentative( rep );
         patient.save();
 
+        LoggerUtil.log( TransactionType.DECLARE_REP, patient.getSelf(), rep.getSelf() );
         return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
     }
 
@@ -133,6 +137,7 @@ public class APIRepresentativeController extends APIController {
         patient.addRepresentative( rep );
         patient.save();
 
+        LoggerUtil.log( TransactionType.DECLARE_REP, patient.getSelf(), rep.getSelf() );
         return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
     }
 
@@ -178,6 +183,13 @@ public class APIRepresentativeController extends APIController {
                     HttpStatus.EXPECTATION_FAILED );
         }
         patient.save();
+
+        if ( mode.equals( "0" ) ) {
+            LoggerUtil.log( TransactionType.UNDECLARE_REP, patient.getSelf(), rep.getSelf() );
+        }
+        else {
+            LoggerUtil.log( TransactionType.UNDECLARE_SELF_AS_REP, rep.getSelf(), patient.getSelf() );
+        }
 
         final RepView toFront = mode.equals( "0" ) ? new RepView( rep ) : new RepView( patient );
 
