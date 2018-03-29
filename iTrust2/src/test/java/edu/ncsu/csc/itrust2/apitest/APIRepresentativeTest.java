@@ -66,7 +66,7 @@ public class APIRepresentativeTest {
     @Test
     public void testGetValidRepresentative () throws Exception {
 
-        mvc.perform( get( "/api/v1/reps/patient" ) ).andExpect( status().isOk() );
+        mvc.perform( get( "/api/v1/reps/TimTheOneYearOld" ) ).andExpect( status().isOk() );
 
     }
 
@@ -76,7 +76,7 @@ public class APIRepresentativeTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "patient", roles = { "PATIENT" } )
+    @WithMockUser ( username = "TimTheOneYearOld", roles = { "PATIENT" } )
     public void testGetRepresentativesAsPatient () throws Exception {
 
         mvc.perform( get( "/api/v1/reps" ) ).andExpect( status().isOk() );
@@ -100,7 +100,7 @@ public class APIRepresentativeTest {
      * Tests declaring a personal representative as a patient
      */
     @Test
-    @WithMockUser ( username = "patient", roles = { "PATIENT" } )
+    @WithMockUser ( username = "TimTheOneYearOld", roles = { "PATIENT" } )
     public void testDeclareRepresentative () throws Exception {
 
         // Add valid user
@@ -120,10 +120,10 @@ public class APIRepresentativeTest {
     @WithMockUser ( username = "hcp", roles = { "HCP" } )
     public void testDeclareRepresentativeAsHCP () throws Exception {
         // Add valid rep to patient
-        mvc.perform( post( "/api/v1/declareRepHCP/patient,AliceThirteen" ) ).andExpect( status().isOk() );
+        mvc.perform( post( "/api/v1/declareRepHCP/TimTheOneYearOld,AliceThirteen" ) ).andExpect( status().isOk() );
 
         // Attempt to add invalid rep to patient
-        mvc.perform( post( "/api/v1/declareRepHCP/patient,nonexistent" ) ).andExpect( status().isNotFound() );
+        mvc.perform( post( "/api/v1/declareRepHCP/TimTheOneYearOld,nonexistent" ) ).andExpect( status().isNotFound() );
 
         // Attempt to add rep to invalid patient
         mvc.perform( post( "/api/v1/declareRepHCP/nonexistent,AliceThirteen" ) ).andExpect( status().isNotFound() );
@@ -135,7 +135,7 @@ public class APIRepresentativeTest {
      * @throws Exception
      */
     @Test
-    @WithMockUser ( username = "patient", roles = { "PATIENT" } )
+    @WithMockUser ( username = "TimTheOneYearOld", roles = { "PATIENT" } )
     public void testUndeclareRepresentative () throws Exception {
         // first add valid patient
         mvc.perform( post( "/api/v1/declareRep/AliceThirteen" ) ).andExpect( status().isOk() );
