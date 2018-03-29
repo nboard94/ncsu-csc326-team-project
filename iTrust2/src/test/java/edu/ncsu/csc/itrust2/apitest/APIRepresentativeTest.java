@@ -44,6 +44,20 @@ public class APIRepresentativeTest {
     @Before
     public void setup () {
         mvc = MockMvcBuilders.webAppContextSetup( context ).build();
+
+    }
+
+    /**
+     * Private helper method that adds a patient to another patient's list of
+     * representatives
+     *
+     * @throws Exception
+     */
+    @Test
+    @WithMockUser ( username = "AliceThirteen", roles = { "PATIENT" } )
+    public void addRepAsOtherUser () throws Exception {
+        // Add valid user
+        mvc.perform( post( "/api/v1/declareRep/patient" ) ).andExpect( status().isOk() );
     }
 
     /**
@@ -53,6 +67,7 @@ public class APIRepresentativeTest {
      * @throws Exception
      */
     @Test
+    @WithMockUser ( username = "hcp", roles = { "HCP" } )
     public void testGetNonExistentPatient () throws Exception {
         mvc.perform( get( "/api/v1/reps/-1" ) ).andExpect( status().isNotFound() );
     }
@@ -81,19 +96,6 @@ public class APIRepresentativeTest {
     public void testGetRepresentativesAsPatient () throws Exception {
 
         mvc.perform( get( "/api/v1/reps" ) ).andExpect( status().isOk() );
-
-    }
-
-    /**
-     * Test getting reps as logged in user
-     *
-     * @throws Exception
-     */
-    @Test
-    @WithMockUser ( username = "hcp", roles = { "HCP" } )
-    public void testGetRepresentativesAsHCP () throws Exception {
-
-        mvc.perform( get( "/api/v1/reps" ) ).andExpect( status().isNotFound() );
 
     }
 
@@ -148,16 +150,34 @@ public class APIRepresentativeTest {
         // first add valid patient
         mvc.perform( post( "/api/v1/declareRep/AliceThirteen" ) ).andExpect( status().isOk() );
 
-        // Then remove them
-        mvc.perform( post( "/api/v1/undeclareRep/0,AliceThirteen" ) ).andExpect( status().isOk() );
+        // Remove valid patient
+        mvc.perform( post( "/api/v1/undeclare/AliceThirteen" ) ).andExpect( status().isOk() );
 
-        // Attempt to remove patient that doesn't exist
-        mvc.perform( post( "/api/v1/undeclareRep/0,nonexistent" ) ).andExpect( status().isNotFound() );
+        // Attempt to remove patient that does not exist
+        mvc.perform( post( "/api/v1/undeclare/nonexistent" ) ).andExpect( status().isNotFound() );
 
-        // Attempt to remove patient with invalid mode
-        mvc.perform( post( "/api/v1/undeclareRep/3,nonexistent" ) ).andExpect( status().isNotAcceptable() );
+        // Attempt to remove patient that exists but is not in the list of reps
+        mvc.perform( post( "/api/v1/undeclare/AliceThirteen" ) ).andExpect( status().isNotFound() );
 
-        // Attempt to remove valid patient that isn't a representative of user
-        mvc.perform( post( "/api/v1/undeclareRep/1,AliceThirteen" ) ).andExpect( status().isExpectationFailed() );
+    }
+
+    /**
+     * Tests undeclaring a personal representative as a patient
+     *
+     * @throws Exception
+     */
+    @Test
+    @WithMockUser ( username = "patient", roles = { "PATIENT" } )
+    public void testUndeclareSelfAsRepresentative () throws Exception {
+
+        // Remove patient as rep
+        mvc.perform( post( "/api/v1/undeclareSelf/AliceThirteen" ) ).andExpect( status().isOk() );
+
+        // Attempt to remove nonexistant rep
+        mvc.perform( post( "/api/v1/undeclareSelf/nonexistent" ) ).andExpect( status().isNotFound() );
+
+        // Attempt to remove valid user that's not in list of reps
+        mvc.perform( post( "/api/v1/undeclareSelf/AliceThirteen" ) ).andExpect( status().isNotFound() );
+
     }
 }

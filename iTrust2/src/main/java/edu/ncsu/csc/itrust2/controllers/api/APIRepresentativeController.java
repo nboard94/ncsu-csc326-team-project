@@ -33,14 +33,11 @@ public class APIRepresentativeController extends APIController {
      *
      * @return response
      */
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
     @GetMapping ( BASE_PATH + "/reps" )
     public ResponseEntity getRepresentatives () {
         final User self = User.getByName( LoggerUtil.currentUser() );
         final Patient patient = Patient.getPatient( self );
-        if ( patient == null ) {
-            return new ResponseEntity( errorResponse( "Could not find a patient entry for you, " + self.getUsername() ),
-                    HttpStatus.NOT_FOUND );
-        }
         LoggerUtil.log( TransactionType.VIEW_REPS, self );
         return new ResponseEntity( wrapRepresentatives( patient ), HttpStatus.OK );
     }
@@ -52,6 +49,7 @@ public class APIRepresentativeController extends APIController {
      *            the patient's username
      * @return the complete list of the patient's representatives
      */
+    @PreAuthorize ( "hasRole('ROLE_HCP')" )
     @GetMapping ( BASE_PATH + "/reps/{username}" )
     public ResponseEntity getRepresentativesHCP ( @PathVariable final String username ) {
         final Patient patient = Patient.getByName( username );
@@ -96,6 +94,7 @@ public class APIRepresentativeController extends APIController {
      *            representatives
      * @return response
      */
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
     @PostMapping ( BASE_PATH + "/declareRep/{username}" )
     public ResponseEntity declareRepresentative ( @PathVariable final String username ) {
         final Patient patient = Patient.getByName( LoggerUtil.currentUser() );
@@ -150,58 +149,60 @@ public class APIRepresentativeController extends APIController {
     }
 
     /**
-     * Removes a representative to the current user's list of representatives
+     * Undeclares a representative from the logged in user's list of reps
      *
-     * @param format
-     *            the username of the representative and the mode whether the
-     *            patient is removing the rep or removing self as rep
-     * @return response
+     * @param username
+     *            the username of the rep to be removed
+     * @return reponse
      */
-    @PostMapping ( BASE_PATH + "/undeclareRep/{format}" )
-    public ResponseEntity undeclareRepresentative ( @PathVariable final String format ) {
-        final String[] fromFront = format.split( "," );
-        final String mode = fromFront[0];
-        final String username = fromFront[1];
-
-        Patient patient;
-        Patient rep;
-
-        // Current user is undeclaring rep
-        if ( mode.equals( "0" ) ) {
-            patient = Patient.getByName( LoggerUtil.currentUser() );
-            rep = Patient.getByName( username );
-        }
-        // Current user is undeclaring themselves as rep to another patient
-        else if ( mode.equals( "1" ) ) {
-            patient = Patient.getByName( username );
-            rep = Patient.getByName( LoggerUtil.currentUser() );
-        }
-        else {
-            return new ResponseEntity( errorResponse( "Mode for undeclaring representative not correct" ),
-                    HttpStatus.NOT_ACCEPTABLE );
-        }
-
-        // Error checking to see if input user exists
-        if ( patient == null || rep == null ) {
-            return new ResponseEntity( errorResponse( "Could not find Patient with username: " + username ),
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    @PostMapping ( BASE_PATH + "/undeclare/{username}" )
+    public ResponseEntity undeclareRepresentative ( @PathVariable final String username ) {
+        final Patient patient = Patient.getByName( LoggerUtil.currentUser() );
+        final Patient rep = Patient.getByName( username );
+        if ( rep == null ) {
+            return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
         if ( !patient.removeRepresentative( rep ) ) {
-            return new ResponseEntity( errorResponse( "Could not undeclare Patient with username: " + username ),
-                    HttpStatus.EXPECTATION_FAILED );
+            return new ResponseEntity(
+                    errorResponse(
+                            "Patient with username: " + username + " is not in patient list of representatives" ),
+                    HttpStatus.NOT_FOUND );
         }
         patient.save();
+        LoggerUtil.log( TransactionType.UNDECLARE_REP, patient.getSelf(), rep.getSelf() );
+        return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
+    }
 
-        if ( mode.equals( "0" ) ) {
-            LoggerUtil.log( TransactionType.UNDECLARE_REP, patient.getSelf(), rep.getSelf() );
+    /**
+     * Undeclares the logged in user as a representative to another patient
+     *
+     * @param username
+     *            the username of the rep to be removed
+     * @return reponse
+     */
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    @PostMapping ( BASE_PATH + "/undeclareSelf/{username}" )
+    public ResponseEntity undeclareSelfAsRepresentative ( @PathVariable final String username ) {
+        final Patient patient = Patient.getByName( LoggerUtil.currentUser() );
+        final Patient otherUser = Patient.getByName( username );
+        if ( otherUser == null ) {
+            return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
+                    HttpStatus.NOT_FOUND );
         }
-        else {
-            LoggerUtil.log( TransactionType.UNDECLARE_SELF_AS_REP, rep.getSelf(), patient.getSelf() );
+
+        if ( !otherUser.removeRepresentative( patient ) ) {
+            return new ResponseEntity(
+                    errorResponse(
+                            "Patient with username: " + username + " is not in patient list of representatives" ),
+                    HttpStatus.NOT_FOUND );
+
         }
+        otherUser.save();
+        LoggerUtil.log( TransactionType.UNDECLARE_SELF_AS_REP, patient.getSelf(), otherUser.getSelf() );
 
-        final RepView toFront = mode.equals( "0" ) ? new RepView( rep ) : new RepView( patient );
-
-        return new ResponseEntity( toFront, HttpStatus.OK );
+        return new ResponseEntity( new RepView( otherUser ), HttpStatus.OK );
     }
 
     /**
