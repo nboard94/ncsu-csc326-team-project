@@ -7,7 +7,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.junit.Test;
@@ -183,6 +185,104 @@ public class PatientTest {
         p.setZip( "27607" );
         p.setZip( "27607-1234" );
         p.setPhone( "123-456-7890" );
+    }
+
+    /**
+     * Tests the getting and setting of a patient's personal representatives to
+     * ensure proper functionality.
+     *
+     * @throws ParseException
+     */
+    @Test
+    public void testMyRepresentatives () throws ParseException {
+        final User patient = new User( "patientTestPatient", "123456", Role.ROLE_PATIENT, 1 );
+        patient.save();
+        final Patient mom = new Patient( "patientTestMom" );
+        mom.save();
+        final Patient dad = new Patient( "patientTestDad" );
+        dad.save();
+        final PatientForm form = new PatientForm();
+        form.setMother( mom.getFirstName() );
+        form.setFather( dad.getFirstName() );
+        form.setFirstName( "patient" );
+        form.setPreferredName( "patient" );
+        form.setLastName( "mcpatientface" );
+        form.setEmail( "bademail@ncsu.edu" );
+        form.setAddress1( "Some town" );
+        form.setAddress2( "Somewhere" );
+        form.setCity( "placecity" );
+        form.setState( State.AL.getName() );
+        form.setZip( "27606" );
+        form.setPhone( "111-111-1111" );
+        form.setDateOfBirth( "01/01/1901" );
+        form.setDateOfDeath( "01/01/2001" );
+        form.setCauseOfDeath( "Hit by a truck" );
+        form.setBloodType( BloodType.ABPos.getName() );
+        form.setEthnicity( Ethnicity.Asian.getName() );
+        form.setGender( Gender.Male.getName() );
+        form.setSelf( patient.getUsername() );
+
+        final Patient testPatient = new Patient( form );
+        testPatient.save();
+        final Set<Patient> reps = new HashSet<Patient>();
+        reps.add( mom );
+        testPatient.setMyRepresentatives( reps );
+        assertEquals( testPatient.getMyRepresentatives(), reps );
+        reps.add( dad );
+        testPatient.setMyRepresentatives( reps );
+        assertEquals( testPatient.getMyRepresentatives(), reps );
+        testPatient.removeRepresentative( dad );
+        reps.remove( dad );
+        assertEquals( testPatient.getMyRepresentatives(), reps );
+        testPatient.addRepresentative( dad );
+        reps.add( dad );
+        assertEquals( testPatient.getMyRepresentatives(), reps );
+    }
+
+    /**
+     * Tests the functionality of getting and setting patients that are
+     * represented by me to ensure all functionality is working properly.
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void testRepresentedByMe () throws ParseException {
+        final User patient = new User( "patientTestPatient", "123456", Role.ROLE_PATIENT, 1 );
+        patient.save();
+        final Patient mom = new Patient( "patientTestMom" );
+        mom.save();
+        final Patient dad = new Patient( "patientTestDad" );
+        dad.save();
+        final PatientForm form = new PatientForm();
+        form.setMother( mom.getFirstName() );
+        form.setFather( dad.getFirstName() );
+        form.setFirstName( "patient" );
+        form.setPreferredName( "patient" );
+        form.setLastName( "mcpatientface" );
+        form.setEmail( "bademail@ncsu.edu" );
+        form.setAddress1( "Some town" );
+        form.setAddress2( "Somewhere" );
+        form.setCity( "placecity" );
+        form.setState( State.AL.getName() );
+        form.setZip( "27606" );
+        form.setPhone( "111-111-1111" );
+        form.setDateOfBirth( "01/01/1901" );
+        form.setDateOfDeath( "01/01/2001" );
+        form.setCauseOfDeath( "Hit by a truck" );
+        form.setBloodType( BloodType.ABPos.getName() );
+        form.setEthnicity( Ethnicity.Asian.getName() );
+        form.setGender( Gender.Male.getName() );
+        form.setSelf( patient.getUsername() );
+
+        final Patient testPatient = new Patient( form );
+        testPatient.save();
+        final Set<Patient> reps = new HashSet<Patient>();
+        reps.add( mom );
+        testPatient.setRepresentedByMe( reps );
+        assertEquals( testPatient.getRepresentedByMe(), reps );
+        reps.add( dad );
+        testPatient.setRepresentedByMe( reps );
+        assertEquals( testPatient.getRepresentedByMe(), reps );
     }
 
     private void expectFailure ( final Consumer<String> setter, final String value ) {
