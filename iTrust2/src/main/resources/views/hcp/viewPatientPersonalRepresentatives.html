@@ -53,11 +53,13 @@
 					if (!checkInput(username)) {
 						$scope.isValid = false;
 					} else {
-						$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "," + username).then(
+						$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "/" + username).then(
 							function(response) {
 								$scope.representsPatient.push(response.data);
+								$scope.isValid = true;
 								$scope.errorMessage = "";
 							}, function(rejection) {
+								$scope.isValid = false;
 								$scope.errorMessage = rejection.data.message;
 							});
 					}

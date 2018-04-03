@@ -126,16 +126,16 @@ public class APIRepresentativeTest {
     @WithMockUser ( username = "hcp", roles = { "HCP" } )
     public void testDeclareRepresentativeAsHCP () throws Exception {
         // Add valid rep to patient
-        mvc.perform( post( "/api/v1/declareRepHCP/patient,AliceThirteen" ) ).andExpect( status().isOk() );
+        mvc.perform( post( "/api/v1/declareRepHCP/patient/AliceThirteen" ) ).andExpect( status().isOk() );
 
         // Attempt to add invalid rep to patient
-        mvc.perform( post( "/api/v1/declareRepHCP/patient,nonexistent" ) ).andExpect( status().isNotFound() );
+        mvc.perform( post( "/api/v1/declareRepHCP/patient/nonexistent" ) ).andExpect( status().isNotFound() );
 
         // Attempt to add rep to invalid patient
-        mvc.perform( post( "/api/v1/declareRepHCP/nonexistent,AliceThirteen" ) ).andExpect( status().isNotFound() );
+        mvc.perform( post( "/api/v1/declareRepHCP/nonexistent/AliceThirteen" ) ).andExpect( status().isNotFound() );
 
         // Attempt to add patient as own rep
-        mvc.perform( post( "/api/v1/declareRepHCP/AliceThirteen,AliceThirteen" ) )
+        mvc.perform( post( "/api/v1/declareRepHCP/AliceThirteen/AliceThirteen" ) )
                 .andExpect( status().isNotAcceptable() );
     }
 

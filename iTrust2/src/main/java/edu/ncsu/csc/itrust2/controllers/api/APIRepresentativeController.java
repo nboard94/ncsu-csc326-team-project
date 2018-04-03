@@ -117,23 +117,24 @@ public class APIRepresentativeController extends APIController {
     /**
      * Adds a representative to a patient's list of representatives as a HCP
      *
-     * @param usernames
-     *            the usernames of the representative that is being added to the
-     *            list and the patient that the representative is being added to
+     * @param patientName
+     *            the user name of the patient
+     * @param repName
+     *            the representatives user name
      * @return response
      */
     @PreAuthorize ( "hasRole('ROLE_HCP')" )
-    @PostMapping ( BASE_PATH + "/declareRepHCP/{usernames}" )
-    public ResponseEntity declareRepresentativeAsHCP ( @PathVariable final String usernames ) {
-        final String[] names = usernames.split( "," );
-        final Patient patient = Patient.getByName( names[0] );
-        final Patient rep = Patient.getByName( names[1] );
+    @PostMapping ( BASE_PATH + "/declareRepHCP/{patientName}/{repName}" )
+    public ResponseEntity declareRepresentativeAsHCP ( @PathVariable final String patientName,
+            @PathVariable final String repName ) {
+        final Patient patient = Patient.getByName( patientName );
+        final Patient rep = Patient.getByName( repName );
         if ( patient == null ) {
-            return new ResponseEntity( errorResponse( "Patient with username: " + names[0] + " could not be found" ),
+            return new ResponseEntity( errorResponse( "Patient with username: " + patientName + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
         else if ( rep == null ) {
-            return new ResponseEntity( errorResponse( "Patient with username: " + names[1] + " could not be found" ),
+            return new ResponseEntity( errorResponse( "Patient with username: " + repName + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
 
