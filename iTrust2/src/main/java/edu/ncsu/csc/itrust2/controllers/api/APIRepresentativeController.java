@@ -2,6 +2,7 @@ package edu.ncsu.csc.itrust2.controllers.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -107,6 +108,11 @@ public class APIRepresentativeController extends APIController {
             return new ResponseEntity( errorResponse( "Cannot declare self as representative" ),
                     HttpStatus.NOT_ACCEPTABLE );
         }
+        final Set<Patient> patientReps = patient.getMyRepresentatives();
+        if ( patientReps.contains( rep ) ) {
+            return new ResponseEntity( errorResponse( "You are already represented by " + rep.getSelf().getUsername() ),
+                    HttpStatus.NOT_ACCEPTABLE );
+        }
         patient.addRepresentative( rep );
         patient.save();
 
@@ -140,6 +146,13 @@ public class APIRepresentativeController extends APIController {
 
         if ( patient.equals( rep ) ) {
             return new ResponseEntity( errorResponse( "Cannot add patient as its own representative" ),
+                    HttpStatus.NOT_ACCEPTABLE );
+        }
+
+        final Set<Patient> patientReps = patient.getMyRepresentatives();
+        if ( patientReps.contains( rep ) ) {
+            return new ResponseEntity( errorResponse(
+                    patient.getSelf().getUsername() + " is already represented by " + rep.getSelf().getUsername() ),
                     HttpStatus.NOT_ACCEPTABLE );
         }
         patient.addRepresentative( rep );

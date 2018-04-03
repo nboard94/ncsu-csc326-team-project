@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,52 +43,58 @@ public class APIRepresentativeTest {
     private WebApplicationContext context;
 
     /**
+     * Adds new patients before testing, only ran once for this class
+     */
+    @BeforeClass
+    public static void onlyOnce () {
+
+        // Add first user
+        User joshUser = User.getByName( "josh" );
+        if ( joshUser == null ) {
+            joshUser = new User( "josh", "123456", Role.ROLE_PATIENT, 1 );
+            joshUser.save();
+        }
+        Patient josh = Patient.getByName( "josh" );
+        if ( josh != null ) {
+            josh.delete();
+        }
+        josh = new Patient( joshUser );
+        josh.save();
+
+        // Add second user
+        User kathyUser = User.getByName( "kathy" );
+        if ( kathyUser == null ) {
+            kathyUser = new User( "kathy", "123456", Role.ROLE_PATIENT, 1 );
+            kathyUser.save();
+        }
+        Patient kathy = Patient.getByName( "kathy" );
+        if ( kathy != null ) {
+            kathy.delete();
+        }
+        kathy = new Patient( kathyUser );
+        kathy.addRepresentative( josh );
+        kathy.save();
+
+        // Add second user
+        User thomasUser = User.getByName( "thomas" );
+        if ( thomasUser == null ) {
+            thomasUser = new User( "thomas", "123456", Role.ROLE_PATIENT, 1 );
+            thomasUser.save();
+        }
+        Patient thomas = Patient.getByName( "thomas" );
+        if ( thomas != null ) {
+            thomas.delete();
+        }
+        thomas = new Patient( thomasUser );
+        thomas.save();
+    }
+
+    /**
      * Sets up test
      */
     @Before
     public void setup () {
         mvc = MockMvcBuilders.webAppContextSetup( context ).build();
-
-        // Attempt to add first patient
-        Patient p1 = Patient.getByName( "josh" );
-        if ( p1 == null ) {
-            final User p1User = new User( "josh", "123456", Role.ROLE_PATIENT, 1 );
-            p1User.save();
-            p1 = new Patient( p1User );
-            p1.save();
-        }
-
-        // Attempt to add second patient
-        Patient p2 = Patient.getByName( "kathy" );
-        if ( p2 == null ) {
-            final User p2User = new User( "kathy", "123456", Role.ROLE_PATIENT, 1 );
-            p2User.save();
-            p2 = new Patient( p2User );
-            p2.save();
-        }
-
-        // Attempt to add second patient
-        Patient p3 = Patient.getByName( "thomas" );
-        if ( p3 == null ) {
-            final User p3User = new User( "thomas", "123456", Role.ROLE_PATIENT, 1 );
-            p3User.save();
-            p3 = new Patient( p3User );
-            p3.save();
-        }
-
-    }
-
-    /**
-     * Private helper method that adds a patient to another patient's list of
-     * representatives
-     *
-     * @throws Exception
-     */
-    @Test
-    @WithMockUser ( username = "kathy", roles = { "PATIENT" } )
-    public void addRepAsOtherUser () throws Exception {
-        // Add valid user
-        mvc.perform( post( "/api/v1/declareRep/josh" ) ).andExpect( status().isOk() );
     }
 
     /**
@@ -139,6 +146,9 @@ public class APIRepresentativeTest {
         // Add valid user
         mvc.perform( post( "/api/v1/declareRep/kathy" ) ).andExpect( status().isOk() );
 
+        // Attempt to add same user again
+        mvc.perform( post( "/api/v1/declareRep/kathy" ) ).andExpect( status().isNotAcceptable() );
+
         // Attempt to add user that doesn't exist
         mvc.perform( post( "/api/v1/declareRep/nonexistent" ) ).andExpect( status().isNotFound() );
 
@@ -157,6 +167,9 @@ public class APIRepresentativeTest {
     public void testDeclareRepresentativeAsHCP () throws Exception {
         // Add valid rep to patient
         mvc.perform( post( "/api/v1/declareRepHCP/josh/thomas" ) ).andExpect( status().isOk() );
+
+        // Attempt to add valid rep again
+        mvc.perform( post( "/api/v1/declareRepHCP/josh/thomas" ) ).andExpect( status().isNotAcceptable() );
 
         // Attempt to add invalid rep to patient
         mvc.perform( post( "/api/v1/declareRepHCP/josh/nonexistent" ) ).andExpect( status().isNotFound() );
