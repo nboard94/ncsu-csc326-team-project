@@ -30,6 +30,7 @@ import edu.ncsu.csc.itrust2.models.enums.Ethnicity;
 import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.State;
+import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
 
@@ -77,6 +78,9 @@ public class APIPatientTest {
     @Test
     @WithMockUser ( username = "hcp", roles = { "HCP" } )
     public void testPatientAPI () throws Exception {
+
+        // Delete All Patients before testing
+        DomainObject.deleteAll( Patient.class );
 
         final UserForm p = new UserForm( "antti", "123456", Role.ROLE_PATIENT, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
