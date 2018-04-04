@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -42,7 +43,7 @@ public class VacRecord extends DomainObject<VacRecord> {
     private Vaccination vaccination;
 
     @NotNull
-    @JoinColumn ( name = "administration_id" )
+    @Column
     private Calendar    administrationDate;
 
     @NotNull
@@ -173,11 +174,11 @@ public class VacRecord extends DomainObject<VacRecord> {
      *
      * @param where
      *            List of Criterion to and together and search for records by
-     * @return a collection of matching prescriptions
+     * @return a collection of matching vacrecords
      */
     @SuppressWarnings ( "unchecked" )
     private static List<VacRecord> getWhere ( final List<Criterion> where ) {
-        return (List<VacRecord>) getWhere( Prescription.class, where );
+        return (List<VacRecord>) getWhere( VacRecord.class, where );
     }
 
     /**
@@ -185,7 +186,7 @@ public class VacRecord extends DomainObject<VacRecord> {
      *
      * @param id
      *            the id to query for
-     * @return the matching prescription
+     * @return the matching vacrecord
      */
     public static VacRecord getById ( final Long id ) {
         try {

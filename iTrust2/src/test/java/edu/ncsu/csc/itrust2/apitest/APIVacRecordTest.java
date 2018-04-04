@@ -89,7 +89,7 @@ public class APIVacRecordTest {
         final List<VacRecord> allRecs = VacRecord.getAll();
         for ( int i = 0; i < allRecs.size(); i++ ) {
             final VacRecord conflicting = allRecs.get( i );
-            if ( conflicting != null ) {
+            if ( conflicting.getId() != null ) {
                 mvc.perform( delete( "/api/v1/vacrecords/" + conflicting.getId() ) ).andExpect( status().isOk() )
                         .andExpect( content().string( conflicting.getId().toString() ) );
             }
