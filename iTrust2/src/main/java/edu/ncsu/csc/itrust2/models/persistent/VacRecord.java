@@ -202,7 +202,7 @@ public class VacRecord extends DomainObject<VacRecord> {
      * @return the system's VacRecords.
      */
     @SuppressWarnings ( "unchecked" )
-    public static List<VacRecord> getVacRecords () {
+    public static List<VacRecord> getAll () {
         return (List<VacRecord>) DomainObject.getAll( VacRecord.class );
     }
 }

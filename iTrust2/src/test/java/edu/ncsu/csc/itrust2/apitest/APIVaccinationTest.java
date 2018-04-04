@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -64,15 +65,26 @@ public class APIVaccinationTest {
     @Test
     @WithMockUser ( username = "admin", roles = { "USER", "ADMIN" } )
     public void testVaccinationAPI () throws UnsupportedEncodingException, Exception {
+
+        // Destroy conflicting test vaccinations
+        final List<Vaccination> allVacs = Vaccination.getAll();
+        for ( int i = 0; i < allVacs.size(); i++ ) {
+            final Vaccination conflicting = allVacs.get( i );
+            if ( conflicting != null ) {
+                mvc.perform( delete( "/api/v1/vaccinations/" + conflicting.getId() ) ).andExpect( status().isOk() )
+                        .andExpect( content().string( conflicting.getId().toString() ) );
+            }
+        }
+
         // Create vaccinations for testing
         final VaccinationForm form1 = new VaccinationForm();
         form1.setCode( "00000" );
-        form1.setName( "TEST1" );
+        form1.setName( "TEST" );
         form1.setDescription( "DESC1" );
 
         final VaccinationForm form2 = new VaccinationForm();
         form2.setCode( "00001" );
-        form2.setName( "TEST2" );
+        form2.setName( "TEST" );
         form2.setDescription( "Desc2" );
 
         // Add vaccination1 to system

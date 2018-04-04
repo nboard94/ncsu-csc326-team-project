@@ -54,6 +54,19 @@ public class PatientController {
     }
 
     /**
+     * Returns the form page for a patient to view all vaccination records
+     *
+     * @param model
+     *            The data for the front end
+     * @return Page to display to the user
+     */
+    @GetMapping ( "/patient/viewVacRecords" )
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    public String viewVacRecords ( final Model model ) {
+        return "/patient/viewVacRecords";
+    }
+
+    /**
      * Landing screen for a Patient when they log in
      *
      * @param model
