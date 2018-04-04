@@ -13,7 +13,7 @@ When I choose to add a personal representative
 Then the patient is added as my representative
 
 Scenario: Delete a Personal Representative
-Given I am a patient and have a personal representative
+Given I am a patient and have two representatives
 When I login as a patient
 When I navigate to the personal representatives page
 When I choose to remove a personal representative
