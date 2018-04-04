@@ -90,7 +90,7 @@ public class APIVacRecordTest {
         for ( int i = 0; i < allRecs.size(); i++ ) {
             final VacRecord conflicting = allRecs.get( i );
             if ( conflicting != null ) {
-                mvc.perform( delete( "/api/v1/vaccinations/" + conflicting.getId() ) ).andExpect( status().isOk() )
+                mvc.perform( delete( "/api/v1/vacrecords/" + conflicting.getId() ) ).andExpect( status().isOk() )
                         .andExpect( content().string( conflicting.getId().toString() ) );
             }
         }
@@ -109,7 +109,7 @@ public class APIVacRecordTest {
 
         // Add first vacRecord to system
         final String content1 = mvc
-                .perform( post( "/api/v1/vacRecords" ).contentType( MediaType.APPLICATION_JSON )
+                .perform( post( "/api/v1/vacrecords" ).contentType( MediaType.APPLICATION_JSON )
                         .content( TestUtils.asJsonString( form1 ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
 
@@ -123,7 +123,7 @@ public class APIVacRecordTest {
         // Add second vacrecord to system
         final String content2 = mvc
 
-                .perform( post( "/api/v1/vacRecords" ).contentType( MediaType.APPLICATION_JSON )
+                .perform( post( "/api/v1/vacrecords" ).contentType( MediaType.APPLICATION_JSON )
                         .content( TestUtils.asJsonString( form2 ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final VacRecord v2 = gson.fromJson( content2, VacRecord.class );
@@ -133,7 +133,7 @@ public class APIVacRecordTest {
         assertEquals( form2.getAdministrationDate(), v2Form.getAdministrationDate() );
 
         // Verify vacrecord have been added
-        final String allVacRecordContent = mvc.perform( get( "/api/v1/vacRecords" ) ).andExpect( status().isOk() )
+        final String allVacRecordContent = mvc.perform( get( "/api/v1/vacrecords" ) ).andExpect( status().isOk() )
                 .andReturn().getResponse().getContentAsString();
         final List<VacRecord> allVacRecords = gson.fromJson( allVacRecordContent, new TypeToken<List<VacRecord>>() {
         }.getType() );
@@ -153,7 +153,7 @@ public class APIVacRecordTest {
 
         // Get single vac record
         final String getContent = mvc
-                .perform( put( "/api/v1/vacRecords" ).contentType( MediaType.APPLICATION_JSON )
+                .perform( put( "/api/v1/vacrecords" ).contentType( MediaType.APPLICATION_JSON )
                         .content( TestUtils.asJsonString( new VacRecordForm( v1 ) ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final VacRecord fetched = gson.fromJson( getContent, VacRecord.class );
@@ -167,9 +167,9 @@ public class APIVacRecordTest {
         // ).andExpect( status().isBadRequest() );
 
         // Delete test objects
-        mvc.perform( delete( "/api/v1/vacRecords/" + v1.getId() ) ).andExpect( status().isOk() )
+        mvc.perform( delete( "/api/v1/vacrecords/" + v1.getId() ) ).andExpect( status().isOk() )
                 .andExpect( content().string( v1.getId().toString() ) );
-        mvc.perform( delete( "/api/v1/vacRecords/" + v2.getId() ) ).andExpect( status().isOk() )
+        mvc.perform( delete( "/api/v1/vacrecords/" + v2.getId() ) ).andExpect( status().isOk() )
                 .andExpect( content().string( v2.getId().toString() ) );
     }
 
