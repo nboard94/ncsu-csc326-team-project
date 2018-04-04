@@ -61,7 +61,7 @@ public class VacRecord extends DomainObject<VacRecord> {
      * Construct a new VacRecord using the details in the given form.
      *
      * @param form
-     *            the prescription form
+     *            the vaccination record form
      */
     public VacRecord ( final VacRecordForm form ) {
 
