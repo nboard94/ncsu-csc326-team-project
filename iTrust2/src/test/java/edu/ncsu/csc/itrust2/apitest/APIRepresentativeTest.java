@@ -119,6 +119,7 @@ public class APIRepresentativeTest {
     @WithMockUser ( username = "hcp", roles = { "HCP" } )
     public void testGetValidRepresentative () throws Exception {
 
+
         mvc.perform( get( "/api/v1/reps/josh" ) ).andExpect( status().isOk() );
 
     }
