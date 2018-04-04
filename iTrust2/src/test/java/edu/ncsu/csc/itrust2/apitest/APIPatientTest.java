@@ -78,7 +78,8 @@ public class APIPatientTest {
     @Test
     @WithMockUser ( username = "hcp", roles = { "HCP" } )
     public void testPatientAPI () throws Exception {
-        // Clear out all patients before running these tests.
+
+        // Delete All Patients before testing
         DomainObject.deleteAll( Patient.class );
 
         final UserForm p = new UserForm( "antti", "123456", Role.ROLE_PATIENT, 1 );
@@ -100,6 +101,10 @@ public class APIPatientTest {
         patient.setSelf( "antti" );
         patient.setState( State.NC.toString() );
         patient.setZip( "27514" );
+
+        // Delete the patient before testing
+        final Patient deletePatient = new Patient( patient );
+        deletePatient.delete();
 
         // Editing the patient before they exist should fail
         mvc.perform( put( "/api/v1/patients/antti" ).contentType( MediaType.APPLICATION_JSON )
