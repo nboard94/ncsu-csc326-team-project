@@ -15,6 +15,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -167,9 +168,9 @@ public class PersonalRepresentativesStepDefs {
      */
     @When ( "I choose to remove a personal representative" )
     public void removeRep () throws InterruptedException {
-        Thread.sleep( 3000 );
+        pause();
         assertTrue( tryButtonClick( By.name( "deleteUser" ), 4 ) );
-        Thread.sleep( 3000 );
+        pause();
 
     }
 
@@ -181,11 +182,14 @@ public class PersonalRepresentativesStepDefs {
      * @param attempts
      *            the number of attempts to click the object
      * @return the success of the click attempts
+     * @throws InterruptedException
      */
-    private boolean tryButtonClick ( final By by, final int attempts ) {
+    private boolean tryButtonClick ( final By by, final int attempts ) throws InterruptedException {
+        pause();
         for ( int i = 0; i < attempts; i++ ) {
             try {
                 driver.findElement( by ).click();
+                pause();
                 return true;
             }
             catch ( final StaleElementReferenceException e ) {
@@ -198,15 +202,24 @@ public class PersonalRepresentativesStepDefs {
     }
 
     /**
+     * Helper method that pauses the execution of code so that it can be ran
+     * properly
+     *
+     * @throws InterruptedException
+     */
+    private void pause () throws InterruptedException {
+        Thread.sleep( 500 );
+    }
+
+    /**
      * Remove me as rep
      *
      * @throws InterruptedException
      */
     @When ( "I select the patient I do not want to represent" )
     public void removeMeAsRep () throws InterruptedException {
-        Thread.sleep( 3000 );
         assertTrue( tryButtonClick( By.name( "deleteSelfUser" ), 4 ) );
-        Thread.sleep( 3000 );
+
     }
 
     /**
@@ -217,7 +230,7 @@ public class PersonalRepresentativesStepDefs {
      */
     @Then ( "the patient is added as my representative" )
     public void addedSuccessfully () throws InterruptedException {
-        Thread.sleep( 1000 );
+        pause();
         final Patient p = Patient.getByName( "cuPatient1" );
         final Set<Patient> reps = p.getMyRepresentatives();
         assertEquals( 1, reps.size() );
@@ -230,7 +243,7 @@ public class PersonalRepresentativesStepDefs {
      */
     @Then ( "the representative is removed from my list of personal representatives" )
     public void removedSuccessfully () throws InterruptedException {
-        Thread.sleep( 3000 );
+        pause();
         final Patient p = Patient.getByName( "cuPatient1" );
         final Set<Patient> reps = p.getMyRepresentatives();
         assertEquals( 0, reps.size() );
@@ -243,10 +256,93 @@ public class PersonalRepresentativesStepDefs {
      */
     @Then ( "I am removed as their personal representative" )
     public void removedMeSuccessfully () throws InterruptedException {
-        Thread.sleep( 3000 );
+        pause();
         final Patient p = Patient.getByName( "cuPatient1" );
         final Set<Patient> reps = p.getMyRepresentatives();
         assertEquals( 0, reps.size() );
+    }
+
+    /**
+     * Login as a HCP
+     */
+    @When ( "I log in as a HCP" )
+    public void loginHCP () {
+        driver.get( baseUrl );
+        final WebElement username = driver.findElement( By.name( "username" ) );
+        username.clear();
+        username.sendKeys( "hcp" );
+        final WebElement password = driver.findElement( By.name( "password" ) );
+        password.clear();
+        password.sendKeys( "123456" );
+        final WebElement submit = driver.findElement( By.className( "btn" ) );
+        submit.click();
+    }
+
+    /**
+     * Navigate to search for reps
+     */
+    @When ( "I navigate to the Personal Representatives Page for HCPs" )
+    public void repPageHCP () {
+        ( (JavascriptExecutor) driver )
+                .executeScript( "document.getElementById('personalRepresentatives-hcp').click();" );
+    }
+
+    /**
+     * Search for patient as HCP step
+     *
+     * @throws InterruptedException
+     */
+    @When ( "I search for a patient" )
+    public void searchPatient () throws InterruptedException {
+        final WebElement searchBox = driver.findElement( By.name( "searchUsername" ) );
+        searchBox.clear();
+        searchBox.sendKeys( "cuPatient1" );
+        assertTrue( tryButtonClick( By.className( "btn" ), 2 ) );
+    }
+
+    /**
+     * The results for searching for patient
+     */
+    @Then ( "The list of patient's representatives are shown" )
+    public void patientSearchResults () {
+        String bodyText = driver.findElement( By.tagName( "body" ) ).getText();
+        final String patientName = "cuPatient1";
+        int occurrences = 0;
+        int index = 0;
+        while ( index != -1 ) {
+            index = bodyText.indexOf( patientName );
+            if ( index != -1 ) {
+                bodyText = bodyText.substring( index + patientName.length() );
+                occurrences++;
+            }
+        }
+
+        assertEquals( 2, occurrences );
+
+    }
+
+    /**
+     * Step that adds a representative for a patient
+     *
+     * @throws InterruptedException
+     */
+    @When ( "I choose to add a representative for the patient" )
+    public void declareRepForPatient () throws InterruptedException {
+        final WebElement textBox = driver.findElement( By.name( "declareUsername" ) );
+        textBox.clear();
+        textBox.sendKeys( "cuPatient2" );
+        final WebElement submit = driver.findElements( By.className( "btn" ) ).get( 1 );
+        submit.click();
+
+    }
+
+    /**
+     * The result of adding a representative for a patient
+     */
+    @And ( "The new representative should appear in the patient's list of representatives" )
+    public void declareRepForPatientResult () {
+        final Patient p1 = Patient.getByName( "cuPatient1" );
+        assertEquals( 1, p1.getMyRepresentatives().size() );
     }
 
 }
