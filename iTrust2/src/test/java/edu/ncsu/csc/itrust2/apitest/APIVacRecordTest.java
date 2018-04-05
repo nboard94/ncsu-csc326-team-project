@@ -34,6 +34,7 @@ import edu.ncsu.csc.itrust2.forms.admin.VaccinationForm;
 import edu.ncsu.csc.itrust2.forms.hcp.VacRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.VacRecord;
+import edu.ncsu.csc.itrust2.models.persistent.Vaccination;
 import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
 
 /**
@@ -48,7 +49,8 @@ public class APIVacRecordTest {
     private MockMvc               mvc;
 
     private Gson                  gson;
-    VaccinationForm               vaccinationForm;
+    VaccinationForm               vaccinationForm1;
+    VaccinationForm               vaccinationForm2;
 
     @Autowired
     private WebApplicationContext context;
@@ -67,13 +69,20 @@ public class APIVacRecordTest {
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patientForm ) ) );
 
-        // Create vaccination for testing
-        vaccinationForm = new VaccinationForm();
-        vaccinationForm.setCode( "91191" );
-        vaccinationForm.setName( "TEST" );
-        vaccinationForm.setDescription( "DESC" );
+        // Create vaccinations for testing
+        vaccinationForm1 = new VaccinationForm();
+        vaccinationForm1.setCode( "91191" );
+        vaccinationForm1.setName( "TEST" );
+        vaccinationForm1.setDescription( "DESC" );
         mvc.perform( post( "/api/v1/vaccinations" ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( vaccinationForm ) ) );
+                .content( TestUtils.asJsonString( vaccinationForm1 ) ) );
+
+        vaccinationForm2 = new VaccinationForm();
+        vaccinationForm2.setCode( "00000" );
+        vaccinationForm2.setName( "TEST" );
+        vaccinationForm2.setDescription( "DESC" );
+        mvc.perform( post( "/api/v1/vaccinations" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( vaccinationForm2 ) ) );
     }
 
     /**
@@ -98,12 +107,12 @@ public class APIVacRecordTest {
         // Create two vacRecord forms for testing
         final VacRecordForm form1 = new VacRecordForm();
         form1.setId( null );
-        form1.setVaccination( vaccinationForm.getCode() );
+        form1.setVaccination( vaccinationForm1.getCode() );
         form1.setPatient( "api_test_patient" );
         form1.setAdministrationDate( "02/19/2018" );
 
         final VacRecordForm form2 = new VacRecordForm();
-        form2.setVaccination( vaccinationForm.getCode() );
+        form2.setVaccination( vaccinationForm1.getCode() );
         form2.setPatient( "api_test_patient" );
         form2.setAdministrationDate( "02/19/2018" );
 
@@ -139,17 +148,15 @@ public class APIVacRecordTest {
         }.getType() );
         assertTrue( allVacRecords.size() >= 2 );
 
-        // Edit first prescription
-        // p1.setDosage( 500 );
-        // final String editContent = mvc
-        // .perform( put( "/api/v1/prescriptions" ).contentType(
-        // MediaType.APPLICATION_JSON )
-        // .content( TestUtils.asJsonString( new PrescriptionForm( p1 ) ) ) )
-        // .andReturn().getResponse().getContentAsString();
-        // final Prescription edited = gson.fromJson( editContent,
-        // Prescription.class );
-        // assertEquals( p1.getId(), edited.getId() );
-        // assertEquals( p1.getDosage(), edited.getDosage() );
+        // Edit first vaccination
+        v1.setVaccination( new Vaccination( vaccinationForm2 ) );
+        final String editContent = mvc
+                .perform( put( "/api/v1/vacrecords" ).contentType( MediaType.APPLICATION_JSON )
+                        .content( TestUtils.asJsonString( new VacRecordForm( v1 ) ) ) )
+                .andReturn().getResponse().getContentAsString();
+        final VacRecord edited = gson.fromJson( editContent, VacRecord.class );
+        assertEquals( v1.getId(), edited.getId() );
+        assertEquals( v1.getVaccination().getCode(), edited.getVaccination().getCode() );
 
         // Get single vac record
         final String getContent = mvc
@@ -160,10 +167,10 @@ public class APIVacRecordTest {
         assertEquals( v1.getId(), fetched.getId() );
 
         // Attempt invalid edit
-        // p2.setRenewals( -1 );
-        // mvc.perform( put( "/api/v1/prescriptions" ).contentType(
+        // v2.setVaccination( null );
+        // mvc.perform( put( "api/v1/vacrecords" ).contentType(
         // MediaType.APPLICATION_JSON )
-        // .content( TestUtils.asJsonString( new PrescriptionForm( p2 ) ) )
+        // .content( TestUtils.asJsonString( new VacRecordForm( v2 ) ) )
         // ).andExpect( status().isBadRequest() );
 
         // Delete test objects

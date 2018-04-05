@@ -30,6 +30,7 @@ import org.hibernate.criterion.Criterion;
 
 import edu.ncsu.csc.itrust2.forms.hcp.OfficeVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp.PrescriptionForm;
+import edu.ncsu.csc.itrust2.forms.hcp.VacRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
@@ -237,6 +238,12 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         final List<PrescriptionForm> ps = ovf.getPrescriptions();
         if ( ps != null ) {
             setPrescriptions( ps.stream().map( ( final PrescriptionForm pf ) -> new Prescription( pf ) )
+                    .collect( Collectors.toList() ) );
+        }
+
+        final List<VacRecordForm> vs = ovf.getVacRecords();
+        if ( vs != null ) {
+            setVacRecords( vs.stream().map( ( final VacRecordForm vf ) -> new VacRecord( vf ) )
                     .collect( Collectors.toList() ) );
         }
     }
@@ -507,6 +514,25 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     }
 
     /**
+     * Sets the list of vacrecords associated with this visit
+     *
+     * @param vacRecords
+     *            The list of vacrecords
+     */
+    public void setVacRecords ( final List<VacRecord> vacRecords ) {
+        this.vacRecords = vacRecords;
+    }
+
+    /**
+     * Returns the list of vacrecords for this visit
+     *
+     * @return The list of vac records
+     */
+    public List<VacRecord> getVacRecords () {
+        return vacRecords;
+    }
+
+    /**
      * The patient of this office visit
      */
     @NotNull
@@ -581,6 +607,10 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     @JoinColumn ( name = "prescriptions_id" )
     private List<Prescription>       prescriptions = Collections.emptyList();
 
+    @OneToMany ( fetch = FetchType.EAGER )
+    @JoinColumn ( name = "vacRecords_id" )
+    private List<VacRecord>          vacRecords    = Collections.emptyList();
+
     /**
      * Overrides the basic domain object save in order to save basic health
      * metrics and the office visit.
@@ -630,6 +660,44 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         }
 
         //// END PRESCRIPTIONS ////
+
+        //// SAVE VACRECORDS ////
+
+        // Get vacrecord ids included in this office visit
+        final Set<Long> currentVacIds = this.getVacRecords().stream().map( VacRecord::getId )
+                .collect( Collectors.toSet() );
+
+        // Get vacrecord ids saved previously
+        final Set<Long> savedVacIds = oldVisit == null ? Collections.emptySet()
+                : oldVisit.getVacRecords().stream().map( VacRecord::getId ).collect( Collectors.toSet() );
+
+        // Save each of the vacrecords
+        this.getVacRecords().forEach( v -> {
+            final boolean isVacSaved = savedVacIds.contains( v.getId() );
+            if ( isVacSaved ) {
+                LoggerUtil.log( TransactionType.VACRECORD_EDIT, LoggerUtil.currentUser(), getPatient().getUsername(),
+                        "Editing vaccination record with id " + v.getId() );
+            }
+            else {
+                LoggerUtil.log( TransactionType.VACRECORD_CREATE, LoggerUtil.currentUser(), getPatient().getUsername(),
+                        "Creating vaccination record with id " + v.getId() );
+            }
+            v.save();
+        } );
+
+        // Remove vacrecords no longer included
+        if ( !savedVacIds.isEmpty() ) {
+            savedVacIds.forEach( id -> {
+                final boolean isVacMissing = currentVacIds.contains( id );
+                if ( isVacMissing ) {
+                    LoggerUtil.log( TransactionType.VACRECORD_DELETE, LoggerUtil.currentUser(),
+                            getPatient().getUsername(), "Deleting vaccination record with id " + id );
+                    VacRecord.getById( id ).delete();
+                }
+            } );
+        }
+
+        //// END VACRECORDS ////
 
         try {
             super.save();

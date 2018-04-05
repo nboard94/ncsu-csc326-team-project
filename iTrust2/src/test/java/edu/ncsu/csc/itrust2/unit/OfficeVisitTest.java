@@ -17,9 +17,20 @@ import edu.ncsu.csc.itrust2.models.persistent.ICDCode;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Prescription;
 import edu.ncsu.csc.itrust2.models.persistent.User;
+import edu.ncsu.csc.itrust2.models.persistent.VacRecord;
+import edu.ncsu.csc.itrust2.models.persistent.Vaccination;
 
+/**
+ * Tests the functionality of creating, editing, and saving an office visit
+ *
+ * @author someone else
+ * @author Nick
+ */
 public class OfficeVisitTest {
 
+    /**
+     * Test class for testing office visits
+     */
     @Test
     public void testOfficeVisit () {
 
@@ -69,7 +80,6 @@ public class OfficeVisitTest {
         visit.save();
 
         final Drug drug = new Drug();
-
         drug.setCode( "1234-4321-89" );
         drug.setDescription( "Lithium Compounds" );
         drug.setName( "Li2O8" );
@@ -93,6 +103,26 @@ public class OfficeVisitTest {
         visit.save();
 
         visit.setPrescriptions( Collections.emptyList() );
+
+        visit.save();
+
+        final Vaccination vaccination = new Vaccination();
+        vaccination.setCode( "0123-4567-89" );
+        vaccination.setName( "TEST" );
+        vaccination.setDescription( "DESC" );
+
+        final VacRecord vacrec = new VacRecord();
+        vacrec.setVaccination( vaccination );
+        vacrec.setPatient( User.getByName( "AliceThirteen" ) );
+        vacrec.setAdministrationDate( Calendar.getInstance() );
+
+        vacrec.save();
+
+        visit.setVacRecords( Collections.singletonList( vacrec ) );
+
+        visit.save();
+
+        visit.setVacRecords( Collections.emptyList() );
 
         visit.save();
 
