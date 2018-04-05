@@ -208,7 +208,7 @@ public class PersonalRepresentativesStepDefs {
      * @throws InterruptedException
      */
     private void pause () throws InterruptedException {
-        Thread.sleep( 500 );
+        Thread.sleep( 2000 );
     }
 
     /**
