@@ -24,7 +24,7 @@ import edu.ncsu.csc.itrust2.models.persistent.Vaccination;
  * Tests the functionality of creating, editing, and saving an office visit
  *
  * @author someone else
- * @author Nick
+ * @author Nick Board
  */
 public class OfficeVisitTest {
 
@@ -107,9 +107,10 @@ public class OfficeVisitTest {
         visit.save();
 
         final Vaccination vaccination = new Vaccination();
-        vaccination.setCode( "0123-4567-89" );
+        vaccination.setCode( "01234" );
         vaccination.setName( "TEST" );
         vaccination.setDescription( "DESC" );
+        vaccination.save();
 
         final VacRecord vacrec = new VacRecord();
         vacrec.setVaccination( vaccination );
