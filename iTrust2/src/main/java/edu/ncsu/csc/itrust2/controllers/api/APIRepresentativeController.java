@@ -2,6 +2,7 @@ package edu.ncsu.csc.itrust2.controllers.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
@@ -32,15 +34,12 @@ public class APIRepresentativeController extends APIController {
      *
      * @return response
      */
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
     @GetMapping ( BASE_PATH + "/reps" )
     public ResponseEntity getRepresentatives () {
         final User self = User.getByName( LoggerUtil.currentUser() );
         final Patient patient = Patient.getPatient( self );
-        if ( patient == null ) {
-            return new ResponseEntity( errorResponse( "Could not find a patient entry for you, " + self.getUsername() ),
-                    HttpStatus.NOT_FOUND );
-        }
-
+        LoggerUtil.log( TransactionType.VIEW_REPS, self );
         return new ResponseEntity( wrapRepresentatives( patient ), HttpStatus.OK );
     }
 
@@ -51,13 +50,16 @@ public class APIRepresentativeController extends APIController {
      *            the patient's username
      * @return the complete list of the patient's representatives
      */
+    @PreAuthorize ( "hasRole('ROLE_HCP')" )
     @GetMapping ( BASE_PATH + "/reps/{username}" )
     public ResponseEntity getRepresentativesHCP ( @PathVariable final String username ) {
         final Patient patient = Patient.getByName( username );
+        final User self = User.getByName( LoggerUtil.currentUser() );
         if ( patient == null ) {
             return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
+        LoggerUtil.log( TransactionType.VIEW_REPS, self, patient.getSelf() );
         return new ResponseEntity( wrapRepresentatives( patient ), HttpStatus.OK );
     }
 
@@ -93,95 +95,128 @@ public class APIRepresentativeController extends APIController {
      *            representatives
      * @return response
      */
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
     @PostMapping ( BASE_PATH + "/declareRep/{username}" )
     public ResponseEntity declareRepresentative ( @PathVariable final String username ) {
-        final String currentUser = LoggerUtil.currentUser();
-        final Patient patient = Patient.getByName( currentUser );
+        final Patient patient = Patient.getByName( LoggerUtil.currentUser() );
         final Patient rep = Patient.getByName( username );
         if ( rep == null ) {
             return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
+        if ( patient.equals( rep ) ) {
+            return new ResponseEntity( errorResponse( "Cannot declare self as representative" ),
+                    HttpStatus.NOT_ACCEPTABLE );
+        }
+        final Set<Patient> patientReps = patient.getMyRepresentatives();
+        if ( patientReps.contains( rep ) ) {
+            return new ResponseEntity( errorResponse( "You are already represented by " + rep.getSelf().getUsername() ),
+                    HttpStatus.NOT_ACCEPTABLE );
+        }
         patient.addRepresentative( rep );
         patient.save();
 
+        LoggerUtil.log( TransactionType.DECLARE_REP, patient.getSelf(), rep.getSelf() );
         return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
     }
 
     /**
      * Adds a representative to a patient's list of representatives as a HCP
      *
-     * @param usernames
-     *            the usernames of the representative that is being added to the
-     *            list and the patient that the representative is being added to
+     * @param patientName
+     *            the user name of the patient
+     * @param repName
+     *            the representatives user name
      * @return response
      */
     @PreAuthorize ( "hasRole('ROLE_HCP')" )
-    @PostMapping ( BASE_PATH + "/declareRepHCP/{usernames}" )
-    public ResponseEntity declareRepresentativeAsHCP ( @PathVariable final String usernames ) {
-        final String[] names = usernames.split( "," );
-        final Patient patient = Patient.getByName( names[0] );
-        final Patient rep = Patient.getByName( names[1] );
+    @PostMapping ( BASE_PATH + "/declareRepHCP/{patientName}/{repName}" )
+    public ResponseEntity declareRepresentativeAsHCP ( @PathVariable final String patientName,
+            @PathVariable final String repName ) {
+        final Patient patient = Patient.getByName( patientName );
+        final Patient rep = Patient.getByName( repName );
         if ( patient == null ) {
-            return new ResponseEntity( errorResponse( "Patient with username: " + names[0] + " could not be found" ),
+            return new ResponseEntity( errorResponse( "Patient with username: " + patientName + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
         else if ( rep == null ) {
-            return new ResponseEntity( errorResponse( "Patient with username: " + names[1] + " could not be found" ),
+            return new ResponseEntity( errorResponse( "Patient with username: " + repName + " could not be found" ),
                     HttpStatus.NOT_FOUND );
+        }
+
+        if ( patient.equals( rep ) ) {
+            return new ResponseEntity( errorResponse( "Cannot add patient as its own representative" ),
+                    HttpStatus.NOT_ACCEPTABLE );
+        }
+
+        final Set<Patient> patientReps = patient.getMyRepresentatives();
+        if ( patientReps.contains( rep ) ) {
+            return new ResponseEntity( errorResponse(
+                    patient.getSelf().getUsername() + " is already represented by " + rep.getSelf().getUsername() ),
+                    HttpStatus.NOT_ACCEPTABLE );
         }
         patient.addRepresentative( rep );
         patient.save();
 
+        LoggerUtil.log( TransactionType.DECLARE_REP, patient.getSelf(), rep.getSelf() );
         return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
     }
 
     /**
-     * Removes a representative to the current user's list of representatives
+     * Undeclares a representative from the logged in user's list of reps
      *
-     * @param format
-     *            the username of the representative and the mode whether the
-     *            patient is removing the rep or removing self as rep
-     * @return response
+     * @param username
+     *            the username of the rep to be removed
+     * @return reponse
      */
-    @PostMapping ( BASE_PATH + "/undeclareRep/{format}" )
-    public ResponseEntity undeclareRepresentative ( @PathVariable final String format ) {
-        final String[] fromFront = format.split( "," );
-        final String mode = fromFront[0];
-        final String username = fromFront[1];
-
-        Patient patient;
-        Patient rep;
-
-        // Current user is undeclaring rep
-        if ( mode.equals( "0" ) ) {
-            patient = Patient.getByName( LoggerUtil.currentUser() );
-            rep = Patient.getByName( username );
-        }
-        // Current user is undeclaring themselves as rep to another patient
-        else if ( mode.equals( "1" ) ) {
-            patient = Patient.getByName( username );
-            rep = Patient.getByName( LoggerUtil.currentUser() );
-        }
-        else {
-            return new ResponseEntity( errorResponse( "Mode for undeclaring representative not correct" ),
-                    HttpStatus.NOT_ACCEPTABLE );
-        }
-
-        // Error checking to see if input user exists
-        if ( patient == null || rep == null ) {
-            return new ResponseEntity( errorResponse( "Could not find Patient with username: " + username ),
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    @PostMapping ( BASE_PATH + "/undeclare/{username}" )
+    public ResponseEntity undeclareRepresentative ( @PathVariable final String username ) {
+        final Patient patient = Patient.getByName( LoggerUtil.currentUser() );
+        final Patient rep = Patient.getByName( username );
+        if ( rep == null ) {
+            return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
                     HttpStatus.NOT_FOUND );
         }
         if ( !patient.removeRepresentative( rep ) ) {
-            return new ResponseEntity( errorResponse( "Could not undeclare Patient with username: " + username ),
-                    HttpStatus.EXPECTATION_FAILED );
+            return new ResponseEntity(
+                    errorResponse(
+                            "Patient with username: " + username + " is not in patient list of representatives" ),
+                    HttpStatus.NOT_FOUND );
         }
         patient.save();
+        LoggerUtil.log( TransactionType.UNDECLARE_REP, patient.getSelf(), rep.getSelf() );
+        return new ResponseEntity( new RepView( rep ), HttpStatus.OK );
+    }
 
-        final RepView toFront = mode.equals( "0" ) ? new RepView( rep ) : new RepView( patient );
+    /**
+     * Undeclares the logged in user as a representative to another patient
+     *
+     * @param username
+     *            the username of the rep to be removed
+     * @return reponse
+     */
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    @PostMapping ( BASE_PATH + "/undeclareSelf/{username}" )
+    public ResponseEntity undeclareSelfAsRepresentative ( @PathVariable final String username ) {
+        final Patient patient = Patient.getByName( LoggerUtil.currentUser() );
+        final Patient otherUser = Patient.getByName( username );
+        if ( otherUser == null ) {
+            return new ResponseEntity( errorResponse( "Patient with username: " + username + " could not be found" ),
+                    HttpStatus.NOT_FOUND );
+        }
 
-        return new ResponseEntity( toFront, HttpStatus.OK );
+        if ( !otherUser.removeRepresentative( patient ) ) {
+            return new ResponseEntity(
+                    errorResponse(
+                            "Patient with username: " + username + " is not in patient list of representatives" ),
+                    HttpStatus.NOT_FOUND );
+
+        }
+        otherUser.save();
+        LoggerUtil.log( TransactionType.UNDECLARE_SELF_AS_REP, patient.getSelf(), otherUser.getSelf() );
+
+        return new ResponseEntity( new RepView( otherUser ), HttpStatus.OK );
     }
 
     /**

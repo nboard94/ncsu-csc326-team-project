@@ -53,11 +53,13 @@
 					if (!checkInput(username)) {
 						$scope.isValid = false;
 					} else {
-						$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "," + username).then(
+						$http.post("/iTrust2/api/v1/declareRepHCP/" + $scope.currentPatient + "/" + username).then(
 							function(response) {
 								$scope.representsPatient.push(response.data);
+								$scope.isValid = true;
 								$scope.errorMessage = "";
 							}, function(rejection) {
+								$scope.isValid = false;
 								$scope.errorMessage = rejection.data.message;
 							});
 					}
@@ -135,7 +137,7 @@
 
 							<!-- Header for patients Representatives -->
 							<div class="panel-heading">
-								<h3>Patient's Representatives</h3>
+								<h3>{{currentPatient}}'s Representatives</h3>
 							</div>
 							<div class="panel-body">
 								
@@ -204,7 +206,7 @@
 
 							<!-- Header for patients Representatives -->
 							<div class="panel-heading">
-								<h3>People that Patient Represents</h3>
+								<h3>People that {{currentPatient}} Represents</h3>
 							</div>
 							<div class="panel-body">
 								

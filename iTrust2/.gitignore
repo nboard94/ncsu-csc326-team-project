@@ -57,3 +57,4 @@ WebRoot/
 /target/
 .DS_Store
 /.checkstyle
+/results.txt

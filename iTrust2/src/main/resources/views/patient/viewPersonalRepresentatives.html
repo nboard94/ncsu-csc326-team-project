@@ -69,16 +69,28 @@
 					}
 				}
 
-				$scope.undeclareRep = function(mode, username) {
-					$http.post("/iTrust2/api/v1/undeclareRep/" + mode + "," + username).then(
+				$scope.undeclareRep = function(username) {
+					$http.post("/iTrust2/api/v1/undeclare/" + username).then(
 						function(response) {
-							removeRep(mode, response.data);
+							removeRep(0, response.data);
 							$scope.isValid = true;
 							$scope.errorMessage = "";
 						}, function(rejection) {
 							$scope.isValid = false;
 							$scope.errorMessage = rejection.data.message;
 						});
+				}
+				
+				$scope.undeclareSelfAsRep = function(username) {
+					$http.post("/iTrust2/api/v1/undeclareSelf/" + username).then(
+							function(response) {
+								removeRep(1, response.data);
+								$scope.isValid = true;
+								$scope.errorMessage = "";
+							}, function(rejection) {
+								$scope.isValid = false;
+								$scope.errorMessage = rejection.data.message;
+							});
 				}
 				
 				var checkInput = function(username) {
@@ -146,7 +158,7 @@
 											<td name="lastNameCell">{{rep.lastName}}</td>
 											<td name="actionCell">
 												<button type="submit" class="btn btn-danger"
-													ng-click="undeclareRep(0, rep.username)" 
+													ng-click="undeclareRep(rep.username)" 
 													name="deleteUser">Delete</button>
 											</td>
 										</tr>
@@ -220,7 +232,7 @@
 											<td name="lastNameCell">{{rep.lastName}}</td>
 											<td name="actionCell">
 												<button type="submit" class="btn btn-danger"
-													ng-click="undeclareRep(1, rep.username)" 
+													ng-click="undeclareSelfAsRep(rep.username)" 
 													name="deleteSelfUser">Delete</button>
 											</td>
 										</tr>
