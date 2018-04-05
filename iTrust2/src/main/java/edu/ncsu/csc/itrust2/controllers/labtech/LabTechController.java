@@ -29,9 +29,14 @@ public class LabTechController {
         return edu.ncsu.csc.itrust2.models.enums.Role.ROLE_LABTECH.getLanding();
     }
 
+    /**
+     * Returns the edit demographics screen for Lab Techs
+     *
+     * @return The page to display
+     */
     @GetMapping ( "/labtech/editPatientDemographics" )
     @PreAuthorize ( "hasRole('ROLE_LABTECH')" )
-    public String editPatientDemographics () {
+    public String editDemographics () {
         return "/labtech/editPatientDemographics";
     }
 
