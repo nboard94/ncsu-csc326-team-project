@@ -72,6 +72,8 @@
             	  if (!isDate(v.administrationDate)) {
             		  err.push("Administration date is in an invalid format");
             	  }
+            	  
+            	  return err.join(".");
               }
 
 
