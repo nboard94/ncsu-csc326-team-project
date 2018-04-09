@@ -6,9 +6,11 @@ package edu.ncsu.csc.itrust2.models.persistent;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -23,14 +25,25 @@ import edu.ncsu.csc.itrust2.forms.admin.LabProcedureForm;
  * @author Jacob Struckmeyer
  *
  */
+@Entity
+@Table ( name = "Lab Procedures" )
 public class LabProcedure extends DomainObject<LabProcedure> {
 
     /** Empty Constructor for hibernate/thymeleaf */
     public LabProcedure () {
     }
 
+    /**
+     * Constructor that creates a lab procedure from a form
+     *
+     * @param form
+     *            the form that was recevied from the fron end
+     */
     public LabProcedure ( final LabProcedureForm form ) {
-
+        setCode( form.getCode() );
+        setProperty( form.getProperty() );
+        setComponent( form.getComponent() );
+        setCommonName( form.getCommonName() );
     }
 
     /**
@@ -66,11 +79,6 @@ public class LabProcedure extends DomainObject<LabProcedure> {
     @NotNull
     @Length ( max = 128 )
     private String commonName;
-
-    @Override
-    public Serializable getId () {
-        return id;
-    }
 
     /**
      * Gets a list of lab procedures that match the given query.
@@ -125,6 +133,87 @@ public class LabProcedure extends DomainObject<LabProcedure> {
     @SuppressWarnings ( "unchecked" )
     public static List<LabProcedure> getAll () {
         return (List<LabProcedure>) DomainObject.getAll( Drug.class );
+    }
+
+    /**
+     * Gets the code of the lab
+     *
+     * @return the code
+     */
+    public String getCode () {
+        return code;
+    }
+
+    /**
+     * Sets the code of the lab
+     *
+     * @param code
+     *            the code to set
+     */
+    public void setCode ( final String code ) {
+        this.code = code;
+    }
+
+    /**
+     * Gets the property of the lab
+     *
+     * @return the property
+     */
+    public String getProperty () {
+        return property;
+    }
+
+    /**
+     * Sets the property of the lab
+     *
+     * @param property
+     *            the property to set
+     */
+    public void setProperty ( final String property ) {
+        this.property = property;
+    }
+
+    /**
+     * Gets the component of the lab
+     *
+     * @return the component
+     */
+    public String getComponent () {
+        return component;
+    }
+
+    /**
+     * Sets the component of the lab
+     *
+     * @param component
+     *            the component to set
+     */
+    public void setComponent ( final String component ) {
+        this.component = component;
+    }
+
+    /**
+     * Gets the common name of the lab
+     *
+     * @return the commonName
+     */
+    public String getCommonName () {
+        return commonName;
+    }
+
+    /**
+     * Sets the common name of the lab
+     *
+     * @param commonName
+     *            the commonName to set
+     */
+    public void setCommonName ( final String commonName ) {
+        this.commonName = commonName;
+    }
+
+    @Override
+    public Serializable getId () {
+        return id;
     }
 
 }
