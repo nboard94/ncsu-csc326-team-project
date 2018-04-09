@@ -26,7 +26,7 @@ import edu.ncsu.csc.itrust2.forms.admin.LabProcedureForm;
  *
  */
 @Entity
-@Table ( name = "Lab Procedures" )
+@Table ( name = "LabProcedures" )
 public class LabProcedure extends DomainObject<LabProcedure> {
 
     /** Empty Constructor for hibernate/thymeleaf */

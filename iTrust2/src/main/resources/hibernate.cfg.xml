@@ -37,7 +37,7 @@
 		<mapping class="edu.ncsu.csc.itrust2.models.persistent.LoginLockout"/>
 		<mapping class="edu.ncsu.csc.itrust2.models.persistent.LoginBan"/>
 		<mapping class="edu.ncsu.csc.itrust2.models.persistent.LabProcedure"/>
-		<!-- <mapping class="edu.ncsu.csc.itrust2.models.persistent.LabRequest"/> -->
+		<mapping class="edu.ncsu.csc.itrust2.models.persistent.LabRequest"/>
 		
 
 	</session-factory>
