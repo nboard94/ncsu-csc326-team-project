@@ -39,6 +39,7 @@ public class LabProcedure extends DomainObject<LabProcedure> {
      *            the form that was recevied from the fron end
      */
     public LabProcedure ( final LabProcedureForm form ) {
+        setId( form.getId() );
         setCode( form.getCode() );
         setProperty( form.getProperty() );
         setComponent( form.getComponent() );
@@ -131,7 +132,7 @@ public class LabProcedure extends DomainObject<LabProcedure> {
      */
     @SuppressWarnings ( "unchecked" )
     public static List<LabProcedure> getAll () {
-        return (List<LabProcedure>) DomainObject.getAll( Drug.class );
+        return (List<LabProcedure>) DomainObject.getAll( LabProcedure.class );
     }
 
     /**
@@ -213,6 +214,16 @@ public class LabProcedure extends DomainObject<LabProcedure> {
     @Override
     public Long getId () {
         return id;
+    }
+
+    /**
+     * Sets the id of the lab procedure
+     *
+     * @param id
+     *            the id that is to be set
+     */
+    public void setId ( final Long id ) {
+        this.id = id;
     }
 
 }

@@ -44,7 +44,7 @@ public class APILabProcedureController extends APIController {
 
             // Make sure code does not conflict with existing lab procedures
             if ( LabProcedure.getByCode( lp.getCode() ) != null ) {
-                LoggerUtil.log( TransactionType.DRUG_CREATE, LoggerUtil.currentUser(),
+                LoggerUtil.log( TransactionType.LAB_CREATE, LoggerUtil.currentUser(),
                         "Conflict: Lab Procedure with code " + lp.getCode() + " already exists" );
                 return new ResponseEntity(
                         errorResponse( "Lab Procedure with code " + lp.getCode() + " already exists" ),
@@ -52,12 +52,12 @@ public class APILabProcedureController extends APIController {
             }
 
             lp.save();
-            LoggerUtil.log( TransactionType.DRUG_CREATE, LoggerUtil.currentUser(),
+            LoggerUtil.log( TransactionType.LAB_CREATE, LoggerUtil.currentUser(),
                     "Lab Procedure " + lp.getCode() + " created" );
             return new ResponseEntity( lp, HttpStatus.OK );
         }
         catch ( final Exception e ) {
-            LoggerUtil.log( TransactionType.DRUG_CREATE, LoggerUtil.currentUser(), "Failed to create Lab Procedure" );
+            LoggerUtil.log( TransactionType.LAB_CREATE, LoggerUtil.currentUser(), "Failed to create Lab Procedure" );
             return new ResponseEntity( errorResponse( "Could not add Lab Procedure: " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
         }
@@ -80,10 +80,7 @@ public class APILabProcedureController extends APIController {
 
             // Check for existing LabProcedure in database
 
-            // TODO fix this to make sure that ID type is long for lab
-            // procedures
-            final LabProcedure savedLabProcedure = null; // LabProcedure.getById(
-                                                         // lp.getId() );
+            final LabProcedure savedLabProcedure = LabProcedure.getById( lp.getId() );
             if ( savedLabProcedure == null ) {
                 return new ResponseEntity( errorResponse( "No Lab Procedure found with code " + lp.getCode() ),
                         HttpStatus.NOT_FOUND );

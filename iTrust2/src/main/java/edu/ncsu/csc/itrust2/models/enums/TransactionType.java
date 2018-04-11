@@ -282,7 +282,19 @@ public enum TransactionType {
     /**
      * A HCP or patient views their representatives
      */
-    VIEW_REPS ( 1704, "User viewed list of patient's representatives", true );
+    VIEW_REPS ( 1704, "User viewed list of patient's representatives", true ),
+    /**
+     * Admin creates a lab procedure
+     */
+    LAB_CREATE ( 1801, "Admin created a new lab procedure", false ),
+    /**
+     * Admin deletes a lab procedure
+     */
+    LAB_DELETE ( 1802, "Admin deleted an existing lab procedure", false ),
+    /**
+     * Admin edits an existing lab procedure
+     */
+    LAB_EDIT ( 1803, "Admin edited an existing lab procedure", false );
 
     /**
      * Creates a TransactionType for logging events
