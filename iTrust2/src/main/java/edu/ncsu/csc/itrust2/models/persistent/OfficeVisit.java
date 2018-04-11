@@ -582,6 +582,12 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     private List<Prescription>       prescriptions = Collections.emptyList();
 
     /**
+     * List of all of the lab requests associated with this office visit
+     */
+    @OneToMany
+    private final List<LabRequest>   labRequests   = Collections.emptyList();
+
+    /**
      * Overrides the basic domain object save in order to save basic health
      * metrics and the office visit.
      */
@@ -728,6 +734,10 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     public static void deleteAll () {
         DomainObject.deleteAll( Diagnosis.class );
         DomainObject.deleteAll( OfficeVisit.class );
+    }
+
+    public List<LabRequest> getLabRequests () {
+        return labRequests;
     }
 
 }
