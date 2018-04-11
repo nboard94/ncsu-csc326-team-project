@@ -1,7 +1,6 @@
 package edu.ncsu.csc.itrust2.models.persistent;
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
@@ -64,27 +63,25 @@ public class LabRequest extends DomainObject<LabRequest> {
         requests.sort( new Comparator<LabRequest>() {
             @Override
             public int compare ( final LabRequest o1, final LabRequest o2 ) {
-                return compareTo( o1, o2 );
+                return o1.compareTo( o2 );
             }
         } );
         return requests;
     }
 
     /**
-     * Compares two lab requests based on their priority
+     * Compares a lab requests based on their priority to this lab request
      *
-     * @param o1
-     *            the first lab request to compare
-     * @param o2
+     * @param other
      *            the second lab request to compare
      * @return 1 if the first one is higher priority 0 if it is equal priority
      *         -1 if the first one is lower priority
      */
-    private static int compareTo ( final LabRequest o1, final LabRequest o2 ) {
-        if ( o1.getPriority().getPriority() < o2.getPriority().getPriority() ) {
+    private int compareTo ( final LabRequest other ) {
+        if ( getPriority().getPriority() < other.getPriority().getPriority() ) {
             return -1;
         }
-        else if ( o1.getPriority().getPriority() > o2.getPriority().getPriority() ) {
+        else if ( getPriority().getPriority() > other.getPriority().getPriority() ) {
             return 1;
         }
         return 0;
@@ -94,6 +91,30 @@ public class LabRequest extends DomainObject<LabRequest> {
      * Used so that Hibernate can construct and load objects
      */
     public LabRequest () {
+    }
+
+    /**
+     * Handles conversion between an labrequestForm (the form with user-provided
+     * data) and an LabRequests object that contains validated information These
+     * two classes are closely intertwined to handle validated persistent
+     * information and text-based information that is then displayed back to the
+     * user.
+     *
+     * @param laf
+     *            labrequestForm
+     * @throws ParseException
+     */
+    public LabRequest ( final LabRequestForm laf ) throws ParseException {
+
+        // Set users
+        setPatient( User.getByNameAndRole( laf.getPatient(), Role.ROLE_PATIENT ) );
+        setHcp( User.getByNameAndRole( laf.getHcp(), Role.ROLE_HCP ) );
+        setLabTech( User.getByNameAndRole( laf.getLabTech(), Role.ROLE_LABTECH ) );
+        setComments( laf.getComments() );
+        final Priority p = Priority.valueOf( laf.getPriority() );
+        setPriority( p );
+        setLabProcedure( LabProcedure.getByCode( laf.getProc() ) );
+
     }
 
     /**
@@ -147,53 +168,6 @@ public class LabRequest extends DomainObject<LabRequest> {
         criteria.add( createCriterion( "hcp", User.getByNameAndRole( hcpName, Role.ROLE_HCP ) ) );
         criteria.add( createCriterion( "patient", User.getByNameAndRole( patientName, Role.ROLE_PATIENT ) ) );
         return getWhere( criteria );
-    }
-
-    /**
-     * Handles conversion between an labrequestForm (the form with user-provided
-     * data) and an LabRequests object that contains validated information These
-     * two classes are closely intertwined to handle validated persistent
-     * information and text-based information that is then displayed back to the
-     * user.
-     *
-     * @param laf
-     *            labrequestForm
-     * @throws ParseException
-     */
-    public LabRequest ( final LabRequestForm laf ) throws ParseException {
-
-        // Set users
-        setPatient( User.getByNameAndRole( laf.getPatient(), Role.ROLE_PATIENT ) );
-        setHcp( User.getByNameAndRole( laf.getHcp(), Role.ROLE_HCP ) );
-        setLabTech( User.getByNameAndRole( laf.getLabTech(), Role.ROLE_LABTECH ) );
-        setComments( laf.getComments() );
-
-        // final SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yyyy hh:mm
-        // aaa", Locale.ENGLISH );
-        // final Date parsedDate = sdf.parse( laf.getDate() + " " +
-        // laf.getTime() );
-        // final Calendar c = Calendar.getInstance();
-        // c.setTime( parsedDate );
-        // if ( c.before( Calendar.getInstance() ) ) {
-        // throw new IllegalArgumentException( "Cannot request an appointment
-        // before the current time" );
-        // }
-        // setDate( c );
-
-        final Priority p = Priority.valueOf( laf.getPriority() );
-        // try {
-        // s = Priority.valueOf( laf.getPriority() );
-        // }
-        // catch ( final NullPointerException npe ) {
-        // s = Priority.PRIORITY_LOW; /*
-        // * Incoming LabRequests will come in from the
-        // * form with no status. Set status to Pending
-        // * until it is adjusted further
-        // */
-        // }
-        setPriority( p );
-        setLabProcedure( LabProcedure.getByCode( laf.getProc() ) );
-
     }
 
     /**
@@ -262,14 +236,8 @@ public class LabRequest extends DomainObject<LabRequest> {
      */
     @NotNull
     @ManyToOne
-    @JoinColumn ( name = "labtech", columnDefinition = "varchar(100)" )
+    @JoinColumn ( name = "labtech_id", columnDefinition = "varchar(100)" )
     private User         labTech;
-
-    /**
-     * When this labrequest has been scheduled to take place
-     */
-    @NotNull
-    private Calendar     date;
 
     /**
      * Store the Enum in the DB as a string as it then makes the DB info more
@@ -277,8 +245,7 @@ public class LabRequest extends DomainObject<LabRequest> {
      */
     @NotNull
     @OneToOne
-    // @JoinColumn ( name = "procedure", columnDefinition = "varchar(100)" )
-    private LabProcedure proc;
+    private LabProcedure procedure;
 
     /**
      * Retrieve the priority of this LabRequest
@@ -393,7 +360,7 @@ public class LabRequest extends DomainObject<LabRequest> {
      * @return the lab procedure.
      */
     public LabProcedure getLabProcedure () {
-        return proc;
+        return procedure;
     }
 
     /**
@@ -403,7 +370,7 @@ public class LabRequest extends DomainObject<LabRequest> {
      *            The new type for the LabRequest
      */
     public void setLabProcedure ( final LabProcedure proc ) {
-        this.proc = proc;
+        this.procedure = proc;
     }
 
 }
