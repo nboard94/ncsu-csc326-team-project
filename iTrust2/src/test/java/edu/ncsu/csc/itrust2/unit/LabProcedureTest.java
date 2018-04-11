@@ -117,7 +117,7 @@ public class LabProcedureTest {
         }
 
         // Create a lab procedures
-        LabProcedure lp = LabProcedure.getByCode( "1111-11" );
+        LabProcedure lp = LabProcedure.getByCode( "111111-11" );
         if ( lp == null ) {
             lp = new LabProcedure();
             lp.setCode( "111111-11" );
