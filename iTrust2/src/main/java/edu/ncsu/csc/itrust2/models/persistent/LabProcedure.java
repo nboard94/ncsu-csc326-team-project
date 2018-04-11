@@ -3,7 +3,6 @@
  */
 package edu.ncsu.csc.itrust2.models.persistent;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -112,13 +111,13 @@ public class LabProcedure extends DomainObject<LabProcedure> {
      * Gets the lab procedure with the code matching the given value. Returns
      * null if none found.
      *
-     * @param code
+     * @param l
      *            the code to search for
      * @return the matching lab procedure
      */
-    public static LabProcedure getByCode ( final String code ) {
+    public static LabProcedure getByCode ( final String l ) {
         try {
-            return getWhere( createCriterionAsList( "code", code ) ).get( 0 );
+            return getWhere( createCriterionAsList( "code", l ) ).get( 0 );
         }
         catch ( final Exception e ) {
             return null;
@@ -212,7 +211,7 @@ public class LabProcedure extends DomainObject<LabProcedure> {
     }
 
     @Override
-    public Serializable getId () {
+    public Long getId () {
         return id;
     }
 

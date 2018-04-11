@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -206,6 +207,15 @@ public class LabRequest extends DomainObject<LabRequest> {
     }
 
     /**
+     * Returns the lab technician of the lab request
+     *
+     * @return the lab technician
+     */
+    public User getLabTech () {
+        return labTech;
+    }
+
+    /**
      * ID of the labrequest
      */
     @Id
@@ -266,7 +276,8 @@ public class LabRequest extends DomainObject<LabRequest> {
      * legible if it needs to be read manually.
      */
     @NotNull
-    @Enumerated ( EnumType.STRING )
+    @OneToOne
+    // @JoinColumn ( name = "procedure", columnDefinition = "varchar(100)" )
     private LabProcedure proc;
 
     /**
