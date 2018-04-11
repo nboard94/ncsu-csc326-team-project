@@ -193,7 +193,7 @@ public class AddUserStepDefs {
     /**
      * User login
      */
-    @Then ( "The new lab tech can login" )
+    @Then ( "The new lab technician can login" )
     public void tryLoginLabTech () {
         driver.findElement( By.id( "logout" ) ).click();
 
