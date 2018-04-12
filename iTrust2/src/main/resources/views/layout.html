@@ -100,6 +100,8 @@ a {
 							var admindropdown = document.getElementById('admin-dropdown');
 							var patientdropdown = document.getElementById('patient-dropdown');
 							var hcpdropdown = document.getElementById('hcp-dropdown');
+							var erdropdown = document.getElementById('er-dropdown');
+							var ltdropdown = document.getElementById('lt-dropdown');
 							if (!role.includes('PATIENT')) {
 								navbarparent.removeChild(patientdropdown);
 							}
@@ -108,6 +110,12 @@ a {
 							}
 							if (!role.includes('HCP')) {
 								navbarparent.removeChild(hcpdropdown);
+							}
+							if (!role.includes('ER')) {
+								navbarparent.removeChild(erdropdown);
+							}
+							if (!role.includes('LABTECH')) {
+								navbarparent.removeChild(ltdropdown);
 							}
 						});
 				/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
@@ -203,6 +211,24 @@ a {
 					</li>
 					<li><a href="/iTrust2/patient/viewPersonalRepresentatives" 
 								id="personalRepresentatives-patient">Personal Representatives</a>
+					</li>
+				</ul>
+				<ul id="er-dropdown" class="nav navbar-nav">
+					<li class="dropdown"><a class="dropdown-toggle"
+						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/iTrust2/personnel/editDemographics"
+								id="editdemographics-er">Edit Demographics</a></li>
+						</ul>
+					</li>
+				</ul>
+				<ul id="lt-dropdown" class="nav navbar-nav">
+					<li class="dropdown"><a class="dropdown-toggle"
+						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/iTrust2/personnel/editDemographics"
+								id="editdemographics-labtech">Edit Demographics</a></li>
+						</ul>
 					</li>
 				</ul>
 				<ul id="extra-dropdown" class="nav navbar-nav">
