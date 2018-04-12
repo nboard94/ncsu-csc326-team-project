@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -584,8 +585,8 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     /**
      * List of all of the lab requests associated with this office visit
      */
-    @OneToMany
-    private final List<LabRequest>   labRequests   = Collections.emptyList();
+    @OneToMany ( fetch = FetchType.EAGER )
+    private Set<LabRequest>          labRequests   = new HashSet<LabRequest>();
 
     /**
      * Overrides the basic domain object save in order to save basic health
@@ -736,8 +737,23 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         DomainObject.deleteAll( OfficeVisit.class );
     }
 
-    public List<LabRequest> getLabRequests () {
+    /**
+     * Gets the lab requests associated with this office visit
+     *
+     * @return a set of LabRequests
+     */
+    public Set<LabRequest> getLabRequests () {
         return labRequests;
+    }
+
+    /**
+     * Sets the set of lab requests
+     *
+     * @param labRequests
+     *            the set of LabRequests that are to be set
+     */
+    public void setLabRequests ( final Set<LabRequest> labRequests ) {
+        this.labRequests = labRequests;
     }
 
 }
