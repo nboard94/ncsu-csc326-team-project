@@ -69,9 +69,6 @@ public class LabRequestTest {
     @Test
     public void testMakeLabRequest () throws ParseException {
 
-        // Delete all LabRequests currently in the database
-        DomainObject.deleteAll( LabRequest.class );
-
         // Create LabRequest via empyt constructor
         final LabRequest lr1 = new LabRequest();
         lr1.setComments( "comment" );
@@ -82,7 +79,7 @@ public class LabRequestTest {
         lr1.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
         lr1.save();
 
-        LabRequest savedLr = LabRequest.getLabRequests().get( 0 );
+        LabRequest savedLr = LabRequest.getById( lr1.getId() );
         assertEquals( "comment", savedLr.getComments() );
         assertEquals( "lr_test_hcp", savedLr.getHcp().getUsername() );
         assertEquals( "lr_test_labtech", savedLr.getLabTech().getUsername() );
@@ -90,8 +87,6 @@ public class LabRequestTest {
         assertEquals( "PRIORITY_LOW", savedLr.getPriority().name() );
         assertEquals( "111111-11", savedLr.getLabProcedure().getCode() );
         assertNotNull( savedLr.getId() );
-
-        DomainObject.deleteAll( LabRequest.class );
 
         // Create LabRequest via LabRequestForm
         final LabRequestForm lqr1 = new LabRequestForm();
@@ -104,7 +99,7 @@ public class LabRequestTest {
         final LabRequest lr2 = new LabRequest( lqr1 );
         lr2.save();
 
-        savedLr = LabRequest.getLabRequests().get( 0 );
+        savedLr = LabRequest.getById( lr2.getId() );
         assertEquals( "comment1", savedLr.getComments() );
         assertEquals( "lr_test_hcp", savedLr.getHcp().getUsername() );
         assertEquals( "lr_test_labtech", savedLr.getLabTech().getUsername() );
@@ -122,6 +117,8 @@ public class LabRequestTest {
         assertEquals( "PRIORITY_HIGH", form.getPriority() );
         assertEquals( "111111-11", form.getLabProcedure() );
         assertNotNull( form.getId() );
+
+        DomainObject.deleteAll( LabRequest.class );
 
     }
 
