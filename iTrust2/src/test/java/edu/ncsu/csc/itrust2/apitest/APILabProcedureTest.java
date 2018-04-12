@@ -30,7 +30,6 @@ import edu.ncsu.csc.itrust2.config.RootConfiguration;
 import edu.ncsu.csc.itrust2.forms.admin.LabProcedureForm;
 import edu.ncsu.csc.itrust2.forms.personnel.PersonnelForm;
 import edu.ncsu.csc.itrust2.models.enums.Role;
-import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -84,10 +83,9 @@ public class APILabProcedureTest {
     @WithMockUser ( username = "admin", roles = { "USER", "ADMIN" } )
     public void testLabProcedureAPI () throws Exception {
         // Delete all lab procedure before testing
-        DomainObject.deleteAll( LabProcedure.class );
 
         final LabProcedureForm lpf1 = new LabProcedureForm();
-        lpf1.setCode( "111111-11" );
+        lpf1.setCode( "876543-21" );
         lpf1.setCommonName( "commonName" );
         lpf1.setComponent( "compnonent" );
         lpf1.setProperty( "property" );
@@ -103,7 +101,7 @@ public class APILabProcedureTest {
 
         /** Test editing */
         // Edit the lab procedure
-        LabProcedure lp1 = LabProcedure.getByCode( "111111-11" );
+        LabProcedure lp1 = LabProcedure.getByCode( "876543-21" );
         final LabProcedureForm lpf2 = new LabProcedureForm( lp1 );
         lpf2.setCommonName( "newCommonName" );
 
@@ -121,7 +119,7 @@ public class APILabProcedureTest {
         mvc.perform( post( "/api/v1/labprocedures" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( lpf1 ) ) ).andExpect( status().isOk() );
 
-        lp1 = LabProcedure.getByCode( "111111-11" );
+        lp1 = LabProcedure.getByCode( "876543-21" );
         final LabProcedureForm lpf3 = new LabProcedureForm( lp1 );
         lpf3.setCode( "123456-78" );
 
@@ -130,7 +128,7 @@ public class APILabProcedureTest {
 
         /** Test delete */
         // Delete existing lab
-        final String id = Long.toString( LabProcedure.getByCode( "111111-11" ).getId() );
+        String id = Long.toString( LabProcedure.getByCode( "876543-21" ).getId() );
 
         mvc.perform( delete( "/api/v1/labprocedures/" + id ) ).andExpect( status().isOk() );
 
@@ -140,6 +138,10 @@ public class APILabProcedureTest {
         /** Test get */
         mvc.perform( get( "/api/v1/labprocedures" ) ).andExpect( status().isOk() )
                 .andExpect( content().string( Matchers.containsString( lpf1.getCode() ) ) );
+
+        /** Delete any lab procedures that were added */
+        id = Long.toString( LabProcedure.getByCode( "123456-78" ).getId() );
+        mvc.perform( delete( "/api/v1/labprocedures/" + id ) ).andExpect( status().isOk() );
 
     }
 

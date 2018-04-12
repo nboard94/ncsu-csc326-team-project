@@ -13,7 +13,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -71,7 +70,8 @@ public class LabRequest extends DomainObject<LabRequest> {
      * legible if it needs to be read manually.
      */
     @NotNull
-    @OneToOne
+    @ManyToOne
+    @JoinColumn ( name = "procedure_id" )
     private LabProcedure procedure;
 
     /**
