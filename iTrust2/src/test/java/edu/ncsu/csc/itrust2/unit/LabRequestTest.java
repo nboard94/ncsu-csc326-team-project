@@ -38,12 +38,11 @@ public class LabRequestTest {
             labTech.save();
         }
 
-        // User patient = User.getByName( "lr_test_patient" );
-        // if ( patient == null ) {
-        // patient = new User( "lr_test_patient", "123456", Role.ROLE_PATIENT, 1
-        // );
-        // patient.save();
-        // }
+        User patient = User.getByName( "lr_test_patient" );
+        if ( patient == null ) {
+            patient = new User( "lr_test_patient", "123456", Role.ROLE_PATIENT, 1 );
+            patient.save();
+        }
 
         User hcp = User.getByName( "lr_test_hcp" );
         if ( hcp == null ) {
@@ -78,7 +77,7 @@ public class LabRequestTest {
         lr1.setComments( "comment" );
         lr1.setHcp( User.getByName( "lr_test_hcp" ) );
         lr1.setLabTech( User.getByName( "lr_test_labtech" ) );
-        // lr1.setPatient( User.getByName( "lr_test_patient" ) );
+        lr1.setPatient( User.getByName( "lr_test_patient" ) );
         lr1.setPriority( Priority.PRIORITY_LOW );
         lr1.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
         lr1.save();
@@ -87,8 +86,7 @@ public class LabRequestTest {
         assertEquals( "comment", savedLr.getComments() );
         assertEquals( "lr_test_hcp", savedLr.getHcp().getUsername() );
         assertEquals( "lr_test_labtech", savedLr.getLabTech().getUsername() );
-        // assertEquals( "lr_test_patient", savedLr.getPatient().getUsername()
-        // );
+        assertEquals( "lr_test_patient", savedLr.getPatient().getUsername() );
         assertEquals( "PRIORITY_LOW", savedLr.getPriority().name() );
         assertEquals( "111111-11", savedLr.getLabProcedure().getCode() );
         assertNotNull( savedLr.getId() );
@@ -100,7 +98,7 @@ public class LabRequestTest {
         lqr1.setComments( "comment1" );
         lqr1.setHcp( "lr_test_hcp" );
         lqr1.setLabTech( "lr_test_labtech" );
-        // lqr1.setPatient( "lr_test_patient" );
+        lqr1.setPatient( "lr_test_patient" );
         lqr1.setPriority( "PRIORITY_HIGH" );
         lqr1.setLabProcedure( "111111-11" );
         final LabRequest lr2 = new LabRequest( lqr1 );
@@ -110,11 +108,21 @@ public class LabRequestTest {
         assertEquals( "comment1", savedLr.getComments() );
         assertEquals( "lr_test_hcp", savedLr.getHcp().getUsername() );
         assertEquals( "lr_test_labtech", savedLr.getLabTech().getUsername() );
-        // assertEquals( "lr_test_patient", savedLr.getPatient().getUsername()
-        // );
+        assertEquals( "lr_test_patient", savedLr.getPatient().getUsername() );
         assertEquals( "PRIORITY_HIGH", savedLr.getPriority().name() );
         assertEquals( "111111-11", savedLr.getLabProcedure().getCode() );
         assertNotNull( savedLr.getId() );
+
+        // Test creating a LabRequestform from a LabRequest
+        final LabRequestForm form = new LabRequestForm( savedLr );
+        assertEquals( "comment1", form.getComments() );
+        assertEquals( "lr_test_hcp", form.getHcp() );
+        assertEquals( "lr_test_labtech", form.getLabTech() );
+        assertEquals( "lr_test_patient", form.getPatient() );
+        assertEquals( "PRIORITY_HIGH", form.getPriority() );
+        assertEquals( "111111-11", form.getLabProcedure() );
+        assertNotNull( form.getId() );
+
     }
 
 }

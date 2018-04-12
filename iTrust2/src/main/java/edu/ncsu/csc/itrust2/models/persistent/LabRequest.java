@@ -36,6 +36,219 @@ import edu.ncsu.csc.itrust2.models.enums.Role;
 public class LabRequest extends DomainObject<LabRequest> {
 
     /**
+     * ID of the labrequest
+     */
+    @Id
+    @GeneratedValue ( strategy = GenerationType.AUTO )
+    private Long         id;
+
+    /**
+     * The Patient who is associated with this labrequest
+     */
+    @NotNull
+    @ManyToOne
+    @JoinColumn ( name = "patient_id", columnDefinition = "varchar(100)" )
+    private User         patient;
+
+    /**
+     * The HCP who is associated with this labrequest
+     */
+    @NotNull
+    @ManyToOne
+    @JoinColumn ( name = "hcp_id", columnDefinition = "varchar(100)" )
+    private User         hcp;
+
+    /**
+     * The lab Technician who is associated with this labrequest
+     */
+    @NotNull
+    @ManyToOne
+    @JoinColumn ( name = "labtech_id", columnDefinition = "varchar(100)" )
+    private User         labTech;
+
+    /**
+     * Store the Enum in the DB as a string as it then makes the DB info more
+     * legible if it needs to be read manually.
+     */
+    @NotNull
+    @OneToOne
+    private LabProcedure procedure;
+
+    /**
+     * Any (optional) comments on the LabRequest
+     */
+    private String       comments;
+
+    /**
+     * The priority of the LabRequest
+     */
+    @NotNull
+    @Enumerated ( EnumType.STRING )
+    private Priority     priority;
+
+    /**
+     * Used so that Hibernate can construct and load objects
+     */
+    public LabRequest () {
+    }
+
+    /**
+     * Handles conversion between an labrequestForm (the form with user-provided
+     * data) and an LabRequests object that contains validated information These
+     * two classes are closely intertwined to handle validated persistent
+     * information and text-based information that is then displayed back to the
+     * user.
+     *
+     * @param laf
+     *            labrequestForm
+     * @throws ParseException
+     */
+    public LabRequest ( final LabRequestForm laf ) throws ParseException {
+
+        // Set users
+        setPatient( User.getByNameAndRole( laf.getPatient(), Role.ROLE_PATIENT ) );
+        setHcp( User.getByNameAndRole( laf.getHcp(), Role.ROLE_HCP ) );
+        setLabTech( User.getByNameAndRole( laf.getLabTech(), Role.ROLE_LABTECH ) );
+        setComments( laf.getComments() );
+        final Priority p = Priority.valueOf( laf.getPriority() );
+        setPriority( p );
+        setLabProcedure( LabProcedure.getByCode( laf.getLabProcedure() ) );
+
+    }
+
+    /**
+     * Retrieves the ID of the labrequest
+     */
+    @Override
+    public Long getId () {
+        return id;
+    }
+
+    /**
+     * Sets the ID of the labrequest
+     *
+     * @param id
+     *            The new ID of the labrequest. For Hibernate.
+     */
+    public void setId ( final Long id ) {
+        this.id = id;
+    }
+
+    /**
+     * Retrieves the User object for the Patient for the LabRequest
+     *
+     * @return The associated Patient
+     */
+    public User getPatient () {
+        return patient;
+    }
+
+    /**
+     * Sets the Patient for the LabRequest
+     *
+     * @param patient
+     *            The User object for the Patient on the Request
+     */
+    public void setPatient ( final User patient ) {
+        this.patient = patient;
+    }
+
+    /**
+     * Gets the User object for the HCP on the request
+     *
+     * @return The User object for the HCP on the request
+     */
+    public User getHcp () {
+        return hcp;
+    }
+
+    /**
+     * Sets the User object for the HCP on the LabRequest
+     *
+     * @param hcp
+     *            User object for the HCP on the Request
+     */
+    public void setHcp ( final User hcp ) {
+        this.hcp = hcp;
+    }
+
+    /**
+     * Returns the lab technician of the lab request
+     *
+     * @return the lab technician
+     */
+    public User getLabTech () {
+        return labTech;
+    }
+
+    /**
+     * Sets the lab technician of the lab request
+     *
+     * @param labTech
+     *            the lab tech
+     */
+    public void setLabTech ( final User labTech ) {
+        this.labTech = labTech;
+    }
+
+    /**
+     * Retrieves the LabProcedure of this LabRequest.
+     *
+     * @return the lab procedure.
+     */
+    public LabProcedure getLabProcedure () {
+        return procedure;
+    }
+
+    /**
+     * Sets the LabProcedure of this LabRequest
+     *
+     * @param proc
+     *            The new type for the LabRequest
+     */
+    public void setLabProcedure ( final LabProcedure proc ) {
+        this.procedure = proc;
+    }
+
+    /**
+     * Retrieves the comments on the request
+     *
+     * @return Comments on the LabRequest
+     */
+    public String getComments () {
+        return comments;
+    }
+
+    /**
+     * Sets the Comments on the LabRequest
+     *
+     * @param comments
+     *            New comments for the LabRequest
+     */
+    public void setComments ( final String comments ) {
+        this.comments = comments;
+    }
+
+    /**
+     * Retrieve the priority of this LabRequest
+     *
+     * @return The priority of this LabRequest
+     */
+    public Priority getPriority () {
+        return priority;
+    }
+
+    /**
+     * Set the priority of this LabRequest
+     *
+     * @param priority
+     *            New Status
+     */
+    public void setPriority ( final Priority priority ) {
+        this.priority = priority;
+    }
+
+    /**
      * Retrieve an LabRequest by its numerical ID.
      *
      * @param id
@@ -85,38 +298,6 @@ public class LabRequest extends DomainObject<LabRequest> {
             return 1;
         }
         return 0;
-    }
-
-    /**
-     * Used so that Hibernate can construct and load objects
-     */
-    public LabRequest () {
-    }
-
-    /**
-     * Handles conversion between an labrequestForm (the form with user-provided
-     * data) and an LabRequests object that contains validated information These
-     * two classes are closely intertwined to handle validated persistent
-     * information and text-based information that is then displayed back to the
-     * user.
-     *
-     * @param laf
-     *            labrequestForm
-     * @throws ParseException
-     */
-    public LabRequest ( final LabRequestForm laf ) throws ParseException {
-
-        // Set users
-        // setPatient( User.getByNameAndRole( laf.getPatient(),
-        // Role.ROLE_PATIENT ) );
-        setHcp( User.getByNameAndRole( laf.getHcp(), Role.ROLE_HCP ) );
-        setLabTech( User.getByNameAndRole( laf.getLabTech(), Role.ROLE_LABTECH ) );
-        setComments( laf.getComments() );
-        final Priority p = Priority.valueOf( laf.getPriority() );
-        setPriority( p );
-        setLabProcedure( LabProcedure.getByCode( laf.getLabProcedure() ) );
-        setVisit( OfficeVisit.getById( laf.getOfficeVisit() ) );
-
     }
 
     /**
@@ -170,235 +351,6 @@ public class LabRequest extends DomainObject<LabRequest> {
         criteria.add( createCriterion( "hcp", User.getByNameAndRole( hcpName, Role.ROLE_HCP ) ) );
         criteria.add( createCriterion( "patient", User.getByNameAndRole( patientName, Role.ROLE_PATIENT ) ) );
         return getWhere( criteria );
-    }
-
-    /**
-     * Sets the lab technician of the lab request
-     *
-     * @param labTech
-     *            the lab tech
-     */
-    public void setLabTech ( final User labTech ) {
-        this.labTech = labTech;
-    }
-
-    /**
-     * Returns the lab technician of the lab request
-     *
-     * @return the lab technician
-     */
-    public User getLabTech () {
-        return labTech;
-    }
-
-    /**
-     * Retrieves the ID of the labrequest
-     */
-    @Override
-    public Long getId () {
-        return id;
-    }
-
-    /**
-     * Sets the ID of the labrequest
-     *
-     * @param id
-     *            The new ID of the labrequest. For Hibernate.
-     */
-    @SuppressWarnings ( "unused" )
-    private void setId ( final Long id ) {
-        this.id = id;
-    }
-
-    // /**
-    // * The Patient who is associated with this labrequest
-    // */
-    // @NotNull
-    // @ManyToOne
-    // @JoinColumn ( name = "patient_id", columnDefinition = "varchar(100)" )
-    // private User patient;
-
-    /**
-     * ID of the labrequest
-     */
-    @Id
-    @GeneratedValue ( strategy = GenerationType.AUTO )
-    private Long         id;
-
-    /**
-     * The HCP who is associated with this labrequest
-     */
-    @NotNull
-    @ManyToOne
-    @JoinColumn ( name = "hcp_id", columnDefinition = "varchar(100)" )
-    private User         hcp;
-
-    /**
-     * The lab Technician who is associated with this labrequest
-     */
-    @NotNull
-    @ManyToOne
-    @JoinColumn ( name = "labtech_id", columnDefinition = "varchar(100)" )
-    private User         labTech;
-
-    /**
-     * Store the Enum in the DB as a string as it then makes the DB info more
-     * legible if it needs to be read manually.
-     */
-    @NotNull
-    @OneToOne
-    private LabProcedure procedure;
-
-    /**
-     * The office visit that this this lab request is associated with
-     */
-    @ManyToOne
-    @JoinColumn ( name = "visit_id" )
-    private OfficeVisit  visit;
-
-    /**
-     * Any (optional) comments on the LabRequest
-     */
-    private String       comments;
-
-    /**
-     * The priority of the LabRequest
-     */
-    @NotNull
-    @Enumerated ( EnumType.STRING )
-    private Priority     priority;
-
-    // /**
-    // * Retrieves the User object for the Patient for the LabRequest
-    // *
-    // * @return The associated Patient
-    // */
-    // public User getPatient () {
-    // return patient;
-    // }
-
-    // /**
-    // * Sets the Patient for the LabRequest
-    // *
-    // * @param patient
-    // * The User object for the Patient on the Request
-    // */
-    // public void setPatient ( final User patient ) {
-    // this.patient = patient;
-    // }
-
-    /**
-     * Retrieve the priority of this LabRequest
-     *
-     * @return The priority of this LabRequest
-     */
-    public Priority getPriority () {
-        return priority;
-    }
-
-    /**
-     * Set the priority of this LabRequest
-     *
-     * @param priority
-     *            New Status
-     */
-    public void setPriority ( final Priority priority ) {
-        this.priority = priority;
-    }
-
-    /**
-     * Gets the User object for the HCP on the request
-     *
-     * @return The User object for the HCP on the request
-     */
-    public User getHcp () {
-        return hcp;
-    }
-
-    /**
-     * Sets the User object for the HCP on the LabRequest
-     *
-     * @param hcp
-     *            User object for the HCP on the Request
-     */
-    public void setHcp ( final User hcp ) {
-        this.hcp = hcp;
-    }
-
-    // /**
-    // * Retrieves the date & time of the LabRequest
-    // *
-    // * @return Calendar for when the Request takes place
-    // */
-    // public Calendar getDate () {
-    // return date;
-    // }
-    //
-    // /**
-    // * Sets the date & time of the LabRequest
-    // *
-    // * @param date
-    // * Calendar object for the Date & Time of the request
-    // */
-    // public void setDate ( final Calendar date ) {
-    // this.date = date;
-    // }
-
-    /**
-     * Retrieves the comments on the request
-     *
-     * @return Comments on the LabRequest
-     */
-    public String getComments () {
-        return comments;
-    }
-
-    /**
-     * Sets the Comments on the LabRequest
-     *
-     * @param comments
-     *            New comments for the LabRequest
-     */
-    public void setComments ( final String comments ) {
-        this.comments = comments;
-    }
-
-    /**
-     * Retrieves the LabProcedure of this LabRequest.
-     *
-     * @return the lab procedure.
-     */
-    public LabProcedure getLabProcedure () {
-        return procedure;
-    }
-
-    /**
-     * Sets the LabProcedure of this LabRequest
-     *
-     * @param proc
-     *            The new type for the LabRequest
-     */
-    public void setLabProcedure ( final LabProcedure proc ) {
-        this.procedure = proc;
-    }
-
-    /**
-     * Gets the office visit of this lab request
-     *
-     * @return the visit
-     */
-    public OfficeVisit getVisit () {
-        return visit;
-    }
-
-    /**
-     * Sets the office visit of this class
-     *
-     * @param visit
-     *            the visit to set
-     */
-    public void setVisit ( final OfficeVisit visit ) {
-        this.visit = visit;
     }
 
 }
