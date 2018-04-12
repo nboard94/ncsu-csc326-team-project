@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.criterion.Criterion;
 
+import edu.ncsu.csc.itrust2.forms.hcp.LabRequestForm;
 import edu.ncsu.csc.itrust2.forms.hcp.OfficeVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp.PrescriptionForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
@@ -239,6 +240,12 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         if ( ps != null ) {
             setPrescriptions( ps.stream().map( ( final PrescriptionForm pf ) -> new Prescription( pf ) )
                     .collect( Collectors.toList() ) );
+        }
+
+        final List<LabRequestForm> ls = ovf.getLabRequests();
+        if ( ls != null ) {
+            setLabRequests( ls.stream().map( ( final LabRequestForm lf ) -> new LabRequest( lf ) )
+                    .collect( Collectors.toSet() ) );
         }
     }
 
@@ -638,6 +645,8 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
 
         //// END PRESCRIPTIONS ////
 
+        saveLabRequests();
+
         try {
             super.save();
 
@@ -726,6 +735,52 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
             }
         }
         super.delete();
+    }
+
+    /**
+     * Helper method that saves LabRequests whenever the OfficeVisit.save()
+     * method is called
+     */
+    private void saveLabRequests () {
+        // Get saved visit
+        final OfficeVisit oldVisit = OfficeVisit.getById( id );
+
+        // Get LabRequest ids included in this office visit
+        final Set<Long> currentIds = this.getLabRequests().stream().map( LabRequest::getId )
+                .collect( Collectors.toSet() );
+
+        // Get LabRequest ids saved previously
+        final Set<Long> savedIds = oldVisit == null ? Collections.emptySet()
+                : oldVisit.getLabRequests().stream().map( LabRequest::getId ).collect( Collectors.toSet() );
+
+        // Save each of the LabRequests
+        this.getLabRequests().forEach( lr -> {
+            final boolean isSaved = savedIds.contains( lr.getId() );
+            if ( isSaved ) {
+                // TODO change transaction type to LabRequest edited
+                LoggerUtil.log( TransactionType.PRESCRIPTION_EDIT, LoggerUtil.currentUser(), getPatient().getUsername(),
+                        "Editing Lab Request with id " + lr.getId() );
+            }
+            else {
+                // TODO change transaction type to LabRequest created
+                LoggerUtil.log( TransactionType.PRESCRIPTION_CREATE, LoggerUtil.currentUser(),
+                        getPatient().getUsername(), "Creating Lab Request with id " + lr.getId() );
+            }
+            lr.save();
+        } );
+
+        // Remove Lab Requests no longer included
+        if ( !savedIds.isEmpty() ) {
+            savedIds.forEach( id -> {
+                final boolean isMissing = currentIds.contains( id );
+                if ( isMissing ) {
+                    // TODO change transaction type to LabRequest deleted
+                    LoggerUtil.log( TransactionType.PRESCRIPTION_DELETE, LoggerUtil.currentUser(),
+                            getPatient().getUsername(), "Deleting Lab Request with id " + id );
+                    LabRequest.getById( id ).delete();
+                }
+            } );
+        }
     }
 
     /**

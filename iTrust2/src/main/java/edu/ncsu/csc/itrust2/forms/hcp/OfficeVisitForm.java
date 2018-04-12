@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.PatientSmokingStatus;
 import edu.ncsu.csc.itrust2.models.persistent.Diagnosis;
+import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Prescription;
 
@@ -189,10 +190,8 @@ public class OfficeVisitForm implements Serializable {
         setDiagnoses( new ArrayList<Diagnosis>() );
         setPrescriptions( ov.getPrescriptions().stream().map( ( final Prescription p ) -> new PrescriptionForm( p ) )
                 .collect( Collectors.toList() ) );
-        // TODO make constructor for LabRequestForms from LabRequests
-        // setLabRequests( ov.getLabRequests().stream().map( ( LabRequest lp )
-        // -> new LabRequestForm( lp ) )
-        // .collect( Collectors.toList() ) );
+        setLabRequests( ov.getLabRequests().stream().map( ( LabRequest lp ) -> new LabRequestForm( lp ) )
+                .collect( Collectors.toList() ) );
     }
 
     /**

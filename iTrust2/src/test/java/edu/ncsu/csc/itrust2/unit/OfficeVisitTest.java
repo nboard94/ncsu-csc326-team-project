@@ -156,7 +156,6 @@ public class OfficeVisitTest {
         lr.setLabTech( User.getByName( "ov_test_labtech" ) );
         lr.setPriority( Priority.PRIORITY_HIGH );
         lr.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
-        lr.save();
 
         final LabRequest lr2 = new LabRequest();
         lr2.setHcp( User.getByName( "ov_test_hcp" ) );
@@ -164,7 +163,6 @@ public class OfficeVisitTest {
         lr2.setLabTech( User.getByName( "ov_test_labtech" ) );
         lr2.setPriority( Priority.PRIORITY_LOW );
         lr2.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
-        lr2.save();
 
         final HashSet<LabRequest> set = new HashSet<LabRequest>();
         set.add( lr );
@@ -174,6 +172,25 @@ public class OfficeVisitTest {
         visit.save();
 
         assertEquals( 2, OfficeVisit.getById( visit.getId() ).getLabRequests().size() );
+
+        // final LabRequest lr3 = new LabRequest();
+        // lr3.setHcp( User.getByName( "ov_test_hcp" ) );
+        // lr3.setPatient( User.getByName( "ov_test_patient" ) );
+        // lr3.setLabTech( User.getByName( "ov_test_labtech" ) );
+        // lr3.setPriority( Priority.PRIORITY_VERY_HIGH );
+        // lr3.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
+        //
+        // set = new HashSet<LabRequest>();
+        // set.addAll( OfficeVisit.getById( visit.getId() ).getLabRequests() );
+        // set.add( lr3 );
+        //
+        // visit.setLabRequests( set );
+        //
+        // visit.save();
+        //
+        // assertEquals( 3, OfficeVisit.getById( visit.getId()
+        // ).getLabRequests().size() );
+
         visit.delete();
     }
 

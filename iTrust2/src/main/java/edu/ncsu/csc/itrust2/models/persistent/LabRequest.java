@@ -103,7 +103,7 @@ public class LabRequest extends DomainObject<LabRequest> {
      *            labrequestForm
      * @throws ParseException
      */
-    public LabRequest ( final LabRequestForm laf ) throws ParseException {
+    public LabRequest ( final LabRequestForm laf ) {
 
         // Set users
         setPatient( User.getByNameAndRole( laf.getPatient(), Role.ROLE_PATIENT ) );
