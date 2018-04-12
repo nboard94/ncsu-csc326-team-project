@@ -2,17 +2,10 @@ package edu.ncsu.csc.itrust2.unit;
 
 import static org.junit.Assert.assertEquals;
 
-import java.text.ParseException;
-
 import org.junit.Test;
 
 import edu.ncsu.csc.itrust2.forms.admin.LabProcedureForm;
-import edu.ncsu.csc.itrust2.forms.hcp.LabRequestForm;
-import edu.ncsu.csc.itrust2.models.enums.Priority;
-import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
-import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
-import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
  * Tests the lab procedure functionality
@@ -77,115 +70,6 @@ public class LabProcedureTest {
         assertEquals( lpf.getId(), lpf2.getId() );
         assertEquals( lpf.getProperty(), lpf2.getProperty() );
 
-    }
-
-    /**
-     * Tests the LabRequest Object and Form
-     *
-     * @throws ParseException
-     */
-    @Test
-    public void testLabRequest () throws ParseException {
-        // Create lab tech user
-        User lt = User.getByName( "labtech" );
-        if ( lt == null ) {
-            lt = new User();
-            lt.setRole( Role.ROLE_LABTECH );
-            lt.setUsername( "labtech" );
-            lt.setPassword( "passwo1" );
-            lt.save();
-        }
-
-        // Create hcp user
-        User hcp = User.getByName( "hcp" );
-        if ( hcp == null ) {
-            hcp = new User();
-            hcp.setRole( Role.ROLE_HCP );
-            hcp.setUsername( "hcp" );
-            hcp.setPassword( "passwo2" );
-            hcp.save();
-        }
-
-        // Create patient user
-        User pat = User.getByName( "patient" );
-        if ( pat == null ) {
-            pat = new User();
-            pat.setRole( Role.ROLE_PATIENT );
-            pat.setUsername( "patient" );
-            pat.setPassword( "passwo3" );
-            pat.save();
-        }
-
-        // Create a lab procedures
-        LabProcedure lp = LabProcedure.getByCode( "111111-11" );
-        if ( lp == null ) {
-            lp = new LabProcedure();
-            lp.setCode( "111111-11" );
-            lp.setCommonName( "one" );
-            lp.setComponent( "comp" );
-            lp.setProperty( "prop" );
-            lp.save();
-        }
-
-        // Create two LabRequests
-        final LabRequest lr = new LabRequest();
-        LabRequest lr2 = new LabRequest();
-
-        // Create two LabRequestForms
-        LabRequestForm lrf = new LabRequestForm();
-        final LabRequestForm lrf2 = new LabRequestForm();
-
-        // Fill the fields of lr
-        lr.setComments( "comments" );
-        lr.setHcp( hcp );
-        lr.setLabTech( lt );
-        lr.setPatient( pat );
-        lr.setLabProcedure( lp );
-        lr.setPriority( Priority.PRIORITY_HIGH );
-
-        // Test that these values are set
-        assertEquals( "comments", lr.getComments() );
-        assertEquals( "hcp", lr.getHcp().getUsername() );
-        assertEquals( "labtech", lr.getLabTech().getUsername() );
-        assertEquals( "patient", lr.getPatient().getUsername() );
-        assertEquals( lp, lr.getLabProcedure() );
-        assertEquals( Priority.PRIORITY_HIGH, lr.getPriority() );
-
-        // Fill the fields of lrf2
-        lrf2.setComments( "comments" );
-        lrf2.setHcp( "hcp" );
-        lrf2.setLabTech( "labtech" );
-        lrf2.setPatient( "patient" );
-        lrf2.setPriority( "PRIORITY_HIGH" );
-        lrf2.setProc( lp.getCode() );
-
-        // Test that these values are set
-        assertEquals( "comments", lrf2.getComments() );
-        assertEquals( "hcp", lrf2.getHcp() );
-        assertEquals( "labtech", lrf2.getLabTech() );
-        assertEquals( "patient", lrf2.getPatient() );
-        assertEquals( lp.getId(), LabProcedure.getByCode( lrf2.getProc() ).getId(), 3 );
-        assertEquals( "PRIORITY_HIGH", lrf2.getPriority() );
-
-        // Set lp2 through form
-        lr2 = new LabRequest( lrf2 );
-
-        // Set lrf through object
-        lrf = new LabRequestForm( lr );
-
-        // Check that these values are equal
-        assertEquals( lr.getComments(), lr2.getComments() );
-        assertEquals( lr.getHcp(), lr2.getHcp() );
-        assertEquals( lr.getLabProcedure().getCode(), lr2.getLabProcedure().getCode() );
-        assertEquals( lr.getLabTech(), lr2.getLabTech() );
-        assertEquals( lr.getPatient(), lr2.getPatient() );
-        assertEquals( lr.getPriority(), lr2.getPriority() );
-        assertEquals( lrf.getComments(), lrf2.getComments() );
-        assertEquals( lrf.getHcp(), lrf2.getHcp() );
-        assertEquals( lrf.getLabTech(), lrf2.getLabTech() );
-        assertEquals( lrf.getPatient(), lrf2.getPatient() );
-        assertEquals( lrf.getPriority(), lrf2.getPriority() );
-        assertEquals( lrf.getProc(), lrf2.getProc() );
     }
 
 }

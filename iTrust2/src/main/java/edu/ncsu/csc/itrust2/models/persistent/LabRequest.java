@@ -107,13 +107,15 @@ public class LabRequest extends DomainObject<LabRequest> {
     public LabRequest ( final LabRequestForm laf ) throws ParseException {
 
         // Set users
-        setPatient( User.getByNameAndRole( laf.getPatient(), Role.ROLE_PATIENT ) );
+        // setPatient( User.getByNameAndRole( laf.getPatient(),
+        // Role.ROLE_PATIENT ) );
         setHcp( User.getByNameAndRole( laf.getHcp(), Role.ROLE_HCP ) );
         setLabTech( User.getByNameAndRole( laf.getLabTech(), Role.ROLE_LABTECH ) );
         setComments( laf.getComments() );
         final Priority p = Priority.valueOf( laf.getPriority() );
         setPriority( p );
-        setLabProcedure( LabProcedure.getByCode( laf.getProc() ) );
+        setLabProcedure( LabProcedure.getByCode( laf.getLabProcedure() ) );
+        setVisit( OfficeVisit.getById( laf.getOfficeVisit() ) );
 
     }
 
@@ -190,13 +192,6 @@ public class LabRequest extends DomainObject<LabRequest> {
     }
 
     /**
-     * ID of the labrequest
-     */
-    @Id
-    @GeneratedValue ( strategy = GenerationType.AUTO )
-    private Long id;
-
-    /**
      * Retrieves the ID of the labrequest
      */
     @Override
@@ -215,13 +210,20 @@ public class LabRequest extends DomainObject<LabRequest> {
         this.id = id;
     }
 
+    // /**
+    // * The Patient who is associated with this labrequest
+    // */
+    // @NotNull
+    // @ManyToOne
+    // @JoinColumn ( name = "patient_id", columnDefinition = "varchar(100)" )
+    // private User patient;
+
     /**
-     * The Patient who is associated with this labrequest
+     * ID of the labrequest
      */
-    @NotNull
-    @ManyToOne
-    @JoinColumn ( name = "patient_id", columnDefinition = "varchar(100)" )
-    private User         patient;
+    @Id
+    @GeneratedValue ( strategy = GenerationType.AUTO )
+    private Long         id;
 
     /**
      * The HCP who is associated with this labrequest
@@ -248,53 +250,60 @@ public class LabRequest extends DomainObject<LabRequest> {
     private LabProcedure procedure;
 
     /**
-     * Retrieve the priority of this LabRequest
-     *
-     * @return The priority of this LabRequest
+     * The office visit that this this lab request is associated with
      */
-    public Priority getPriority () {
-        return pri;
-    }
-
-    /**
-     * Set the priority of this LabRequest
-     *
-     * @param pri
-     *            New Status
-     */
-    public void setPriority ( final Priority pri ) {
-        this.pri = pri;
-    }
+    @ManyToOne
+    @JoinColumn ( name = "visit_id" )
+    private OfficeVisit  visit;
 
     /**
      * Any (optional) comments on the LabRequest
      */
-    private String   comments;
+    private String       comments;
 
     /**
      * The priority of the LabRequest
      */
     @NotNull
     @Enumerated ( EnumType.STRING )
-    private Priority pri;
+    private Priority     priority;
+
+    // /**
+    // * Retrieves the User object for the Patient for the LabRequest
+    // *
+    // * @return The associated Patient
+    // */
+    // public User getPatient () {
+    // return patient;
+    // }
+
+    // /**
+    // * Sets the Patient for the LabRequest
+    // *
+    // * @param patient
+    // * The User object for the Patient on the Request
+    // */
+    // public void setPatient ( final User patient ) {
+    // this.patient = patient;
+    // }
 
     /**
-     * Retrieves the User object for the Patient for the LabRequest
+     * Retrieve the priority of this LabRequest
      *
-     * @return The associated Patient
+     * @return The priority of this LabRequest
      */
-    public User getPatient () {
-        return patient;
+    public Priority getPriority () {
+        return priority;
     }
 
     /**
-     * Sets the Patient for the LabRequest
+     * Set the priority of this LabRequest
      *
-     * @param patient
-     *            The User object for the Patient on the Request
+     * @param priority
+     *            New Status
      */
-    public void setPatient ( final User patient ) {
-        this.patient = patient;
+    public void setPriority ( final Priority priority ) {
+        this.priority = priority;
     }
 
     /**
@@ -371,6 +380,25 @@ public class LabRequest extends DomainObject<LabRequest> {
      */
     public void setLabProcedure ( final LabProcedure proc ) {
         this.procedure = proc;
+    }
+
+    /**
+     * Gets the office visit of this lab request
+     *
+     * @return the visit
+     */
+    public OfficeVisit getVisit () {
+        return visit;
+    }
+
+    /**
+     * Sets the office visit of this class
+     *
+     * @param visit
+     *            the visit to set
+     */
+    public void setVisit ( final OfficeVisit visit ) {
+        this.visit = visit;
     }
 
 }

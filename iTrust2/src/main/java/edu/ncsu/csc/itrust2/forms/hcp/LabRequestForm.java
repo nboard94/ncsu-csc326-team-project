@@ -15,12 +15,14 @@ import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
  */
 public class LabRequestForm {
 
-    private String proc;
-    private String patient;
+    private Long   id;
+    private String labProcedure;
+    // private String patient;
     private String hcp;
     private String labTech;
     private String priority;
     private String comments;
+    private Long   officeVisit;
 
     /**
      * Empty constructor for filling in fields without a LabRequest object
@@ -35,33 +37,25 @@ public class LabRequestForm {
      *            the LabRequest
      */
     public LabRequestForm ( final LabRequest request ) {
-        setProc( request.getLabProcedure().getCode() );
-        setPatient( request.getPatient().getId() );
+        setId( request.getId() );
+        setLabProcedure( request.getLabProcedure().getCode() );
+        // setPatient( request.getPatient().getId() );
         setHcp( request.getHcp().getId() );
         setLabTech( request.getLabTech().getId() );
         setPriority( Priority.toString( request.getPriority() ) );
         setComments( request.getComments() );
+        setOfficeVisit( request.getVisit().getId() );
     }
 
-    /**
-     * Sets the proc
-     *
-     * @param proc
-     *            the proc to set
-     */
-    public void setProc ( final String proc ) {
-        this.proc = proc;
-    }
-
-    /**
-     * Sets the patient
-     *
-     * @param patient
-     *            the patient to set
-     */
-    public void setPatient ( final String patient ) {
-        this.patient = patient;
-    }
+    // /**
+    // * Sets the patient
+    // *
+    // * @param patient
+    // * the patient to set
+    // */
+    // public void setPatient ( final String patient ) {
+    // this.patient = patient;
+    // }
 
     /**
      * Sets the HCP
@@ -106,20 +100,30 @@ public class LabRequestForm {
     /**
      * Gets the procedure
      *
-     * @return the proc
+     * @return the lab procedure
      */
-    public String getProc () {
-        return proc;
+    public String getLabProcedure () {
+        return labProcedure;
     }
 
     /**
-     * Gets the patient
+     * Sets the lab procedure of for the lab request
      *
-     * @return the patient
+     * @param labProcedure
+     *            the lab procedure to set
      */
-    public String getPatient () {
-        return patient;
+    public void setLabProcedure ( final String labProcedure ) {
+        this.labProcedure = labProcedure;
     }
+
+    // /**
+    // * Gets the patient
+    // *
+    // * @return the patient
+    // */
+    // public String getPatient () {
+    // return patient;
+    // }
 
     /**
      * Gets the hcp
@@ -155,5 +159,43 @@ public class LabRequestForm {
      */
     public String getComments () {
         return comments;
+    }
+
+    /**
+     * Gets the office visit id that this lab request is associated with
+     *
+     * @return the office visit id
+     */
+    public Long getOfficeVisit () {
+        return officeVisit;
+    }
+
+    /**
+     * Sets the office visit of this lab
+     *
+     * @param officeVisit
+     *            the id of the office visit
+     */
+    public void setOfficeVisit ( final Long officeVisit ) {
+        this.officeVisit = officeVisit;
+    }
+
+    /**
+     * Gets the id of the lab request
+     *
+     * @return the id
+     */
+    public Long getId () {
+        return id;
+    }
+
+    /**
+     * Sets the id of the lab request
+     *
+     * @param id
+     *            the id to set
+     */
+    public void setId ( final Long id ) {
+        this.id = id;
     }
 }
