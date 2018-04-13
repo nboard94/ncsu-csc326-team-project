@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.junit.Before;
@@ -164,7 +165,7 @@ public class OfficeVisitTest {
         lr2.setPriority( Priority.PRIORITY_LOW );
         lr2.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
 
-        final HashSet<LabRequest> set = new HashSet<LabRequest>();
+        Set<LabRequest> set = new HashSet<LabRequest>();
         set.add( lr );
         set.add( lr2 );
         visit.setLabRequests( set );
@@ -173,23 +174,31 @@ public class OfficeVisitTest {
 
         assertEquals( 2, OfficeVisit.getById( visit.getId() ).getLabRequests().size() );
 
-        // final LabRequest lr3 = new LabRequest();
-        // lr3.setHcp( User.getByName( "ov_test_hcp" ) );
-        // lr3.setPatient( User.getByName( "ov_test_patient" ) );
-        // lr3.setLabTech( User.getByName( "ov_test_labtech" ) );
-        // lr3.setPriority( Priority.PRIORITY_VERY_HIGH );
-        // lr3.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
-        //
-        // set = new HashSet<LabRequest>();
-        // set.addAll( OfficeVisit.getById( visit.getId() ).getLabRequests() );
-        // set.add( lr3 );
-        //
-        // visit.setLabRequests( set );
-        //
-        // visit.save();
-        //
-        // assertEquals( 3, OfficeVisit.getById( visit.getId()
-        // ).getLabRequests().size() );
+        // Try to add a 3rd lab request
+        final LabRequest lr3 = new LabRequest();
+        lr3.setHcp( User.getByName( "ov_test_hcp" ) );
+        lr3.setPatient( User.getByName( "ov_test_patient" ) );
+        lr3.setLabTech( User.getByName( "ov_test_labtech" ) );
+        lr3.setPriority( Priority.PRIORITY_VERY_HIGH );
+        lr3.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
+
+        set = OfficeVisit.getById( visit.getId() ).getLabRequests();
+        set.add( lr3 );
+
+        visit.setLabRequests( set );
+
+        visit.save();
+
+        assertEquals( 3, OfficeVisit.getById( visit.getId() ).getLabRequests().size() );
+
+        // Try to remove one of the lab requests
+        set = new HashSet<LabRequest>();
+        set.add( LabRequest.getById( lr.getId() ) );
+        set.add( LabRequest.getById( lr2.getId() ) );
+        visit.setLabRequests( set );
+        visit.save();
+
+        assertEquals( 2, OfficeVisit.getById( visit.getId() ).getLabRequests().size() );
 
         visit.delete();
     }

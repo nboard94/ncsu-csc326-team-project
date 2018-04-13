@@ -593,6 +593,7 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
      * List of all of the lab requests associated with this office visit
      */
     @OneToMany ( fetch = FetchType.EAGER )
+    @JoinColumn ( name = "labRequests_id" )
     private Set<LabRequest>          labRequests   = new HashSet<LabRequest>();
 
     /**
@@ -753,33 +754,29 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         final Set<Long> savedIds = oldVisit == null ? Collections.emptySet()
                 : oldVisit.getLabRequests().stream().map( LabRequest::getId ).collect( Collectors.toSet() );
 
-        // Save each of the LabRequests
-        this.getLabRequests().forEach( lr -> {
+        // Save each lab request
+        for ( final LabRequest lr : this.getLabRequests() ) {
             final boolean isSaved = savedIds.contains( lr.getId() );
             if ( isSaved ) {
-                // TODO change transaction type to LabRequest edited
                 LoggerUtil.log( TransactionType.PRESCRIPTION_EDIT, LoggerUtil.currentUser(), getPatient().getUsername(),
                         "Editing Lab Request with id " + lr.getId() );
             }
             else {
-                // TODO change transaction type to LabRequest created
                 LoggerUtil.log( TransactionType.PRESCRIPTION_CREATE, LoggerUtil.currentUser(),
                         getPatient().getUsername(), "Creating Lab Request with id " + lr.getId() );
             }
             lr.save();
-        } );
+        }
 
-        // Remove Lab Requests no longer included
         if ( !savedIds.isEmpty() ) {
-            savedIds.forEach( id -> {
-                final boolean isMissing = currentIds.contains( id );
+            for ( final Long id : savedIds ) {
+                final boolean isMissing = !currentIds.contains( id );
                 if ( isMissing ) {
-                    // TODO change transaction type to LabRequest deleted
                     LoggerUtil.log( TransactionType.PRESCRIPTION_DELETE, LoggerUtil.currentUser(),
                             getPatient().getUsername(), "Deleting Lab Request with id " + id );
                     LabRequest.getById( id ).delete();
                 }
-            } );
+            }
         }
     }
 
