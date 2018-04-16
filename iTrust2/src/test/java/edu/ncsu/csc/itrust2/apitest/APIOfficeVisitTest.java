@@ -49,6 +49,7 @@ import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
+import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -495,7 +496,10 @@ public class APIOfficeVisitTest {
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( labtech ) ) );
 
+        /* Delete all OfficeVisits/LabRequests before continuing testing */
         mvc.perform( delete( "/api/v1/officevisits" ) );
+        mvc.perform( delete( "/api/v1/labrequests" ) );
+
         final OfficeVisitForm visit = new OfficeVisitForm();
         visit.setDate( "4/16/2048" );
         visit.setTime( "9:50 AM" );
@@ -516,14 +520,14 @@ public class APIOfficeVisitTest {
         visit.setHdl( 80 );
         visit.setDiastolic( 85 );
 
-        final LabRequestForm labForm = new LabRequestForm();
+        LabRequestForm labForm = new LabRequestForm();
         labForm.setHcp( "hcp" );
         labForm.setPatient( "patient" );
         labForm.setLabTech( "labtech" );
         labForm.setComments( "comments" );
         labForm.setPriority( Priority.PRIORITY_HIGH.toString() );
         labForm.setLabProcedure( "111111-11" );
-        final List<LabRequestForm> list = new ArrayList<LabRequestForm>();
+        List<LabRequestForm> list = new ArrayList<LabRequestForm>();
         list.add( labForm );
         visit.setLabRequests( list );
 
@@ -531,6 +535,42 @@ public class APIOfficeVisitTest {
         mvc.perform( post( "/api/v1/officevisits" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
 
+        /* Set the id of the visit form to the office visit */
+        visit.setId( OfficeVisit.getForHCP( "hcp" ).get( 0 ).getId().toString() );
+
+        assertEquals( 1, OfficeVisit.getForHCP( "hcp" ).size() );
+        LabRequest savedLr = (LabRequest) OfficeVisit.getForHCP( "hcp" ).get( 0 ).getLabRequests().toArray()[0];
+        final Long oldId = savedLr.getId();
+
+        assertEquals( "comments", savedLr.getComments() );
+        assertEquals( "hcp", savedLr.getHcp().getUsername() );
+        assertEquals( "patient", savedLr.getPatient().getUsername() );
+        assertEquals( "labtech", savedLr.getLabTech().getUsername() );
+        assertEquals( Priority.PRIORITY_HIGH, savedLr.getPriority() );
+        assertEquals( "111111-11", savedLr.getLabProcedure().getCode() );
+
+        // Change lab request
+        labForm = new LabRequestForm( savedLr );
+        assertNotNull( labForm.getId() );
+        labForm.setPriority( Priority.PRIORITY_LOW.toString() );
+
+        list = new ArrayList<LabRequestForm>();
+        list.add( labForm );
+        visit.setLabRequests( list );
+
+        mvc.perform( put( "/api/v1/officevisits/" + visit.getId() ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
+        assertEquals( 1, OfficeVisit.getForHCP( "hcp" ).get( 0 ).getLabRequests().size() );
+        savedLr = (LabRequest) OfficeVisit.getForHCP( "hcp" ).get( 0 ).getLabRequests().toArray()[0];
+        assertEquals( Priority.PRIORITY_LOW, savedLr.getPriority() );
+        assertEquals( oldId, savedLr.getId() );
+
+        // Remove lab request
+        visit.setLabRequests( new ArrayList<LabRequestForm>() );
+        mvc.perform( put( "/api/v1/officevisits/" + visit.getId() ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
+        assertEquals( 0, OfficeVisit.getForHCP( "hcp" ).get( 0 ).getLabRequests().size() );
+        assertEquals( 0, LabRequest.getLabRequests().size() );
     }
 
 }

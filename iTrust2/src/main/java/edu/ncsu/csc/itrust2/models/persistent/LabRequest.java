@@ -106,6 +106,7 @@ public class LabRequest extends DomainObject<LabRequest> {
     public LabRequest ( final LabRequestForm laf ) {
 
         // Set users
+        setId( laf.getId() );
         setPatient( User.getByNameAndRole( laf.getPatient(), Role.ROLE_PATIENT ) );
         setHcp( User.getByNameAndRole( laf.getHcp(), Role.ROLE_HCP ) );
         setLabTech( User.getByNameAndRole( laf.getLabTech(), Role.ROLE_LABTECH ) );
