@@ -758,11 +758,11 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         for ( final LabRequest lr : this.getLabRequests() ) {
             final boolean isSaved = savedIds.contains( lr.getId() );
             if ( isSaved ) {
-                LoggerUtil.log( TransactionType.PRESCRIPTION_EDIT, LoggerUtil.currentUser(), getPatient().getUsername(),
+                LoggerUtil.log( TransactionType.LAB_REQUEST_EDIT, LoggerUtil.currentUser(), getPatient().getUsername(),
                         "Editing Lab Request with id " + lr.getId() );
             }
             else {
-                LoggerUtil.log( TransactionType.PRESCRIPTION_CREATE, LoggerUtil.currentUser(),
+                LoggerUtil.log( TransactionType.LAB_REQUEST_CREATE, LoggerUtil.currentUser(),
                         getPatient().getUsername(), "Creating Lab Request with id " + lr.getId() );
             }
             lr.save();
@@ -772,7 +772,7 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
             for ( final Long savedId : savedIds ) {
                 final boolean isMissing = !currentIds.contains( savedId );
                 if ( isMissing ) {
-                    LoggerUtil.log( TransactionType.PRESCRIPTION_DELETE, LoggerUtil.currentUser(),
+                    LoggerUtil.log( TransactionType.LAB_REQUEST_DELETE, LoggerUtil.currentUser(),
                             getPatient().getUsername(), "Deleting Lab Request with id " + savedId );
                     LabRequest.getById( savedId ).delete();
                 }

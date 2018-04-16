@@ -294,7 +294,19 @@ public enum TransactionType {
     /**
      * Admin edits an existing lab procedure
      */
-    LAB_EDIT ( 1803, "Admin edited an existing lab procedure", false );
+    LAB_EDIT ( 1803, "Admin edited an existing lab procedure", false ),
+    /**
+     * User creates a lab request
+     */
+    LAB_REQUEST_CREATE ( 1804, "User created new lab request", false ),
+    /**
+     * User deletes lab request from the data base
+     */
+    LAB_REQUEST_DELETE ( 1805, "User deleted existing lab request", false ),
+    /**
+     * User edits lab request in the database
+     */
+    LAB_REQUEST_EDIT ( 1806, "User edited existing lab request", false );
 
     /**
      * Creates a TransactionType for logging events

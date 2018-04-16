@@ -27,8 +27,6 @@ public class APILabRequestController extends APIController {
      */
     @GetMapping ( BASE_PATH + "/labrequests" )
     public List<LabRequest> getLabRequests () {
-        // TODO change the transaction type to lab requests
-        LoggerUtil.log( TransactionType.DRUG_VIEW, LoggerUtil.currentUser(), "Fetched list of Lab Procedures" );
         return LabRequest.getLabRequests();
     }
 
@@ -38,8 +36,7 @@ public class APILabRequestController extends APIController {
      */
     @DeleteMapping ( BASE_PATH + "/labrequests" )
     public void deleteOfficeVisits () {
-        // TODO change the transaction type to lab requests
-        LoggerUtil.log( TransactionType.OFFICE_VISIT_DELETE, LoggerUtil.currentUser() );
+        LoggerUtil.log( TransactionType.LAB_REQUEST_DELETE, LoggerUtil.currentUser() );
         LabRequest.deleteAll( LabRequest.class );
     }
 
