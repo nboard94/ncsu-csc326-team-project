@@ -769,12 +769,12 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         }
 
         if ( !savedIds.isEmpty() ) {
-            for ( final Long id : savedIds ) {
-                final boolean isMissing = !currentIds.contains( id );
+            for ( final Long savedId : savedIds ) {
+                final boolean isMissing = !currentIds.contains( savedId );
                 if ( isMissing ) {
                     LoggerUtil.log( TransactionType.PRESCRIPTION_DELETE, LoggerUtil.currentUser(),
-                            getPatient().getUsername(), "Deleting Lab Request with id " + id );
-                    LabRequest.getById( id ).delete();
+                            getPatient().getUsername(), "Deleting Lab Request with id " + savedId );
+                    LabRequest.getById( savedId ).delete();
                 }
             }
         }
