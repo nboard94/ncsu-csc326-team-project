@@ -3,7 +3,6 @@
  */
 package edu.ncsu.csc.itrust2.forms.hcp;
 
-import edu.ncsu.csc.itrust2.models.enums.Priority;
 import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
 
 /**
@@ -21,6 +20,7 @@ public class LabRequestForm {
     private String hcp;
     private String labTech;
     private String priority;
+    private String status;
     private String comments;
 
     /**
@@ -41,7 +41,8 @@ public class LabRequestForm {
         setPatient( request.getPatient().getId() );
         setHcp( request.getHcp().getId() );
         setLabTech( request.getLabTech().getId() );
-        setPriority( Priority.toString( request.getPriority() ) );
+        setPriority( request.getPriority().toString() );
+        setStatus( request.getStatus().toString() );
         setComments( request.getComments() );
     }
 
@@ -157,6 +158,25 @@ public class LabRequestForm {
      */
     public void setPriority ( final String priority ) {
         this.priority = priority;
+    }
+
+    /**
+     * Gets the status of the form
+     *
+     * @return the status
+     */
+    public String getStatus () {
+        return status;
+    }
+
+    /**
+     * Sets the status of the form
+     *
+     * @param status
+     *            the status to set
+     */
+    public void setStatus ( final String status ) {
+        this.status = status;
     }
 
     /**

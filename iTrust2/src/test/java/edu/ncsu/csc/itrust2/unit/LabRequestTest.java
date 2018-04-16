@@ -14,6 +14,7 @@ import org.junit.Test;
 import edu.ncsu.csc.itrust2.forms.hcp.LabRequestForm;
 import edu.ncsu.csc.itrust2.models.enums.Priority;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.enums.Status;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
 import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
@@ -76,6 +77,7 @@ public class LabRequestTest {
         lr1.setLabTech( User.getByName( "lr_test_labtech" ) );
         lr1.setPatient( User.getByName( "lr_test_patient" ) );
         lr1.setPriority( Priority.PRIORITY_LOW );
+        lr1.setStatus( Status.PENDING );
         lr1.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
         lr1.save();
 
@@ -85,6 +87,7 @@ public class LabRequestTest {
         assertEquals( "lr_test_labtech", savedLr.getLabTech().getUsername() );
         assertEquals( "lr_test_patient", savedLr.getPatient().getUsername() );
         assertEquals( "PRIORITY_LOW", savedLr.getPriority().name() );
+        assertEquals( "PENDING", savedLr.getStatus().name() );
         assertEquals( "111111-11", savedLr.getLabProcedure().getCode() );
         assertNotNull( savedLr.getId() );
 
@@ -95,6 +98,7 @@ public class LabRequestTest {
         lqr1.setLabTech( "lr_test_labtech" );
         lqr1.setPatient( "lr_test_patient" );
         lqr1.setPriority( "PRIORITY_HIGH" );
+        lqr1.setStatus( "PENDING" );
         lqr1.setLabProcedure( "111111-11" );
         final LabRequest lr2 = new LabRequest( lqr1 );
         lr2.save();
@@ -105,6 +109,7 @@ public class LabRequestTest {
         assertEquals( "lr_test_labtech", savedLr.getLabTech().getUsername() );
         assertEquals( "lr_test_patient", savedLr.getPatient().getUsername() );
         assertEquals( "PRIORITY_HIGH", savedLr.getPriority().name() );
+        assertEquals( "PENDING", savedLr.getStatus().name() );
         assertEquals( "111111-11", savedLr.getLabProcedure().getCode() );
         assertNotNull( savedLr.getId() );
 
@@ -115,6 +120,7 @@ public class LabRequestTest {
         assertEquals( "lr_test_labtech", form.getLabTech() );
         assertEquals( "lr_test_patient", form.getPatient() );
         assertEquals( "PRIORITY_HIGH", form.getPriority() );
+        assertEquals( "PENDING", form.getStatus() );
         assertEquals( "111111-11", form.getLabProcedure() );
         assertNotNull( form.getId() );
 

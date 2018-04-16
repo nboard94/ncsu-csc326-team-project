@@ -16,6 +16,7 @@ import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.Priority;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.enums.Status;
 import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.Diagnosis;
 import edu.ncsu.csc.itrust2.models.persistent.Drug;
@@ -156,6 +157,7 @@ public class OfficeVisitTest {
         lr.setPatient( User.getByName( "ov_test_patient" ) );
         lr.setLabTech( User.getByName( "ov_test_labtech" ) );
         lr.setPriority( Priority.PRIORITY_HIGH );
+        lr.setStatus( Status.PENDING );
         lr.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
 
         final LabRequest lr2 = new LabRequest();
@@ -163,6 +165,7 @@ public class OfficeVisitTest {
         lr2.setPatient( User.getByName( "ov_test_patient" ) );
         lr2.setLabTech( User.getByName( "ov_test_labtech" ) );
         lr2.setPriority( Priority.PRIORITY_LOW );
+        lr2.setStatus( Status.WORKING );
         lr2.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
 
         Set<LabRequest> set = new HashSet<LabRequest>();
@@ -180,6 +183,7 @@ public class OfficeVisitTest {
         lr3.setPatient( User.getByName( "ov_test_patient" ) );
         lr3.setLabTech( User.getByName( "ov_test_labtech" ) );
         lr3.setPriority( Priority.PRIORITY_VERY_HIGH );
+        lr3.setStatus( Status.COMPLETED );
         lr3.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
 
         set = OfficeVisit.getById( visit.getId() ).getLabRequests();

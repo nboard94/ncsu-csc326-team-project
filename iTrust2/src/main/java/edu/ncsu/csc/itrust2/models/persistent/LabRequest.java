@@ -21,6 +21,7 @@ import org.hibernate.criterion.Criterion;
 import edu.ncsu.csc.itrust2.forms.hcp.LabRequestForm;
 import edu.ncsu.csc.itrust2.models.enums.Priority;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.enums.Status;
 
 /**
  * Backing object for the Lab request system. This is the object that is
@@ -87,6 +88,13 @@ public class LabRequest extends DomainObject<LabRequest> {
     private Priority     priority;
 
     /**
+     * The current state of the lab request
+     */
+    @NotNull
+    @Enumerated ( EnumType.STRING )
+    private Status       status;
+
+    /**
      * Used so that Hibernate can construct and load objects
      */
     public LabRequest () {
@@ -113,6 +121,8 @@ public class LabRequest extends DomainObject<LabRequest> {
         setComments( laf.getComments() );
         final Priority p = Priority.valueOf( laf.getPriority() );
         setPriority( p );
+        final Status s = Status.valueOf( laf.getStatus() );
+        setStatus( s );
         setLabProcedure( LabProcedure.getByCode( laf.getLabProcedure() ) );
 
     }
@@ -247,6 +257,25 @@ public class LabRequest extends DomainObject<LabRequest> {
      */
     public void setPriority ( final Priority priority ) {
         this.priority = priority;
+    }
+
+    /**
+     * Gets the current status of the lab requesst
+     *
+     * @return the status
+     */
+    public Status getStatus () {
+        return status;
+    }
+
+    /**
+     * Sets the status of the lab request
+     *
+     * @param status
+     *            the status to set
+     */
+    public void setStatus ( final Status status ) {
+        this.status = status;
     }
 
     /**

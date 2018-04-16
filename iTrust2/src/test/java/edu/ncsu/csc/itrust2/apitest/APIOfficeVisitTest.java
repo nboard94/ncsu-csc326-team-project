@@ -526,6 +526,7 @@ public class APIOfficeVisitTest {
         labForm.setLabTech( "labtech" );
         labForm.setComments( "comments" );
         labForm.setPriority( Priority.PRIORITY_HIGH.toString() );
+        labForm.setStatus( Status.PENDING.toString() );
         labForm.setLabProcedure( "111111-11" );
         List<LabRequestForm> list = new ArrayList<LabRequestForm>();
         list.add( labForm );
@@ -547,9 +548,10 @@ public class APIOfficeVisitTest {
         assertEquals( "patient", savedLr.getPatient().getUsername() );
         assertEquals( "labtech", savedLr.getLabTech().getUsername() );
         assertEquals( Priority.PRIORITY_HIGH, savedLr.getPriority() );
+        assertEquals( Status.PENDING, savedLr.getStatus() );
         assertEquals( "111111-11", savedLr.getLabProcedure().getCode() );
 
-        // Change lab request
+        // Change lab request that is saved in the office visit
         labForm = new LabRequestForm( savedLr );
         assertNotNull( labForm.getId() );
         labForm.setPriority( Priority.PRIORITY_LOW.toString() );
