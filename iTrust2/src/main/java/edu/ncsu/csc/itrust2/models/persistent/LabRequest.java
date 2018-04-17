@@ -3,7 +3,6 @@ package edu.ncsu.csc.itrust2.models.persistent;
 import java.text.ParseException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -366,21 +365,13 @@ public class LabRequest extends DomainObject<LabRequest> {
     }
 
     /**
-     * Retrieves all LabRequests for the HCP _and_ Patient provided. This is the
-     * intersection of the requests -- namely, only the ones where both the HCP
-     * _and_ Patient are on the request.
+     * Retrieves all lab requests for the Patient provided
      *
-     * @param hcpName
-     *            Name of the HCP
      * @param patientName
-     *            Name of the Patient
-     * @return The list of matching LabRequests
+     *            Name of the HCP
+     * @return All LabRequests involving this HCP
      */
-    public static List<LabRequest> getLabRequestsForHCPAndPatient ( final String hcpName, final String patientName ) {
-        final Vector<Criterion> criteria = new Vector<Criterion>();
-        criteria.add( createCriterion( "hcp", User.getByNameAndRole( hcpName, Role.ROLE_HCP ) ) );
-        criteria.add( createCriterion( "patient", User.getByNameAndRole( patientName, Role.ROLE_PATIENT ) ) );
-        return getWhere( criteria );
+    public static List<LabRequest> getLabRequestsForPatient ( final String patientName ) {
+        return getWhere( createCriterionAsList( "patient", User.getByNameAndRole( patientName, Role.ROLE_PATIENT ) ) );
     }
-
 }

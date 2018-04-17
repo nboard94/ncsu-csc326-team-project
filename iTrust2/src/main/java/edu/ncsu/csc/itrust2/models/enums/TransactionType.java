@@ -306,7 +306,11 @@ public enum TransactionType {
     /**
      * User edits lab request in the database
      */
-    LAB_REQUEST_EDIT ( 1806, "User edited existing lab request", false );
+    LAB_REQUEST_EDIT ( 1806, "User edited existing lab request", false ),
+    /**
+     * User views lab request(s)
+     */
+    LAB_REQUEST_VIEW ( 1807, "User viewed a list of lab requests", false );
 
     /**
      * Creates a TransactionType for logging events
