@@ -350,7 +350,15 @@ public class LabRequest extends DomainObject<LabRequest> {
      * @return All of their LabRequests
      */
     public static List<LabRequest> getLabRequestsForLabTech ( final String techName ) {
-        return getWhere( createCriterionAsList( "labtech", User.getByNameAndRole( techName, Role.ROLE_LABTECH ) ) );
+        final List<LabRequest> requests = getWhere(
+                createCriterionAsList( "labTech", User.getByNameAndRole( techName, Role.ROLE_LABTECH ) ) );
+        requests.sort( new Comparator<LabRequest>() {
+            @Override
+            public int compare ( final LabRequest o1, final LabRequest o2 ) {
+                return o1.compareTo( o2 );
+            }
+        } );
+        return requests;
     }
 
     /**
@@ -361,7 +369,15 @@ public class LabRequest extends DomainObject<LabRequest> {
      * @return All LabRequests involving this HCP
      */
     public static List<LabRequest> getLabRequestsForHCP ( final String hcpName ) {
-        return getWhere( createCriterionAsList( "hcp", User.getByNameAndRole( hcpName, Role.ROLE_HCP ) ) );
+        final List<LabRequest> requests = getWhere(
+                createCriterionAsList( "hcp", User.getByNameAndRole( hcpName, Role.ROLE_HCP ) ) );
+        requests.sort( new Comparator<LabRequest>() {
+            @Override
+            public int compare ( final LabRequest o1, final LabRequest o2 ) {
+                return o1.compareTo( o2 );
+            }
+        } );
+        return requests;
     }
 
     /**
@@ -372,6 +388,14 @@ public class LabRequest extends DomainObject<LabRequest> {
      * @return All LabRequests involving this HCP
      */
     public static List<LabRequest> getLabRequestsForPatient ( final String patientName ) {
-        return getWhere( createCriterionAsList( "patient", User.getByNameAndRole( patientName, Role.ROLE_PATIENT ) ) );
+        final List<LabRequest> requests = getWhere(
+                createCriterionAsList( "patient", User.getByNameAndRole( patientName, Role.ROLE_PATIENT ) ) );
+        requests.sort( new Comparator<LabRequest>() {
+            @Override
+            public int compare ( final LabRequest o1, final LabRequest o2 ) {
+                return o1.compareTo( o2 );
+            }
+        } );
+        return requests;
     }
 }

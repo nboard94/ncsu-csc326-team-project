@@ -77,7 +77,7 @@ public class APILabRequestController extends APIController {
      * @return the edited prescription
      */
     @PreAuthorize ( "hasRole('ROLE_LABTECH')" )
-    @PutMapping ( BASE_PATH + "/labRequests" )
+    @PutMapping ( BASE_PATH + "/labrequests" )
     public ResponseEntity editLabRequest ( @RequestBody final LabRequestForm form ) {
         try {
             final LabRequest lr = new LabRequest( form );
