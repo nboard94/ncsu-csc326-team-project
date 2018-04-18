@@ -80,14 +80,14 @@ public class APIVaccinationTest {
 
         // Create vaccinations for testing
         final VaccinationForm form1 = new VaccinationForm();
-        form1.setCode( "00000" );
-        form1.setName( "TEST" );
+        form1.setCode( "56784" );
+        form1.setName( "TEST1" );
         form1.setDescription( "DESC1" );
 
         final VaccinationForm form2 = new VaccinationForm();
-        form2.setCode( "00001" );
-        form2.setName( "TEST" );
-        form2.setDescription( "Desc2" );
+        form2.setCode( "38475" );
+        form2.setName( "TEST1" );
+        form2.setDescription( "DESC2" );
 
         // Add vaccination1 to system
         final String content1 = mvc
