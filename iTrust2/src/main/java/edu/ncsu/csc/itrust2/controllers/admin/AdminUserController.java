@@ -156,4 +156,18 @@ public class AdminUserController {
         model.addAttribute( "users", User.getUsers() );
         return "admin/drugs";
     }
+
+    /**
+     * Retrieves the form for the Vaccinations action
+     *
+     * @param model
+     *            Data for front end
+     * @return The page to display
+     */
+    @RequestMapping ( value = "admin/vaccinations" )
+    @PreAuthorize ( "hasRole('ROLE_ADMIN')" )
+    public String vaccinations ( final Model model ) {
+        model.addAttribute( "users", User.getUsers() );
+        return "admin/vaccinations";
+    }
 }

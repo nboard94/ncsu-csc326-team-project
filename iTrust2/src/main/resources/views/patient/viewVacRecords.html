@@ -1,0 +1,72 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{})">
+  <title>View Vaccinations</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+  <div th:fragment="content">
+
+
+    <script th:inline="javascript">
+      /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+      /*<![CDATA[*/
+      var app = angular.module("vacrecordsApp", []);
+      app.controller('vacrecordsCtrl', function ($scope, $http) {
+        $scope.vacrecords = [];
+        $scope.pattern = /^\d{4}-\d{4}-\d{2}$/;
+        $scope.loadTable = function () {
+          $http.get("/iTrust2/api/v1/vacrecords").then(
+            function (response) {
+              $scope.vacrecords = response.data;
+              $scope.message = "";
+            }, function (rejection) {
+              $scope.vacrecords = [];
+              $scope.message = "Could not display vacrecords";
+            });
+        }
+        $scope.loadTable();
+      });
+			/*]]>*/
+    </script>
+
+    <div ng-app="vacrecordsApp" ng-controller="vacrecordsCtrl">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h3>Patient View Vaccinations</h3>
+              </div>
+              <div class="panel-body">
+                <table class="table table-bordered">
+                  <caption>My Vaccinations:</caption>
+                  <thead>
+                    <tr>
+                      <th>Vaccination</th>
+                      <th>Code</th>
+                      <th>Administration Date</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr name="vacrecordTableRow" ng-repeat="v in vacrecords | orderBy: 'drug'" vacrecordId={{v.id}}>
+                      <td name="vaccinationCell">{{v.vaccination.name}}</td>
+                      <td name="vaccinationCell">{{v.vaccination.code}}</td>
+                      <td name="administrationCell">{{v.administrationDate.month + 1}}/{{v.administrationDate.dayOfMonth}}/{{v.administrationDate.year}}</td>
+                      <td name="vaccinationCell">{{v.vaccination.description}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
