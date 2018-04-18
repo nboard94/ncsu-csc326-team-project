@@ -267,6 +267,24 @@ public enum TransactionType {
      * An email would be sent but email address is missing.
      */
     CREATE_MISSING_EMAIL_LOG ( 1404, "Email notification could not be sent due to missing email address", true ),
+
+    /**
+     * Admin created a new vaccination
+     */
+    VACCINATION_CREATE ( 1901, "Admin created a new vaccination", true ),
+    /**
+     * Admin edited an existing vaccination
+     */
+    VACCINATION_EDIT ( 1902, "Admin edited an existing vaccination", true ),
+    /**
+     * Admin deleted an existing vaccination
+     */
+    VACCINATION_DELETE ( 1903, "Admin deleted an existing vaccination", true ),
+    /**
+     * Admin views all vaccinations in the system
+     */
+    VACCINATION_VIEW ( 1904, "Admin views all vaccinations in the system", true ),
+
     /**
      * A patient declares a representative
      */
@@ -282,7 +300,24 @@ public enum TransactionType {
     /**
      * A HCP or patient views their representatives
      */
-    VIEW_REPS ( 1704, "User viewed list of patient's representatives", true );
+    VIEW_REPS ( 1704, "User viewed list of patient's representatives", true ),
+
+    /**
+     * HCP created a new vacrecord
+     */
+    VACRECORD_CREATE ( 1910, "HCP created a new vaccination record", true ),
+    /**
+     * HCP edited an existing vacrecord
+     */
+    VACRECORD_EDIT ( 1911, "HCP edited an existing vaccination record", true ),
+    /**
+     * HCP deleted an existing vacrecord
+     */
+    VACRECORD_DELETE ( 1912, "HCP deleted an existing vaccination record", true ),
+    /**
+     * User viewed an existing vacrecord
+     */
+    VACRECORD_VIEW ( 1913, "User viewed an existing vaccination record", true );
 
     /**
      * Creates a TransactionType for logging events
