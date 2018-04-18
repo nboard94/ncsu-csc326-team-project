@@ -1,0 +1,159 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{})">
+  <title>Lab Requests</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+  <div th:fragment="content">
+
+
+    <script th:inline="javascript">
+      /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+      /*<![CDATA[*/
+      var app = angular.module("labRequestsApp", []);
+      app.controller('labRequestsCtrl', function ($scope, $http) {
+    	  
+
+        $scope.requests = [];
+        $scope.statuses = [];
+        $scope.selectedRequest = {};
+        
+        $scope.loadTable = function () {
+          $http.get("/iTrust2/api/v1/labrequests/labtech").then(
+            function (response) {
+              $scope.requests = response.data;
+              $scope.message = "";
+            }, function (rejection) {
+              $scope.procedures = [];
+              $scope.message = "Could not display lab requests";
+            });
+        }
+        
+        $scope.retrieveStatuses = function() {
+          $http.get("/iTrust2/api/v1/labrequests/statuses").then(
+              function (response) {
+            	$scope.statuses = response.data;
+                $scope.message = "";
+              }, function (rejection) {
+                $scope.statuses = [];
+                $scope.message = "Could retrieve statuses";
+              });
+        }
+        
+        $scope.editRequest = function (request) {
+            $scope.selectedRequest = angular.copy(request);
+          };
+        
+        $scope.getTemplate = function (request) {
+            if (request.id === $scope.selectedRequest.id) return 'edit';
+            else return 'view';
+          };
+        
+        $scope.resetSelected = function () {
+            $scope.selectedRequest = {};
+          };
+          
+        $scope.saveRequest = function() {
+        	$http.put("/iTrust2/api/v1/labrequests", $scope.selectedRequest).then(
+                    function (response) {
+                      $scope.loadTable();
+                      $scope.resetSelected();
+                    }, function (rejection) {
+                      $scope.errorAdding = "Failed to edit lab request";
+                    });
+        }
+        
+
+        // load table initially
+        $scope.loadTable();
+        $scope.retrieveStatuses();
+      });
+			/*]]>*/
+    </script>
+
+
+
+		<div ng-app="labRequestsApp" ng-controller="labRequestsCtrl">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3>Lab Technician Manage Lab Requests</h3>
+							</div>
+							<div class="panel-body">
+
+
+								<table class="table table-bordered">
+									<caption>Lab Requests:</caption>
+									<thead>
+										<tr>
+											<th>LOINC</th>
+											<th>Assigner</th>
+											<th>Priority</th>
+											<th>Status</th>
+											<th>Comments</th>
+											<th>Update</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr name="requestTableRow"
+											ng-repeat="r in requests"
+											ng-include="getTemplate(r)" requestId={{r.id}}>
+										</tr>
+									</tbody>
+								</table>
+
+								<!-- table in view mode -->
+								<script type="text/ng-template" id="view">
+									<td name="codeCell">{{r.labProcedure}}</td>
+									<td name="assignerCell">{{r.hcp}}</td>
+									<td name="priorityCell">{{r.priority}}</td>
+									<td name="statusCell">{{r.status}}</td>
+									<td name="commentsCell">{{r.comments}}</td>
+                					<td>
+                   						<div class="row text-center">
+                     						<div class="col-md-12">
+                        						<input type="button" value="Edit" class="btn btn-primary" name="editRequest" ng-click="editRequest(r)" />                         
+                      						</div>
+                    					</div>
+                  					</td>
+                				</script>
+                				
+                				<!-- table in edit mode -->
+               					<script type="text/ng-template" id="edit">
+									<td name="codeCell">{{r.labProcedure}}</td>
+									<td name="assignerCell">{{r.hcp}}</td>
+									<td name="priorityCell">{{r.priority}}</td>
+									<td name="statusCell">
+										<select ng-model="selectedRequest.status" ng-options="s for s in statuses">Status</select>
+									</td>
+                  					<td name="editCommentsCell">
+                    					<input type="text" class="form-control" ng-model="selectedRequest.comments" />
+                  					</td>
+                  					<td>
+                    					<div class="row text-center">
+                      						<div class="col-md-6">
+                          						<input type="button" value="Save" class="btn btn-success" name="saveRequest" ng-click="saveRequest()" />                          
+                      						</div>
+                      						<div class="col-md-6">
+                          						<input type="button" value="Cancel" class="btn btn-danger" name="cancelRequest" ng-click="resetSelected()" />                            
+                      						</div>
+                    					</div>
+                  					</td>
+                				</script>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
+
+<!-- still here? -->

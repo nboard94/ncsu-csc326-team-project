@@ -30,6 +30,7 @@ import edu.ncsu.csc.itrust2.config.RootConfiguration;
 import edu.ncsu.csc.itrust2.forms.admin.LabProcedureForm;
 import edu.ncsu.csc.itrust2.forms.personnel.PersonnelForm;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -83,6 +84,8 @@ public class APILabProcedureTest {
     @WithMockUser ( username = "admin", roles = { "USER", "ADMIN" } )
     public void testLabProcedureAPI () throws Exception {
         // Delete all lab procedure before testing
+
+        DomainObject.deleteAll( LabProcedure.class );
 
         final LabProcedureForm lpf1 = new LabProcedureForm();
         lpf1.setCode( "876543-21" );

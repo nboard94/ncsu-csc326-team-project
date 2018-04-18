@@ -1,5 +1,6 @@
 package edu.ncsu.csc.itrust2.controllers.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.forms.hcp.LabRequestForm;
+import edu.ncsu.csc.itrust2.models.enums.Status;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
 import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
@@ -33,8 +35,8 @@ public class APILabRequestController extends APIController {
      * @return a list of LabProcedures
      */
     @GetMapping ( BASE_PATH + "/labrequests/all" )
-    public List<LabRequest> getAllLabRequests () {
-        return LabRequest.getLabRequests();
+    public List<LabRequestForm> getAllLabRequests () {
+        return wrapLabRequests( LabRequest.getLabRequests() );
     }
 
     /**
@@ -49,7 +51,7 @@ public class APILabRequestController extends APIController {
             final String currentUser = LoggerUtil.currentUser();
             final List<LabRequest> list = LabRequest.getLabRequestsForLabTech( currentUser );
             LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, currentUser );
-            return new ResponseEntity( list, HttpStatus.OK );
+            return new ResponseEntity( wrapLabRequests( list ), HttpStatus.OK );
         }
         catch ( final Exception e ) {
             LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, LoggerUtil.currentUser(),
@@ -57,6 +59,22 @@ public class APILabRequestController extends APIController {
             return new ResponseEntity( errorResponse( "Could not get lab requests:" + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
         }
+    }
+
+    /**
+     * Takes a list of lab requests and transforms them into forms so that they
+     * can be read by the front end
+     *
+     * @param list
+     *            the list of lab requests
+     * @return the for versions of the lab requests
+     */
+    private List<LabRequestForm> wrapLabRequests ( final List<LabRequest> list ) {
+        final List<LabRequestForm> toFront = new ArrayList<LabRequestForm>();
+        for ( final LabRequest lr : list ) {
+            toFront.add( new LabRequestForm( lr ) );
+        }
+        return toFront;
     }
 
     /**
@@ -71,7 +89,7 @@ public class APILabRequestController extends APIController {
             final String currentUser = LoggerUtil.currentUser();
             final List<LabRequest> list = LabRequest.getLabRequestsForHCP( currentUser );
             LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, currentUser );
-            return new ResponseEntity( list, HttpStatus.OK );
+            return new ResponseEntity( wrapLabRequests( list ), HttpStatus.OK );
         }
         catch ( final Exception e ) {
             LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, LoggerUtil.currentUser(),
@@ -95,7 +113,7 @@ public class APILabRequestController extends APIController {
         try {
             final List<LabRequest> list = LabRequest.getLabRequestsForPatient( patientName );
             LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, LoggerUtil.currentUser(), patientName );
-            return new ResponseEntity( list, HttpStatus.OK );
+            return new ResponseEntity( wrapLabRequests( list ), HttpStatus.OK );
         }
         catch ( final Exception e ) {
             LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, LoggerUtil.currentUser(),
@@ -138,13 +156,23 @@ public class APILabRequestController extends APIController {
             lr.save(); /* Overwrite existing */
             LoggerUtil.log( TransactionType.LAB_REQUEST_EDIT, LoggerUtil.currentUser(), lr.getHcp().getUsername(),
                     "Edited lab procedure with id " + lr.getId() );
-            return new ResponseEntity( lr, HttpStatus.OK );
+            return new ResponseEntity( new LabRequestForm( lr ), HttpStatus.OK );
         }
         catch ( final Exception e ) {
             LoggerUtil.log( TransactionType.LAB_REQUEST_EDIT, LoggerUtil.currentUser(), "Failed to edit lab request" );
             return new ResponseEntity( errorResponse( "Failed to update lab request: " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
         }
+    }
+
+    /**
+     * Gets the list of supported statuses levels
+     *
+     * @return a list of all of the priority levels
+     */
+    @GetMapping ( BASE_PATH + "/labrequests/statuses" )
+    public Status[] getStatusList () {
+        return Status.values();
     }
 
 }
