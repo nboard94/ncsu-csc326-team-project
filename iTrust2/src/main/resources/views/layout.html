@@ -31,7 +31,6 @@ html, body {
 	height: 100%;
 	/* The html and body elements cannot have any padding or margin. */
 }
-
 /* Wrapper for page content to push down footer */
 #wrap {
 	min-height: 100%;
@@ -40,16 +39,13 @@ html, body {
 	/* Negative indent footer by it's height */
 	margin: 0 auto -60px;
 }
-
 /* Set the fixed height of the footer here */
 #push, #footer {
 	height: 60px;
 }
-
 #footer {
 	background-color: #f5f5f5;
 }
-
 /* Lastly, apply responsive CSS fixes as necessary */
 @media ( max-width : 767px) {
 	#footer {
@@ -59,7 +55,6 @@ html, body {
 		padding-right: 20px;
 	}
 }
-
 /* Custom page CSS
       -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
@@ -67,16 +62,13 @@ html, body {
 	width: auto;
 	/* max-width: 680px; */
 }
-
 .container .credit {
 	margin: 20px 0;
 	text-align: center;
 }
-
 a {
 	color: green;
 }
-
 .navbar-form {
 	margin-left: 1em;
 }
@@ -100,6 +92,8 @@ a {
 							var admindropdown = document.getElementById('admin-dropdown');
 							var patientdropdown = document.getElementById('patient-dropdown');
 							var hcpdropdown = document.getElementById('hcp-dropdown');
+							var erdropdown = document.getElementById('er-dropdown');
+							var ltdropdown = document.getElementById('lt-dropdown');
 							if (!role.includes('PATIENT')) {
 								navbarparent.removeChild(patientdropdown);
 							}
@@ -108,6 +102,12 @@ a {
 							}
 							if (!role.includes('HCP')) {
 								navbarparent.removeChild(hcpdropdown);
+							}
+							if (!role.includes('ER')) {
+								navbarparent.removeChild(erdropdown);
+							}
+							if (!role.includes('LABTECH')) {
+								navbarparent.removeChild(ltdropdown);
 							}
 						});
 				/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
@@ -152,7 +152,7 @@ a {
 				</ul>
 				<ul id="hcp-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
-						data-toggle="dropdown" href="#">Patient<span class="caret"></span></a>
+						data-toggle="dropdown" href="#">HCP<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 														<li><a href="/iTrust2/hcp/viewAppointmentRequests"
 								id="viewrequests">View Appointment Requests</a></li>
@@ -176,8 +176,11 @@ a {
 							      id="editOfficeVisit">Edit Office Visit</a></li>
 					      	<li> <a href="/iTrust2/hcp/editPrescriptions"
 							      id="editPrescriptions-personnel">Edit Prescriptions</a></li>
+							 <li> <a href="/iTrust2/hcp/editVaccinations"
+							      id="editVaccinations-personnel">Edit Vaccinations</a></li>
 						</ul>
 					</li>
+                    <li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
 				</ul>
 				<ul id="patient-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
@@ -189,10 +192,8 @@ a {
 							<li><a href="/iTrust2/patient/viewAppointmentRequests"
 								id="viewrequests-patient">View Appointment Requests</a></li>
 							<li><a href="/iTrust2/patient/viewOfficeVisits">Past Office Visits</a></li>
-							<li><a href="/iTrust2/patient/viewDiagnoses" 
-								id="viewDiagnoses">Diagnoses</a></li>
-							<li><a href="/iTrust2/patient/viewPrescriptions" 
-								id="viewPrescriptions">Prescriptions</a></li>
+							<li><a href="/iTrust2/patient/viewDiagnoses" id="viewDiagnoses">Diagnoses</a></li>
+							<li><a href="/iTrust2/patient/viewPrescriptions" id="viewPrescriptions">Prescriptions</a></li>
 							<li><a href="/iTrust2/patient/viewVacRecords" id="viewVacRecords">Vaccination Records</a></li>
 						</ul>
 					</li>
@@ -207,14 +208,13 @@ a {
 								id="personalRepresentatives-patient">Personal Representatives</a>
 					</li>
 				</ul>
-
 				<ul id="er-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
 						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="/iTrust2/personnel/editDemographics"
 								id="editdemographics-er">Edit Demographics</a></li>
-							<li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
+                            <li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
 						</ul>
 					</li>
 				</ul>
@@ -227,7 +227,6 @@ a {
 						</ul>
 					</li>
 				</ul>
-
 				<ul id="extra-dropdown" class="nav navbar-nav">
 					<li><a
 						href="https://github.ncsu.edu/engr-csc326-staff/iTrust2-v2/wiki">About</a></li>
