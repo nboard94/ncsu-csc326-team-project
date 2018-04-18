@@ -47,6 +47,10 @@ public class APIPatientRecordsController extends APIController {
             return null;
         }
 
+        if ( tempPatient == null ) {
+            return null;
+        }
+
         records.setName( tempPatient.getFirstName() );
 
         final int age = getAgeCalculation( tempPatient );

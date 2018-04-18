@@ -1,0 +1,57 @@
+package edu.ncsu.csc.itrust2.apitest;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import edu.ncsu.csc.itrust2.config.RootConfiguration;
+import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
+
+/**
+ * Tests for funtionality for the API Patient Records Controller.
+ *
+ * @author Will Duke
+ *
+ */
+@RunWith ( SpringJUnit4ClassRunner.class )
+@ContextConfiguration ( classes = { RootConfiguration.class, WebMvcConfiguration.class } )
+@WebAppConfiguration
+public class APIPatientRecordsTest {
+
+    private MockMvc               mvc;
+
+    @Autowired
+    private WebApplicationContext context;
+
+    /**
+     * Sets up test
+     */
+    @Before
+    public void setup () {
+        mvc = MockMvcBuilders.webAppContextSetup( context ).build();
+    }
+
+    /**
+     * Tests the getting and constructing of the patient records.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testGetAndMakePatientRecord () throws Exception {
+        mvc.perform( get( "/api/v1/viewPatientRecords/AliceThirteen" ) ).andExpect( status().isOk() );
+
+        mvc.perform( get( "/api/v1/viewPatientRecords/BobTheFourYearOld" ) ).andExpect( status().isOk() );
+
+    }
+
+}
