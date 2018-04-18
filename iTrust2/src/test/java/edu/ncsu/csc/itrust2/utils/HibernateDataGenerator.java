@@ -7,12 +7,15 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import edu.ncsu.csc.itrust2.models.enums.BloodType;
+import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.State;
 import edu.ncsu.csc.itrust2.models.persistent.Drug;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
+import edu.ncsu.csc.itrust2.models.persistent.Prescription;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -63,6 +66,8 @@ public class HibernateDataGenerator {
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
         timUser.save();
         tim.setSelf( timUser );
+        tim.setGender( Gender.Male );
+        tim.setBloodType( BloodType.ABNeg );
         tim.setFirstName( "TimTheOneYearOld" );
         tim.setLastName( "Smith" );
         final Calendar timBirth = Calendar.getInstance();
@@ -76,22 +81,42 @@ public class HibernateDataGenerator {
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
         bobUser.save();
         bob.setSelf( bobUser );
+        bob.setGender( Gender.Male );
+        bob.setBloodType( BloodType.OPos );
         bob.setLastName( "Smith" );
         final Calendar bobBirth = Calendar.getInstance();
         bobBirth.add( Calendar.YEAR, -4 ); // bob is four years old
         bob.setDateOfBirth( bobBirth );
         bob.save();
+        final Prescription bobPrescription1 = new Prescription();
+        bobPrescription1.setId( (long) 918273 );
+        bobPrescription1.setPatient( bobUser );
+        bobPrescription1.save();
 
         final Patient alice = new Patient();
         alice.setFirstName( "AliceThirteen" );
         final User aliceUser = new User( "AliceThirteen",
                 "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_PATIENT, 1 );
+        final Prescription alicePrescription1 = new Prescription();
+        alicePrescription1.setId( (long) 123456 );
+        alicePrescription1.save();
+        final Prescription alicePrescription2 = new Prescription();
+        alicePrescription2.setId( (long) 987654 );
+        alicePrescription2.save();
+
         aliceUser.save();
         alice.setSelf( aliceUser );
+        alice.setFirstName( "AliceThirteen" );
         alice.setLastName( "Smith" );
         final Calendar aliceBirth = Calendar.getInstance();
         aliceBirth.add( Calendar.YEAR, -13 ); // alice is thirteen years old
         alice.setDateOfBirth( aliceBirth );
+        alice.setGender( Gender.Female );
+        alice.setBloodType( BloodType.BNeg );
+        alicePrescription1.setPatient( aliceUser );
+        alicePrescription1.save();
+        alicePrescription2.setPatient( aliceUser );
+        alicePrescription2.save();
         alice.save();
 
         final Hospital hosp = new Hospital( "General Hostpital", "123 Main St", "12345", "NC" );
@@ -121,10 +146,10 @@ public class HibernateDataGenerator {
         final User patient = new User( "patient", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_PATIENT, 1 );
         patient.save();
-        
+
         // Added new patient with similar information from above
-        // Makes it easier to test        
-        final Patient userPatient = new Patient(patient);
+        // Makes it easier to test
+        final Patient userPatient = new Patient( patient );
         userPatient.save();
 
         final User admin = new User( "admin", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
