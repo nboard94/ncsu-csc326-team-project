@@ -26,6 +26,8 @@ public class AddUserStepDefs {
     private final WebDriver driver       = new HtmlUnitDriver( true );
     private final String    baseUrl      = "http://localhost:8080/iTrust2";
     private final String    jenkinsUname = "jenkins" + ( new Random() ).nextInt();
+    private final String    labTech      = "labtech" + ( new Random() ).nextInt();
+    private final String    er           = "er" + ( new Random() ).nextInt();
 
     /**
      * Check for no user
@@ -34,7 +36,8 @@ public class AddUserStepDefs {
     public void noUser () {
         final List<User> users = User.getUsers();
         for ( final User user : users ) {
-            if ( user.getUsername().equals( jenkinsUname ) ) {
+            if ( user.getUsername().equals( jenkinsUname ) || user.getUsername().equals( labTech )
+                    || user.getUsername().equals( er ) ) {
                 try {
                     user.delete();
                 }
@@ -97,6 +100,60 @@ public class AddUserStepDefs {
     }
 
     /**
+     * Fill in add user values
+     */
+    @When ( "I fill in the values for a lab tech" )
+    public void fillFieldsLabTech () {
+        final WebElement username = driver.findElement( By.id( "username" ) );
+        username.clear();
+        username.sendKeys( labTech );
+
+        final WebElement password = driver.findElement( By.id( "password" ) );
+        password.clear();
+        password.sendKeys( "123456" );
+
+        final WebElement password2 = driver.findElement( By.id( "password2" ) );
+        password2.clear();
+        password2.sendKeys( "123456" );
+
+        final Select role = new Select( driver.findElement( By.id( "role" ) ) );
+        role.selectByVisibleText( "ROLE_LABTECH" );
+
+        final WebElement enabled = driver.findElement( By.className( "checkbox" ) );
+        enabled.click();
+
+        driver.findElement( By.className( "btn" ) ).click();
+
+    }
+
+    /**
+     * Fill in add user values
+     */
+    @When ( "I fill in the values for an ER" )
+    public void fillFieldsER () {
+        final WebElement username = driver.findElement( By.id( "username" ) );
+        username.clear();
+        username.sendKeys( er );
+
+        final WebElement password = driver.findElement( By.id( "password" ) );
+        password.clear();
+        password.sendKeys( "123456" );
+
+        final WebElement password2 = driver.findElement( By.id( "password2" ) );
+        password2.clear();
+        password2.sendKeys( "123456" );
+
+        final Select role = new Select( driver.findElement( By.id( "role" ) ) );
+        role.selectByVisibleText( "ROLE_ER" );
+
+        final WebElement enabled = driver.findElement( By.className( "checkbox" ) );
+        enabled.click();
+
+        driver.findElement( By.className( "btn" ) ).click();
+
+    }
+
+    /**
      * Create user
      */
     @Then ( "The user is created successfully" )
@@ -114,6 +171,64 @@ public class AddUserStepDefs {
         final WebElement username = driver.findElement( By.name( "username" ) );
         username.clear();
         username.sendKeys( jenkinsUname );
+        final WebElement password = driver.findElement( By.name( "password" ) );
+        password.clear();
+        password.sendKeys( "123456" );
+        final WebElement submit = driver.findElement( By.className( "btn" ) );
+        submit.click();
+
+        /**
+         * Not an assert statement in the typical sense, but we know that we can
+         * log in if we can find the "iTrust" button in the top-left after
+         * attempting to do so.
+         */
+        try {
+            driver.findElement( By.linkText( "iTrust2" ) );
+        }
+        catch ( final Exception e ) {
+            Assert.assertNull( e );
+        }
+    }
+
+    /**
+     * User login
+     */
+    @Then ( "The new lab technician can login" )
+    public void tryLoginLabTech () {
+        driver.findElement( By.id( "logout" ) ).click();
+
+        final WebElement username = driver.findElement( By.name( "username" ) );
+        username.clear();
+        username.sendKeys( labTech );
+        final WebElement password = driver.findElement( By.name( "password" ) );
+        password.clear();
+        password.sendKeys( "123456" );
+        final WebElement submit = driver.findElement( By.className( "btn" ) );
+        submit.click();
+
+        /**
+         * Not an assert statement in the typical sense, but we know that we can
+         * log in if we can find the "iTrust" button in the top-left after
+         * attempting to do so.
+         */
+        try {
+            driver.findElement( By.linkText( "iTrust2" ) );
+        }
+        catch ( final Exception e ) {
+            Assert.assertNull( e );
+        }
+    }
+
+    /**
+     * User login
+     */
+    @Then ( "The new ER can login" )
+    public void tryLoginER () {
+        driver.findElement( By.id( "logout" ) ).click();
+
+        final WebElement username = driver.findElement( By.name( "username" ) );
+        username.clear();
+        username.sendKeys( er );
         final WebElement password = driver.findElement( By.name( "password" ) );
         password.clear();
         password.sendKeys( "123456" );

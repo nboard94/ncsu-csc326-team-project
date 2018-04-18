@@ -286,6 +286,23 @@ public enum TransactionType {
     VACCINATION_VIEW ( 1904, "Admin views all vaccinations in the system", true ),
 
     /**
+     * A patient declares a representative
+     */
+    DECLARE_REP ( 1701, "Patient declared representative", true ),
+    /**
+     * A patient undeclares a representative
+     */
+    UNDECLARE_REP ( 1702, "Patient undeclared representative", true ),
+    /**
+     * A patient undeclares themselves as a representative
+     */
+    UNDECLARE_SELF_AS_REP ( 1703, "Patient undeclared themselves as representative", true ),
+    /**
+     * A HCP or patient views their representatives
+     */
+    VIEW_REPS ( 1704, "User viewed list of patient's representatives", true ),
+
+    /**
      * HCP created a new vacrecord
      */
     VACRECORD_CREATE ( 1910, "HCP created a new vaccination record", true ),

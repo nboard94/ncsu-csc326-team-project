@@ -5,16 +5,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -45,6 +51,14 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      * Randomly generated ID.
      */
     private static final long serialVersionUID = 4617248041239679701L;
+
+    @ManyToMany ( cascade = { CascadeType.MERGE }, fetch = FetchType.EAGER )
+    @JoinTable ( name = "PERSONAL_REPRESENTATIVES", joinColumns = { @JoinColumn ( name = "WHOIREPRESENT" ) },
+            inverseJoinColumns = { @JoinColumn ( name = "IAMREPRESENTEDBY" ) } )
+    private Set<Patient>      representsMe     = new HashSet<Patient>();
+
+    @ManyToMany ( mappedBy = "representsMe", fetch = FetchType.EAGER )
+    private Set<Patient>      whoIRepresent    = new HashSet<Patient>();
 
     /**
      * Get all patients in the database
@@ -724,6 +738,255 @@ public class Patient extends DomainObject<Patient> implements Serializable {
      */
     public void setGender ( final Gender gender ) {
         this.gender = gender;
+    }
+
+    /**
+     * Get the set of people who represent the patient.
+     *
+     * @return the set of patients.
+     */
+    public Set<Patient> getMyRepresentatives () {
+        return representsMe;
+    }
+
+    /**
+     * Set the set of patients who are my representatives
+     *
+     * @param representsMe
+     *            the set of patients
+     */
+    public void setMyRepresentatives ( final Set<Patient> representsMe ) {
+        this.representsMe = representsMe;
+    }
+
+    /**
+     * Get the set of people the patient represents
+     *
+     * @return the set of patients
+     */
+    public Set<Patient> getRepresentedByMe () {
+        return whoIRepresent;
+    }
+
+    /**
+     * Set the set of patient who I represent
+     *
+     * @param representedByMe
+     *            the set of patients
+     */
+    public void setRepresentedByMe ( final Set<Patient> representedByMe ) {
+        this.whoIRepresent = representedByMe;
+    }
+
+    /**
+     * Adds a representative to the patients list of reps
+     *
+     * @param rep
+     *            the patient that is to be added to the patients list of reps
+     */
+    public void addRepresentative ( final Patient rep ) {
+        this.representsMe.add( rep );
+    }
+
+    /**
+     * Removes a representative to the patients list of reps
+     *
+     * @param rep
+     *            the patient that is to be removed to the patients list of reps
+     * @return whether the remove was successful or not
+     */
+    public boolean removeRepresentative ( final Patient rep ) {
+        return representsMe.remove( rep );
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode () {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( address1 == null ) ? 0 : address1.hashCode() );
+        result = prime * result + ( ( address2 == null ) ? 0 : address2.hashCode() );
+        result = prime * result + ( ( bloodType == null ) ? 0 : bloodType.hashCode() );
+        result = prime * result + ( ( causeOfDeath == null ) ? 0 : causeOfDeath.hashCode() );
+        result = prime * result + ( ( city == null ) ? 0 : city.hashCode() );
+        result = prime * result + ( ( dateOfBirth == null ) ? 0 : dateOfBirth.hashCode() );
+        result = prime * result + ( ( dateOfDeath == null ) ? 0 : dateOfDeath.hashCode() );
+        result = prime * result + ( ( email == null ) ? 0 : email.hashCode() );
+        result = prime * result + ( ( ethnicity == null ) ? 0 : ethnicity.hashCode() );
+        result = prime * result + ( ( father == null ) ? 0 : father.hashCode() );
+        result = prime * result + ( ( firstName == null ) ? 0 : firstName.hashCode() );
+        result = prime * result + ( ( gender == null ) ? 0 : gender.hashCode() );
+        result = prime * result + ( ( id == null ) ? 0 : id.hashCode() );
+        result = prime * result + ( ( lastName == null ) ? 0 : lastName.hashCode() );
+        result = prime * result + ( ( mother == null ) ? 0 : mother.hashCode() );
+        result = prime * result + ( ( phone == null ) ? 0 : phone.hashCode() );
+        result = prime * result + ( ( preferredName == null ) ? 0 : preferredName.hashCode() );
+        result = prime * result + ( ( self == null ) ? 0 : self.hashCode() );
+        result = prime * result + ( ( state == null ) ? 0 : state.hashCode() );
+        result = prime * result + ( ( zip == null ) ? 0 : zip.hashCode() );
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals ( final Object obj ) {
+        if ( this == obj ) {
+            return true;
+        }
+        if ( obj == null ) {
+            return false;
+        }
+        if ( getClass() != obj.getClass() ) {
+            return false;
+        }
+        final Patient other = (Patient) obj;
+        if ( address1 == null ) {
+            if ( other.address1 != null ) {
+                return false;
+            }
+        }
+        else if ( !address1.equals( other.address1 ) ) {
+            return false;
+        }
+        if ( address2 == null ) {
+            if ( other.address2 != null ) {
+                return false;
+            }
+        }
+        else if ( !address2.equals( other.address2 ) ) {
+            return false;
+        }
+        if ( bloodType != other.bloodType ) {
+            return false;
+        }
+        if ( causeOfDeath == null ) {
+            if ( other.causeOfDeath != null ) {
+                return false;
+            }
+        }
+        else if ( !causeOfDeath.equals( other.causeOfDeath ) ) {
+            return false;
+        }
+        if ( city == null ) {
+            if ( other.city != null ) {
+                return false;
+            }
+        }
+        else if ( !city.equals( other.city ) ) {
+            return false;
+        }
+        if ( dateOfBirth == null ) {
+            if ( other.dateOfBirth != null ) {
+                return false;
+            }
+        }
+        else if ( !dateOfBirth.equals( other.dateOfBirth ) ) {
+            return false;
+        }
+        if ( dateOfDeath == null ) {
+            if ( other.dateOfDeath != null ) {
+                return false;
+            }
+        }
+        else if ( !dateOfDeath.equals( other.dateOfDeath ) ) {
+            return false;
+        }
+        if ( email == null ) {
+            if ( other.email != null ) {
+                return false;
+            }
+        }
+        else if ( !email.equals( other.email ) ) {
+            return false;
+        }
+        if ( ethnicity != other.ethnicity ) {
+            return false;
+        }
+        if ( father == null ) {
+            if ( other.father != null ) {
+                return false;
+            }
+        }
+        else if ( !father.equals( other.father ) ) {
+            return false;
+        }
+        if ( firstName == null ) {
+            if ( other.firstName != null ) {
+                return false;
+            }
+        }
+        else if ( !firstName.equals( other.firstName ) ) {
+            return false;
+        }
+        if ( gender != other.gender ) {
+            return false;
+        }
+        if ( id == null ) {
+            if ( other.id != null ) {
+                return false;
+            }
+        }
+        else if ( !id.equals( other.id ) ) {
+            return false;
+        }
+        if ( lastName == null ) {
+            if ( other.lastName != null ) {
+                return false;
+            }
+        }
+        else if ( !lastName.equals( other.lastName ) ) {
+            return false;
+        }
+        if ( mother == null ) {
+            if ( other.mother != null ) {
+                return false;
+            }
+        }
+        else if ( !mother.equals( other.mother ) ) {
+            return false;
+        }
+        if ( phone == null ) {
+            if ( other.phone != null ) {
+                return false;
+            }
+        }
+        else if ( !phone.equals( other.phone ) ) {
+            return false;
+        }
+        if ( preferredName == null ) {
+            if ( other.preferredName != null ) {
+                return false;
+            }
+        }
+        else if ( !preferredName.equals( other.preferredName ) ) {
+            return false;
+        }
+        if ( self == null ) {
+            if ( other.self != null ) {
+                return false;
+            }
+        }
+        else if ( !self.equals( other.self ) ) {
+            return false;
+        }
+        if ( state != other.state ) {
+            return false;
+        }
+        if ( zip == null ) {
+            if ( other.zip != null ) {
+                return false;
+            }
+        }
+        else if ( !zip.equals( other.zip ) ) {
+            return false;
+        }
+        return true;
     }
 
 }
