@@ -64,4 +64,15 @@ public class HCPController {
         return "/hcp/editPrescriptions";
     }
 
+    /**
+     * Returns the page allowing HCPs to edit vaccinations
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/editVaccinations" )
+    @PreAuthorize ( "hasRole('ROLE_HCP')" )
+    public String editVaccinations () {
+        return "/hcp/editVaccinations";
+    }
+
 }

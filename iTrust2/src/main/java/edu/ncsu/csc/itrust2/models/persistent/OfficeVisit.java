@@ -30,6 +30,7 @@ import org.hibernate.criterion.Criterion;
 
 import edu.ncsu.csc.itrust2.forms.hcp.OfficeVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp.PrescriptionForm;
+import edu.ncsu.csc.itrust2.forms.hcp.VacRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
@@ -237,6 +238,12 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         final List<PrescriptionForm> ps = ovf.getPrescriptions();
         if ( ps != null ) {
             setPrescriptions( ps.stream().map( ( final PrescriptionForm pf ) -> new Prescription( pf ) )
+                    .collect( Collectors.toList() ) );
+        }
+
+        final List<VacRecordForm> vs = ovf.getVacRecords();
+        if ( vs != null ) {
+            setVacRecords( vs.stream().map( ( final VacRecordForm vf ) -> new VacRecord( vf ) )
                     .collect( Collectors.toList() ) );
         }
     }
@@ -507,12 +514,31 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     }
 
     /**
+     * Sets the list of vacrecords associated with this visit
+     *
+     * @param vacRecords
+     *            The list of vacrecords
+     */
+    public void setVacRecords ( final List<VacRecord> vacRecords ) {
+        this.vacRecords = vacRecords;
+    }
+
+    /**
+     * Returns the list of vacrecords for this visit
+     *
+     * @return The list of vac records
+     */
+    public List<VacRecord> getVacRecords () {
+        return vacRecords;
+    }
+
+    /**
      * The patient of this office visit
      */
     @NotNull
     @ManyToOne
     @JoinColumn ( name = "patient_id", columnDefinition = "varchar(100)" )
-    private User                     patient;
+    private User                      patient;
 
     /**
      * The hcp of this office visit
@@ -520,34 +546,34 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     @NotNull
     @ManyToOne
     @JoinColumn ( name = "hcp_id", columnDefinition = "varchar(100)" )
-    private User                     hcp;
+    private User                      hcp;
 
     /**
      * The basic health metric data associated with this office visit.
      */
     @OneToOne
     @JoinColumn ( name = "basichealthmetrics_id" )
-    private BasicHealthMetrics       basicHealthMetrics;
+    private BasicHealthMetrics        basicHealthMetrics;
 
     /**
      * The date of this office visit
      */
     @NotNull
-    private Calendar                 date;
+    private Calendar                  date;
 
     /**
      * The id of this office visit
      */
     @Id
     @GeneratedValue ( strategy = GenerationType.AUTO )
-    private Long                     id;
+    private Long                      id;
 
     /**
      * The type of this office visit
      */
     @NotNull
     @Enumerated ( EnumType.STRING )
-    private AppointmentType          type;
+    private AppointmentType           type;
 
     /**
      * The hospital of this office visit
@@ -555,7 +581,7 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     @NotNull
     @ManyToOne
     @JoinColumn ( name = "hospital_id", columnDefinition = "varchar(100)" )
-    private Hospital                 hospital;
+    private Hospital                  hospital;
 
     /**
      * The set of diagnoses associated with this visits Marked transient so not
@@ -563,23 +589,30 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
      * loop
      */
     @OneToMany ( mappedBy = "visit" )
-    public transient List<Diagnosis> diagnoses;
+    public transient List<Diagnosis>  diagnoses;
 
     /**
      * The notes of this office visit
      */
-    private String                   notes;
+    private String                    notes;
 
     /**
      * The appointment of this office visit
      */
     @OneToOne
     @JoinColumn ( name = "appointment_id" )
-    private AppointmentRequest       appointment;
+    private AppointmentRequest        appointment;
 
     @OneToMany ( fetch = FetchType.EAGER )
     @JoinColumn ( name = "prescriptions_id" )
-    private List<Prescription>       prescriptions = Collections.emptyList();
+    private List<Prescription>        prescriptions = Collections.emptyList();
+
+    // // @OneToMany ( fetch = FetchType.EAGER )
+    // @LazyCollection ( LazyCollectionOption.FALSE )
+    // // @ElementCollection ( targetClass = VacRecord.class )
+    // @JoinColumn ( name = "vacRecords_id" )
+    @OneToMany
+    private transient List<VacRecord> vacRecords    = Collections.emptyList();
 
     /**
      * Overrides the basic domain object save in order to save basic health
@@ -630,6 +663,44 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         }
 
         //// END PRESCRIPTIONS ////
+
+        //// SAVE VACRECORDS ////
+
+        // Get vacrecord ids included in this office visit
+        final Set<Long> currentVacIds = this.getVacRecords().stream().map( VacRecord::getId )
+                .collect( Collectors.toSet() );
+
+        // Get vacrecord ids saved previously
+        final Set<Long> savedVacIds = oldVisit == null ? Collections.emptySet()
+                : oldVisit.getVacRecords().stream().map( VacRecord::getId ).collect( Collectors.toSet() );
+
+        // Save each of the vacrecords
+        this.getVacRecords().forEach( v -> {
+            final boolean isVacSaved = savedVacIds.contains( v.getId() );
+            if ( isVacSaved ) {
+                LoggerUtil.log( TransactionType.VACRECORD_EDIT, LoggerUtil.currentUser(), getPatient().getUsername(),
+                        "Editing vaccination record with id " + v.getId() );
+            }
+            else {
+                LoggerUtil.log( TransactionType.VACRECORD_CREATE, LoggerUtil.currentUser(), getPatient().getUsername(),
+                        "Creating vaccination record with id " + v.getId() );
+            }
+            v.save();
+        } );
+
+        // Remove vacrecords no longer included
+        if ( !savedVacIds.isEmpty() ) {
+            savedVacIds.forEach( id -> {
+                final boolean isVacMissing = currentVacIds.contains( id );
+                if ( isVacMissing ) {
+                    LoggerUtil.log( TransactionType.VACRECORD_DELETE, LoggerUtil.currentUser(),
+                            getPatient().getUsername(), "Deleting vaccination record with id " + id );
+                    VacRecord.getById( id ).delete();
+                }
+            } );
+        }
+
+        //// END VACRECORDS ////
 
         try {
             super.save();

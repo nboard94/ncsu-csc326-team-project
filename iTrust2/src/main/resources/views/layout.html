@@ -186,7 +186,7 @@ a {
 							      id="editPrescriptions-personnel">Edit Prescriptions</a></li>
 							 <li> <a href="/iTrust2/hcp/editVaccinations"
 							      id="editVaccinations-personnel">Edit Vaccinations</a></li>
-						</ul>
+						</ul>       
 					</li>
 					<li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
 				</ul>
@@ -224,8 +224,8 @@ a {
 								id="editdemographics-er">Edit Demographics</a></li>
 						</ul>
 					</li>
-					<li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
-				</ul>
+					  <li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
+				  </ul>
 				<ul id="lt-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
 						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
@@ -241,7 +241,6 @@ a {
 					<li><a
 						href="https://github.ncsu.edu/engr-csc326-staff/iTrust2-v2">View
 							Source</a></li>
-					<li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
 				</ul>
 				<div th:if="${#httpServletRequest.remoteUser != null}">
 					<form class="navbar-form navbar-right" th:action="@{/logout}"

@@ -47,6 +47,11 @@ public class UserTest {
         u2.setUsername( "abcdefg" );
 
         assertTrue( u1.equals( u2 ) );
+
+        u1.setRole( Role.ROLE_ER );
+        assertEquals( Role.valueOf( "ROLE_ER" ), u1.getRole() );
+        u1.setRole( Role.ROLE_LABTECH );
+        assertEquals( Role.valueOf( "ROLE_LABTECH" ), u1.getRole() );
     }
 
 }
