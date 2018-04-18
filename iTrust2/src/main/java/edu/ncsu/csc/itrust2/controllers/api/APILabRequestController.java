@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,8 +43,8 @@ public class APILabRequestController extends APIController {
      * @return the list a technician's lab requests
      */
     @PreAuthorize ( "hasRole('ROLE_LABTECH')" )
-    @GetMapping ( BASE_PATH + "/labrequests" )
-    public ResponseEntity getLabRequests () {
+    @GetMapping ( BASE_PATH + "/labrequests/labtech" )
+    public ResponseEntity getLabRequestsForLabTech () {
         try {
             final String currentUser = LoggerUtil.currentUser();
             final List<LabRequest> list = LabRequest.getLabRequestsForLabTech( currentUser );
@@ -53,7 +54,53 @@ public class APILabRequestController extends APIController {
         catch ( final Exception e ) {
             LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, LoggerUtil.currentUser(),
                     "Failed to retrieve list of lab requests" );
-            return new ResponseEntity( errorResponse( "Could not get lab procedures:" + e.getMessage() ),
+            return new ResponseEntity( errorResponse( "Could not get lab requests:" + e.getMessage() ),
+                    HttpStatus.BAD_REQUEST );
+        }
+    }
+
+    /**
+     * Gets all of the lab requests for a logged in lab tech
+     *
+     * @return the list a technician's lab requests
+     */
+    @PreAuthorize ( "hasRole('ROLE_HCP')" )
+    @GetMapping ( BASE_PATH + "/labrequests/hcp" )
+    public ResponseEntity getLabRequestsForHCP () {
+        try {
+            final String currentUser = LoggerUtil.currentUser();
+            final List<LabRequest> list = LabRequest.getLabRequestsForHCP( currentUser );
+            LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, currentUser );
+            return new ResponseEntity( list, HttpStatus.OK );
+        }
+        catch ( final Exception e ) {
+            LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, LoggerUtil.currentUser(),
+                    "Failed to retrieve list of lab requests" );
+            return new ResponseEntity( errorResponse( "Could not get lab requests:" + e.getMessage() ),
+                    HttpStatus.BAD_REQUEST );
+        }
+    }
+
+    /**
+     * Gets all of the labrequests for that are associated with a certain
+     * patient
+     *
+     * @param patientName
+     *            the username of the searched patient
+     * @return the list of all of the patient's lab requests
+     */
+    @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_LABTECH')" )
+    @GetMapping ( BASE_PATH + "/labrequests/{patientName}" )
+    public ResponseEntity getLabRequestsForPatient ( @PathVariable final String patientName ) {
+        try {
+            final List<LabRequest> list = LabRequest.getLabRequestsForPatient( patientName );
+            LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, LoggerUtil.currentUser(), patientName );
+            return new ResponseEntity( list, HttpStatus.OK );
+        }
+        catch ( final Exception e ) {
+            LoggerUtil.log( TransactionType.LAB_REQUEST_VIEW, LoggerUtil.currentUser(),
+                    "Failed to retrieve list of lab requests" );
+            return new ResponseEntity( errorResponse( "Could not get lab requests:" + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
         }
     }
@@ -69,8 +116,8 @@ public class APILabRequestController extends APIController {
     }
 
     /**
-     * Edits an existing prescription in the system. Matches prescriptions by
-     * ids. Requires HCP permissions.
+     * Edits an existing lab request in the system. Matches lab requests by ids.
+     * Requires LabTech permissions.
      *
      * @param form
      *            the form containing the details of the new prescription
