@@ -1,0 +1,300 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{})">
+  <title>Edit Vaccinations</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+  <div th:fragment="content">
+
+
+    <script th:inline="javascript">
+      /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+      /*<![CDATA[*/
+      var app = angular.module("vacrecordsApp", []);
+      app.controller('vacrecordsCtrl', function ($scope, $http) {
+        $scope.vacrecordss = [];
+        $scope.loadTable = function () {
+          $http.get("/iTrust2/api/v1/vacrecords").then(
+            function (response) {
+              $scope.vacrecords = response.data;
+              $scope.message = "";
+            }, function (rejection) {
+              $scope.vacrecords = [];
+              $scope.message = "Could not display vacrecords";
+            });
+        }
+
+        var isDate = function (input) {
+          if (!input) {
+            return false;
+          }
+          var match = /^(\d?\d)\/(\d?\d)\/(\d{4})$/.exec(input);
+          if (!match) {
+            return false;
+          }
+          var parsedDate = {
+            year: +match[3],
+            month: +match[1] - 1,
+            day: +match[2]
+          };
+          var date = new Date(parsedDate.year, parsedDate.month, parsedDate.day);
+          return date.getFullYear() === parsedDate.year && date.getMonth() === parsedDate.month && date.getDate() === parsedDate.day;
+        };
+
+        var checkValidVacRecord = function(v) {
+      	  var err = [];
+      	  if (!v.vaccination) {
+      		  err.push("Vaccination record must be associated with a vaccination");
+      	  }
+      	  if (!isDate(v.administrationDate)) {
+      		  err.push("Administration date is in an invalid format");
+      	  }
+      	  
+      	  return err.join(".");
+        }
+
+        $scope.addVacRecord = function () {
+          var err = checkValidVacRecord($scope.vacrecord);
+          if (err) {
+            $scope.errorAdding = err;
+            return;
+          }
+          $http.post("/iTrust2/api/v1/vacrecords", $scope.vacrecord).then(
+            function (response) {
+              $scope.loadTable();
+              $scope.vacrecord.vaccination = "";
+              $scope.vacrecord.administrationDate = "";
+              $scope.vacrecord.patient = "";
+              $scope.errorAdding = "";
+            }, function (rejection) {
+              $scope.errorAdding = "Could not add vaccination";
+            });
+
+        }
+        $scope.deleteVacRecord = function (vacrecord) {
+          var msg = "Are you sure you want to remove the vaccination of " + vacrecord.vaccination.name + " for " + vacrecord.patient.username + "?";
+          if (confirm(msg)) {
+	          $http.delete('/iTrust2/api/v1/vacrecords/' + vacrecord.id).then(
+	            function (response) {
+	              $scope.loadTable();
+	              $scope.message = "";
+	            }, function (rejection) {
+	              $scope.message = "Could not remove vaccination";
+	            });
+          };
+        }
+
+        $http.get("/iTrust2/api/v1/patients").then(
+          function (response) {
+            $scope.patients = response.data;
+          });
+
+        $http.get("/iTrust2/api/v1/vaccinations").then(
+          function (response) {
+            $scope.vaccinations = response.data;
+            $scope.message = "";
+          }, function (rejection) {
+            $scope.vaccinations = [];
+            $scope.message = "Could not display vaccinations";
+          });
+
+        // gets the template to ng-include for a table row / item
+        $scope.selectedVacRecord = {};
+
+        $scope.getTemplate = function (vacrecord) {
+          if (vacrecord.id === $scope.selectedVacRecord.id) return 'edit';
+          else return 'view';
+        };
+
+        $scope.editVacRecord = function (vacrecord) {
+          $scope.selectedVacRecord = angular.copy(vacrecord);
+          $scope.selectedVacRecord.administrationDate = vacrecord.administrationDate.month + 1 + "/" + vacrecord.administrationDate.dayOfMonth + "/" + vacrecord.administrationDate.year;
+          $scope.selectedVacRecord.vaccination = vacrecord.vaccination.code;
+          $scope.selectedVacRecord.patient = vacrecord.patient.username;
+        };
+        $scope.saveVacRecord = function () {
+          var err = checkValidVacRecord($scope.selectedVacRecord);
+          if (err) {
+            $scope.errorAdding = err;
+          } else {
+            $http.put("/iTrust2/api/v1/vacrecords", $scope.selectedVacRecord).then(
+              function (response) {
+                $scope.loadTable();
+                $scope.resetSelected();
+              }, function (rejection) {
+                $scope.errorAdding = "Failed to edit vaccination";
+              });
+          }
+        };
+
+        $scope.resetSelected = function () {
+          $scope.selectedVacRecord = {};
+        };
+
+
+        $scope.loadTable();
+      });
+			/*]]>*/
+    </script>
+
+
+
+    <div ng-app="vacrecordsApp" ng-controller="vacrecordsCtrl">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h3>HCP Manage Vaccinations</h3>
+              </div>
+              <div class="panel-body">
+                <table class="table table-bordered">
+                  <caption>Existing Vaccinations:</caption>
+                  <thead>
+                    <tr>
+                      <th>Vaccination</th>
+                      <th>Patient</th>
+                      <th>Administration Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr name="vacrecordTableRow" ng-repeat="v in vacrecords | orderBy: 'vaccination'" ng-include="getTemplate(v)" vacrecordId={{v.id}}>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- table in view mode -->
+                <script type="text/ng-template" id="view">
+                  <td name="vaccinationCell">{{v.vaccination.name}}</td>
+                  <td name="patientCell">{{v.patient.username}}</td>
+                  <td name="administrationCell">{{v.administrationDate.month + 1}}/{{v.administrationDate.dayOfMonth}}/{{v.administrationDate.year}}</td>
+                  
+                  <td>
+                    <div class="row text-center">
+                      <div class="col-md-6">
+                        <input type="button" value="Edit" class="btn btn-primary" name="editVacRecord" ng-click="editVacRecord(v)" />                         
+                      </div>
+                      <div class="col-md-6">
+                          <input type="button" value="Delete" class="btn btn-danger" name="deleteVacRecord" ng-click="deleteVacRecord(v)" />                          
+                      </div>
+                    </div>                  
+                  </td>
+                </script>
+
+                <!-- table in edit mode -->
+                <script type="text/ng-template" id="edit">
+                  <td name="editVaccinationCell">
+                    <ul style="list-style: none;">
+                      <li ng-repeat="d in vaccinations">
+                        <label>
+                          <input type="radio" ng-model="$parent.selectedVacRecord.vaccination" name="vaccination" value="{{d.code}}" required="true" /> {{d.name}}
+                        </label>
+                      </li>
+                    </ul>                  
+                  </td>
+
+					<td name="editPatientCell">
+                    <ul style="max-height:15%;overflow:auto;list-style: none;">
+                      <li ng-repeat="patient in patients">
+                        <label>
+                          <input type="radio" ng-model="$parent.selectedVacRecord.patient" name="name" value="{{patient.self.username}}" required="true"
+                          />&nbsp; {{patient.self.username}}
+                        </label>
+                      </li>
+                    </ul>
+                  </td>
+
+                  <td name="editAdministrationCell">
+                    <input type="text" class="form-control" placeholder="MM/DD/YYYY" ng-model="selectedVacRecord.administrationDate" required/>
+                  </td>
+                  
+                  
+                  <td>
+                    <div class="row text-center">
+                      <div class="col-md-6">
+                          <input type="button" value="Save" class="btn btn-success" name="saveVaccination" ng-click="saveVacRecord()" />                          
+                      </div>
+                      <div class="col-md-6">
+                          <input type="button" value="Cancel" class="btn btn-danger" name="cancelEdit" ng-click="resetSelected()" />                            
+                      </div>
+                    </div>                  
+                  </td>
+                </script>
+
+
+
+
+                <br>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="panel panel-default">
+                      <div class="panel-heading ">Add a Vaccination</div>
+                      <div class="panel-body">
+                        <form class="form-horizontal" role="form" name="addVacRecordForm" ng-submit="addVacRecord(addVacRecordForm.$valid)">
+                          <div class="row">
+
+                            <!-- patient -->
+                            <div class="col-md-5 radio-box">
+                              <div class="form-check">
+                                <label>Patient:</label>
+                                <ul style="max-height:15%;overflow:auto;list-style: none;">
+                                  <li ng-repeat="patient in patients">
+                                    <label>
+                                      <input type="radio" ng-model="$parent.vacrecord.patient" name="name" value="{{patient.self.username}}" required="true"
+                                      />&nbsp; {{patient.self.username}}
+                                    </label>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+
+                            <!-- vaccination -->
+                            <div class="col-md-5 radio-box">
+                              <div class="form-check">
+                                <label>Vaccination:</label>
+                                <ul style="list-style: none;">
+                                  <li ng-repeat="d in vaccinations">
+                                    <label>
+                                      <input type="radio" ng-model="$parent.vacrecord.vaccination" name="vaccination" value="{{d.code}}" required="true" /> {{d.name}}
+                                    </label>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+
+                            <!-- administration date -->
+                            <div class="col-md-5">
+                              <label>Administration Date:</label>
+                              <div class="row">
+                                <div class="col-md-4">
+                                  <input type="text" class="form-control" placeholder="MM/DD/YYYY" name="administrationDate" ng-model="vacrecord.administrationDate" required/>
+                                </div>
+                              </div>
+                            </div>
+                          
+                          </div>
+                          <br>
+                          <br>
+                          <div class="row">
+                            <div class="col-md-12 text-center">
+                              <button type="submit" class="btn btn-success" name="submit">Add Vaccination</button>
+                            </div>
+                          </div>
+                        </form>
+                        <div>
+                          <p class="text-danger" ng-model="errorAdding" id="errP">{{errorAdding}}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+</body>
+
+</html>
