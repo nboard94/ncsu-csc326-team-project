@@ -1,5 +1,6 @@
 package edu.ncsu.csc.itrust2.controllers.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -143,9 +144,24 @@ public class APILabProcedureController extends APIController {
      * @return a list of LabProcedures
      */
     @GetMapping ( BASE_PATH + "/labprocedures" )
-    public List<LabProcedure> getLabProcedures () {
+    public List<LabProcedureForm> getLabProcedures () {
         LoggerUtil.log( TransactionType.DRUG_VIEW, LoggerUtil.currentUser(), "Fetched list of Lab Procedures" );
-        return LabProcedure.getAll();
+        return wrapLabProcedures( LabProcedure.getAll() );
+    }
+
+    /**
+     * Transforms a list of lab procedures into lab procedure forms
+     *
+     * @param list
+     *            the list of lab procedure
+     * @return a list of lab procedure forms
+     */
+    private List<LabProcedureForm> wrapLabProcedures ( final List<LabProcedure> list ) {
+        final List<LabProcedureForm> toFront = new ArrayList<LabProcedureForm>();
+        for ( final LabProcedure lp : list ) {
+            toFront.add( new LabProcedureForm( lp ) );
+        }
+        return toFront;
     }
 
 }
