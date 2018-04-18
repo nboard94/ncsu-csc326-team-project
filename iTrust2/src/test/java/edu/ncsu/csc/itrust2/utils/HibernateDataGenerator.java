@@ -7,10 +7,14 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import edu.ncsu.csc.itrust2.models.enums.Priority;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.State;
+import edu.ncsu.csc.itrust2.models.enums.Status;
 import edu.ncsu.csc.itrust2.models.persistent.Drug;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
+import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
+import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -96,6 +100,45 @@ public class HibernateDataGenerator {
 
         final Hospital hosp = new Hospital( "General Hostpital", "123 Main St", "12345", "NC" );
         hosp.save();
+
+        final User labtech = new User( "labtech", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_LABTECH, 1 );
+        labtech.save();
+        // Lab Procedure stuff
+        LabProcedure proc = new LabProcedure();
+        proc.setCode( "000000-00" );
+        proc.setCommonName( "generic lab name" );
+        proc.setComponent( "component" );
+        proc.setProperty( "generic property" );
+        proc.save();
+
+        proc = new LabProcedure();
+        proc.setCode( "123456-78" );
+        proc.setCommonName( "test common name" );
+        proc.setComponent( "test component" );
+        proc.setProperty( "test property" );
+        proc.save();
+
+        // Lab Request
+        final LabRequest lr = new LabRequest();
+        lr.setComments( "comments" );
+        lr.setHcp( User.getByName( "hcp" ) );
+        lr.setLabTech( User.getByName( "labtech" ) );
+        lr.setPatient( User.getByName( "patient" ) );
+        lr.setLabProcedure( LabProcedure.getByCode( "000000-00" ) );
+        lr.setPriority( Priority.PRIORITY_VERY_HIGH );
+        lr.setStatus( Status.PENDING );
+        lr.save();
+
+        final LabRequest lr1 = new LabRequest();
+        lr1.setComments( "comments" );
+        lr1.setHcp( User.getByName( "hcp" ) );
+        lr1.setLabTech( User.getByName( "labtech" ) );
+        lr1.setPatient( User.getByName( "patient" ) );
+        lr1.setLabProcedure( LabProcedure.getByCode( "123456-78" ) );
+        lr1.setPriority( Priority.PRIORITY_LOW );
+        lr1.setStatus( Status.PENDING );
+        lr1.save();
     }
 
     /**
@@ -121,10 +164,10 @@ public class HibernateDataGenerator {
         final User patient = new User( "patient", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_PATIENT, 1 );
         patient.save();
-        
+
         // Added new patient with similar information from above
-        // Makes it easier to test        
-        final Patient userPatient = new Patient(patient);
+        // Makes it easier to test
+        final Patient userPatient = new Patient( patient );
         userPatient.save();
 
         final User admin = new User( "admin", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
@@ -212,5 +255,6 @@ public class HibernateDataGenerator {
         d.setName( "Quetiane Fumarate" );
         d.setDescription( "atypical antipsychotic and antidepressant" );
         d.save();
+
     }
 }

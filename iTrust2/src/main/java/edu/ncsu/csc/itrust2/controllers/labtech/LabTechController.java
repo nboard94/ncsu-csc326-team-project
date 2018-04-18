@@ -29,6 +29,11 @@ public class LabTechController {
         return edu.ncsu.csc.itrust2.models.enums.Role.ROLE_LABTECH.getLanding();
     }
 
+    /**
+     * Returns the edit demographics page for lab techs
+     *
+     * @return the page to edit demographics
+     */
     @GetMapping ( "/labtech/editPatientDemographics" )
     @PreAuthorize ( "hasRole('ROLE_LABTECH')" )
     public String editPatientDemographics () {
@@ -36,5 +41,16 @@ public class LabTechController {
     }
 
     // Code for Lab Procedures
+
+    /**
+     * Returns the view lab requests page for lab techs
+     *
+     * @return the lab request page for lab techs
+     */
+    @GetMapping ( "/labtech/viewLabRequests" )
+    @PreAuthorize ( "hasRole('ROLE_LABTECH')" )
+    public String viewLabRequests () {
+        return "/labtech/viewLabRequests";
+    }
 
 }

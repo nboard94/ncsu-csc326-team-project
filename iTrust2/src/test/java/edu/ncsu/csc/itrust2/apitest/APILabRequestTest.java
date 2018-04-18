@@ -51,7 +51,7 @@ public class APILabRequestTest {
 
     private Gson                  gson;
 
-    private final Type            listType = new TypeToken<ArrayList<LabRequest>>() {
+    private final Type            listType = new TypeToken<ArrayList<LabRequestForm>>() {
                                            }.getType();
 
     @Autowired
@@ -130,13 +130,13 @@ public class APILabRequestTest {
 
         String content = mvc.perform( get( "/api/v1/labrequests/labtech" ) ).andExpect( status().isOk() ).andReturn()
                 .getResponse().getContentAsString();
-        ArrayList<LabRequest> lrl = gson.fromJson( content, listType );
+        ArrayList<LabRequestForm> lrl = gson.fromJson( content, listType );
         assertEquals( "comments", lrl.get( 0 ).getComments() );
-        assertEquals( "hcp", lrl.get( 0 ).getHcp().getUsername() );
-        assertEquals( "test_labtech", lrl.get( 0 ).getLabTech().getUsername() );
-        assertEquals( "patient", lrl.get( 0 ).getPatient().getUsername() );
-        assertEquals( "111111-11", lrl.get( 0 ).getLabProcedure().getCode() );
-        assertEquals( Priority.PRIORITY_HIGH, lrl.get( 0 ).getPriority() );
+        assertEquals( "hcp", lrl.get( 0 ).getHcp() );
+        assertEquals( "test_labtech", lrl.get( 0 ).getLabTech() );
+        assertEquals( "patient", lrl.get( 0 ).getPatient() );
+        assertEquals( "111111-11", lrl.get( 0 ).getLabProcedure() );
+        assertEquals( "PRIORITY_HIGH", lrl.get( 0 ).getPriority() );
 
         lr = new LabRequest();
         lr.setComments( "comments1" );
@@ -151,8 +151,8 @@ public class APILabRequestTest {
         content = mvc.perform( get( "/api/v1/labrequests/labtech" ) ).andExpect( status().isOk() ).andReturn()
                 .getResponse().getContentAsString();
         lrl = gson.fromJson( content, listType );
-        assertEquals( Priority.PRIORITY_HIGH, lrl.get( 0 ).getPriority() );
-        assertEquals( Priority.PRIORITY_LOW, lrl.get( 1 ).getPriority() );
+        assertEquals( "PRIORITY_HIGH", lrl.get( 0 ).getPriority() );
+        assertEquals( "PRIORITY_LOW", lrl.get( 1 ).getPriority() );
 
         lr = new LabRequest();
         lr.setComments( "comments" );
@@ -167,9 +167,9 @@ public class APILabRequestTest {
         content = mvc.perform( get( "/api/v1/labrequests/labtech" ) ).andExpect( status().isOk() ).andReturn()
                 .getResponse().getContentAsString();
         lrl = gson.fromJson( content, listType );
-        assertEquals( Priority.PRIORITY_VERY_HIGH, lrl.get( 0 ).getPriority() );
-        assertEquals( Priority.PRIORITY_HIGH, lrl.get( 1 ).getPriority() );
-        assertEquals( Priority.PRIORITY_LOW, lrl.get( 2 ).getPriority() );
+        assertEquals( "PRIORITY_VERY_HIGH", lrl.get( 0 ).getPriority() );
+        assertEquals( "PRIORITY_HIGH", lrl.get( 1 ).getPriority() );
+        assertEquals( "PRIORITY_LOW", lrl.get( 2 ).getPriority() );
 
         // TEST EDIT LAB REQUEST
 
@@ -179,13 +179,13 @@ public class APILabRequestTest {
                 .perform( put( "/api/v1/labrequests" ).contentType( MediaType.APPLICATION_JSON )
                         .content( TestUtils.asJsonString( form ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
-        lr = gson.fromJson( content, LabRequest.class );
-        assertEquals( "comments", lr.getComments() );
-        assertEquals( "hcp", lr.getHcp().getUsername() );
-        assertEquals( "test_labtech", lr.getLabTech().getUsername() );
-        assertEquals( "patient", lr.getPatient().getUsername() );
-        assertEquals( "111111-11", lr.getLabProcedure().getCode() );
-        assertEquals( Priority.PRIORITY_LOW, lr.getPriority() );
+        LabRequestForm back = gson.fromJson( content, LabRequestForm.class );
+        assertEquals( "comments", back.getComments() );
+        assertEquals( "hcp", back.getHcp() );
+        assertEquals( "test_labtech", back.getLabTech() );
+        assertEquals( "patient", back.getPatient() );
+        assertEquals( "111111-11", back.getLabProcedure() );
+        assertEquals( "PRIORITY_LOW", back.getPriority() );
 
         // TEST EDIT NON EXISTENT LAB
 
@@ -202,14 +202,15 @@ public class APILabRequestTest {
         assertEquals( 3, lrl.size() );
 
         form = new LabRequestForm( lr );
+        form.setPriority( "PRIORITY_LOW" );
         form.setLabTech( "test_labtech2" );
 
         final String content5 = mvc
                 .perform( put( "/api/v1/labrequests" ).contentType( MediaType.APPLICATION_JSON )
                         .content( TestUtils.asJsonString( form ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
-        lr = gson.fromJson( content5, LabRequest.class );
-        assertEquals( "test_labtech2", lr.getLabTech().getUsername() );
+        back = gson.fromJson( content5, LabRequestForm.class );
+        assertEquals( "test_labtech2", back.getLabTech() );
 
         content = mvc.perform( get( "/api/v1/labrequests/labtech" ) ).andExpect( status().isOk() ).andReturn()
                 .getResponse().getContentAsString();
@@ -223,9 +224,9 @@ public class APILabRequestTest {
 
         lrl = gson.fromJson( content, listType );
         assertEquals( 3, lrl.size() );
-        assertEquals( Priority.PRIORITY_HIGH, lrl.get( 0 ).getPriority() );
-        assertEquals( Priority.PRIORITY_LOW, lrl.get( 1 ).getPriority() );
-        assertEquals( Priority.PRIORITY_LOW, lrl.get( 2 ).getPriority() );
+        assertEquals( "PRIORITY_HIGH", lrl.get( 0 ).getPriority() );
+        assertEquals( "PRIORITY_LOW", lrl.get( 1 ).getPriority() );
+        assertEquals( "PRIORITY_LOW", lrl.get( 2 ).getPriority() );
 
         // TEST GET FOR PAITENT
 
@@ -258,15 +259,15 @@ public class APILabRequestTest {
         // Retrieve list of lab requests
         String content = mvc.perform( get( "/api/v1/labrequests/hcp" ) ).andExpect( status().isOk() ).andReturn()
                 .getResponse().getContentAsString();
-        ArrayList<LabRequest> lrl = gson.fromJson( content, listType );
+        ArrayList<LabRequestForm> lrl = gson.fromJson( content, listType );
 
         assertEquals( 1, lrl.size() );
         assertEquals( "comments", lrl.get( 0 ).getComments() );
-        assertEquals( "hcp", lrl.get( 0 ).getHcp().getUsername() );
-        assertEquals( "test_labtech", lrl.get( 0 ).getLabTech().getUsername() );
-        assertEquals( "patient", lrl.get( 0 ).getPatient().getUsername() );
-        assertEquals( "111111-11", lrl.get( 0 ).getLabProcedure().getCode() );
-        assertEquals( Priority.PRIORITY_HIGH, lrl.get( 0 ).getPriority() );
+        assertEquals( "hcp", lrl.get( 0 ).getHcp() );
+        assertEquals( "test_labtech", lrl.get( 0 ).getLabTech() );
+        assertEquals( "patient", lrl.get( 0 ).getPatient() );
+        assertEquals( "111111-11", lrl.get( 0 ).getLabProcedure() );
+        assertEquals( "PRIORITY_HIGH", lrl.get( 0 ).getPriority() );
 
         // Create a another lab request
         lr = new LabRequest();
@@ -285,8 +286,8 @@ public class APILabRequestTest {
         lrl = gson.fromJson( content, listType );
 
         assertEquals( 2, lrl.size() );
-        assertEquals( Priority.PRIORITY_VERY_HIGH, lrl.get( 0 ).getPriority() );
-        assertEquals( Priority.PRIORITY_HIGH, lrl.get( 1 ).getPriority() );
+        assertEquals( "PRIORITY_VERY_HIGH", lrl.get( 0 ).getPriority() );
+        assertEquals( "PRIORITY_HIGH", lrl.get( 1 ).getPriority() );
 
         // TEST GET FOR PATIENT
 
