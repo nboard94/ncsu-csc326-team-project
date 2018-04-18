@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -65,27 +66,25 @@ public class APIVaccinationTest {
     @WithMockUser ( username = "admin", roles = { "USER", "ADMIN" } )
     public void testVaccinationAPI () throws UnsupportedEncodingException, Exception {
 
-        // Destroy conflicting test vaccinations
-        // final List<Vaccination> allVacs = Vaccination.getAll();
-        // for ( int i = 0; i < allVacs.size(); i++ ) {
-        // final Vaccination conflicting = allVacs.get( i );
-        //
-        // if ( conflicting != null && conflicting.getName().equals( "TEST" ) )
-        // {
-        // mvc.perform( delete( "/api/v1/vaccinations/" + conflicting.getId() )
-        // ).andExpect( status().isOk() )
-        // .andExpect( content().string( conflicting.getId().toString() ) );
-        // }
-        // }
+        // Clear existing conflicting vaccinationss
+        final List<Vaccination> allRecs = Vaccination.getAll();
+        for ( int i = 0; i < allRecs.size(); i++ ) {
+            final Vaccination conflicting = allRecs.get( i );
+            if ( conflicting != null && ( conflicting.getCode().equals( "99999" )
+                    || conflicting.getCode().equals( "99998" ) || conflicting.getCode().equals( "99997" ) ) ) {
+                mvc.perform( delete( "/api/v1/vaccinations/" + conflicting.getId() ) ).andExpect( status().isOk() )
+                        .andExpect( content().string( conflicting.getId().toString() ) );
+            }
+        }
 
         // Create vaccinations for testing
         final VaccinationForm form1 = new VaccinationForm();
-        form1.setCode( "56784" );
+        form1.setCode( "99999" );
         form1.setName( "TEST1" );
         form1.setDescription( "DESC1" );
 
         final VaccinationForm form2 = new VaccinationForm();
-        form2.setCode( "38475" );
+        form2.setCode( "99998" );
         form2.setName( "TEST1" );
         form2.setDescription( "DESC2" );
 
@@ -134,12 +133,12 @@ public class APIVaccinationTest {
         assertEquals( "This is a better description", editedVaccination.getDescription() );
 
         // Attempt invalid edit
-        vaccination2.setCode( "00000" );
+        vaccination2.setCode( "99999" );
         mvc.perform( put( "/api/v1/vaccinations" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( vaccination2 ) ) ).andExpect( status().isConflict() );
 
         // Follow up with valid edit
-        vaccination2.setCode( "00003" );
+        vaccination2.setCode( "99997" );
         mvc.perform( put( "/api/v1/vaccinations" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( vaccination2 ) ) ).andExpect( status().isOk() );
 
