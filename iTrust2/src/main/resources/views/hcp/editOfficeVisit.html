@@ -148,7 +148,7 @@
               function (response) {
                 $scope.icdcodes = response.data;
               });
-            $http.get("iTrust2/api/v1/labprocedures").then(
+            $http.get("/iTrust2/api/v1/labprocedures").then(
            	  function (response) {
            		$scope.procedures = response.data;
            	  });
@@ -210,7 +210,7 @@
                   //Lab Requests
                   var rLength = $scope.visits[i].labrequests.length;
                   for( var k = 0; k < rLength; k++) {
-                	$scope.requests.push({
+                	$scope.labrequests.push({
                 	  labProcedure: $scope.visits[i].labrequests[k].labProcedure,
                 	  comments: $scope.visits[i].labrequests[k].comments,
                 	  labTech: $scope.visits[i].labrequests[k].labTech,
@@ -402,7 +402,7 @@
             	if (err) {
             		$scope.errorMsg = errl
             	} else {
-            		$scope.requests.push(r);
+            		$scope.labrequests.push(r);
             		resetLabRequestForm();
             	}
             }
