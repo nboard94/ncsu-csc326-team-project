@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -85,7 +86,7 @@ public class PatientRecordsTest {
      */
     @Test
     public void testSetDiagnosisList () {
-        final ArrayList<Diagnosis> tempList = new ArrayList<Diagnosis>();
+        final List<Diagnosis> tempList = new ArrayList<Diagnosis>();
         assertNull( record.getDiagnosisList() );
         record.setDiagnosisList( tempList );
         assertEquals( tempList, record.getDiagnosisList() );
