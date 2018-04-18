@@ -156,4 +156,19 @@ public class AdminUserController {
         model.addAttribute( "users", User.getUsers() );
         return "admin/drugs";
     }
+
+    /**
+     * Retrieves the form for the Lab Procedures action
+     *
+     * @param model
+     *            Data for the front end
+     *
+     * @return The page to display
+     */
+    @RequestMapping ( value = "admin/labProcedures" )
+    @PreAuthorize ( "hasRole('ROLE_ADMIN')" )
+    public String procedures ( final Model model ) {
+        model.addAttribute( "users", User.getUsers() );
+        return "admin/labProcedures";
+    }
 }
