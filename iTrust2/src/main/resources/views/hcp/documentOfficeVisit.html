@@ -63,6 +63,24 @@
               	
               	return err.join(". ");
               }
+              
+              var checkValidRequest = function(r) {
+            	  var err = [];
+            	  if (!r.labProcedure) {
+            		  err.push("Request must be associated with a procedure");
+            	  }
+            	  if (!r.labTech) {
+            		  err.push("Request must be associated with a lab technician");
+            	  }
+            	  if (!r.priority) {
+            		  err.push("Request must have a priority");
+            	  }
+            	  if (!r.comments) {
+            		  err.push("Request must have a comment");
+            	  }
+            	  
+            	  return err.join(". ");
+              }
 
 
             $scope.three = false;
@@ -153,6 +171,10 @@
               function (response) {
                 $scope.icdcodes = response.data;
               });
+            $http.get("/iTrust2/api/v1/labprocedures").then(
+              function (response) {
+            	$scope.procedures = response.data;
+              });
 
             $scope.submit = function () {
               $scope.errorMsg = "";
@@ -233,6 +255,7 @@
               $scope.visit.prescriptions.forEach(function (p) {
                 p.patient = $scope.visit.patient;
               });
+              $scope.visit.labrequests = $scope.labrequests;
 
               $http({
                 method: 'POST',
@@ -248,6 +271,11 @@
 
             $scope.noteEntry = "";
             $scope.codeEntry = "";
+            
+            $scope.requestNoteEntry = "";
+            $scope.procedureName = "";
+            $scope.labTech = "";
+            $scope.priority = "";
 
             $scope.drugEntry = "";
             $scope.dosageEntry = "";
@@ -260,6 +288,14 @@
             function resetDiagnosisForm() {
               noteEntry = "";
               codeEntry = "";
+            }
+            
+            //clears local variavles for lab request form
+            function resetLabRequestForm() {
+            	requestNoteEntry = "";
+            	procedureName = "";
+            	labTech = "";
+            	priority = "";
             }
 
             //clears local variables for prescription form
@@ -279,6 +315,25 @@
                 code: $scope.codeEntry
               });
               resetDiagnosisForm();
+            }
+            
+            //Capture each lab request into an array
+            $scope.labrequests = [];
+            $scope.fillLabRequests = function () {
+            	$scope.errorMsg = "";
+            	var r = {
+            		comments: $scope.requestNoteEntry,
+            		labProcedure: $scope.procedureName,
+            		labTech: $scope.labTech,
+            		priority: $scope.priority
+            	}
+            	var err = checkValidRequest(r);
+            	if (err) {
+            		$scope.errorMsg = err;
+            	} else {
+            		$scope.labrequests.push(r);
+                	resetLabRequestForm();
+            	}
             }
 
             //capture each prescription into an array
@@ -305,6 +360,11 @@
             $scope.removeDiagnosis = function ($index) {
               $scope.diagnoses.splice($index, 1);
             }
+            
+            //remove local lab request from list
+            $scope.removeLabRequest = function ($index) {
+            	$scope.labrequests.splice($index, 1);
+            }
 
             //remove local prescription from list
             $scope.removePrescription = function ($index) {
@@ -314,6 +374,7 @@
             //call initally
             resetDiagnosisForm();
             resetPrescriptionForm();
+            resetLabRequestForm();
 
 
           });
@@ -727,6 +788,90 @@
                     </div>
                   </div>
                 </div>
+                
+                <!-- Lab Request Panel  -->
+                  <div class="col-md-4">
+                    <div class="panel panel-info">
+                      <div class="panel-heading">
+                        <h4>Lab Request</h4>
+                      </div>
+                      <div class="panel-body">
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Procedure:</label>
+                          </div>
+                          <div class="col-xs-6 radio-box">
+                            <div class="form-check">
+                              <ul style="list-style: none;">
+                                <li ng-repeat="l in procedures">
+                                  <label>
+                                    <input type="radio" ng-model="$parent.procedureName" id="{{l.commonName}}" name="{{l.commonName}}" ng-value="l" required="true" /> {{l.commonName}}
+                                  </label>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Lab Technician:</label>
+                          </div>
+                          <div class="col-xs-6">
+                            <input class="form-control" name="labTech" ng-model="labTech" required="true" type="text">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Priority:</label>
+                          </div>
+                          <div class="col-xs-6">
+                            <input class="form-control" name="priority" ng-model="priority" required="true" type="text">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Comments:</label>
+                          </div>
+                          <div class="col-xs-6">
+                            <input class="form-control" name="requestNotesEntry" ng-model="requestNoteEntry" required="true" type="text">
+                          </div>
+                        </div>
+
+                        <div class="form-group row text-center">
+                          <div class="col-md-12">
+                            <button class="btn btn-success" ng-click="fillLabRequests()" name="fillLabRequests">Add Lab Request</button>
+                          </div>
+                        </div>
+
+                        <div class="form-group row">
+                          <div class="col-md-12">
+                            <div class="panel panel-default">
+                              <div class="panel-heading">
+                                Added Lab Request
+                              </div>
+                              <div class="panel-body">
+                                <div class="row" ng-repeat="l in labrequests">
+                                  <div class="col-md-4">
+                                    {{l.labProcedure.commonName}}
+                                  </div>
+                                  <div class="col-md-4">
+                                    {{l.priority}}
+                                  </div>
+                                  <div class="col-md-4">
+                                    <button class="btn btn-danger btn-xs" ng-click="removeLabRequest($index)" name="removeLabRequest">
+                                      <b>x</b>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                
 
                 <!-- Notes and Error Messages -->
                 <div class="row">
