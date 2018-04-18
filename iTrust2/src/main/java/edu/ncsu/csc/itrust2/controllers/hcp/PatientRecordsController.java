@@ -24,7 +24,7 @@ public class PatientRecordsController {
      * @return The page to display
      */
     @RequestMapping ( value = "hcp/viewPatientRecords" )
-    @PreAuthorize ( "hasRole('ROLE_HCP')" )
+    @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_ER')" )
     public String drugs ( final Model model ) {
         model.addAttribute( "users", User.getUsers() );
         return "hcp/viewPatientRecords";
