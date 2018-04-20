@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -165,6 +166,17 @@ public class APIUserController extends APIController {
     }
 
     /**
+     * Gets all of the lab techs in the system
+     *
+     * @return a list of all of lab techs within the system
+     */
+    @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_ADMIN')" )
+    @GetMapping ( BASE_PATH + "/users/labtechs" )
+    public List<User> getLabTechs () {
+        return User.getLabTechs();
+    }
+
+    /**
      * Checks if the current user has a `role`.
      *
      * @param role
@@ -190,4 +202,5 @@ public class APIUserController extends APIController {
         }
         return false;
     }
+
 }
