@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>EHR - Emergency Health Records</title>
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
+		<script th:inline="javascript">
+			var app = angular.module('recordsApp', []);
+			app.controller('recordsCtrl', function($scope, $http) {
+				$scope.records = [];
+				$scope.getRecords = function() {
+					$http.get("/iTrust2/api/v1/viewPatientRecords/"
+							+ document.getElementById("lookupMID").value)
+							.then(function(response) {
+								$scope.records = response.data;
+								$scope.message = "Successfully retrieved patient records.";
+							}, function(error) {
+								$scope.message = "Getting pateint records encountered a problem.";
+							});
+						}
+					});
+		</script>
+
+		<div ng-app="recordsApp" ng-controller="recordsCtrl">
+			<div>
+				<h1>Lookup Patient</h1>
+
+				<h6>Patient MID:</h6>
+				<input type="text" id="lookupMID" />
+				<button id="lookup" ng-click="getRecords()" class="btn">Lookup</button>
+			</div>
+
+			<!-- Output of Patient Record -->
+			<div class="col-md-8">
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<h4>Patient's Record</h4>
+					</div>
+
+					<table class="table table-bordered">
+
+						<!-- table column headers -->
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Age</th>
+								<th>Date of Birth</th>
+								<th>Gender</th>
+								<th>Blood Type</th>
+							</tr>
+						</thead>
+
+						<!-- Record entry for every row -->
+						<tbody>
+							<tr name="recordTableRow" ng-repeat="record in records">
+								<td name="patientNameCell">{{record.name}}</td>
+								<td name="patientAgeCell">{{record.age}}</td>
+								<td name="patientDateOfBirthCell">{{record.dateOfBirth}}</td>
+								<td name="patientGenderCell">{{record.patientGender}}</td>
+								<td name="patientBloodTypeCell">{{record.bloodType}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="col-md-8">
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<h5>Patient's Prescriptions</h5>
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Code</th>
+									<th>Description</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr name="prescriptionTableRow" ng-repeat="record in records">
+									<th>{{record.prescriptionsList.code}}</th>
+									<th>{{record.prescriptionsList.description}}</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-8">
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<h5>Patient's Diagnosis</h5>
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Code</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr name="diagnosisTableRow" ng-repeat="record in records">
+									<th>{{record.diagnosisList.name}}</th>
+									<th>{{record.diagnosisList.code}}</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

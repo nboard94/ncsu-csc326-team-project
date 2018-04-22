@@ -121,10 +121,10 @@ public class HibernateDataGenerator {
         final User patient = new User( "patient", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_PATIENT, 1 );
         patient.save();
-        
+
         // Added new patient with similar information from above
-        // Makes it easier to test        
-        final Patient userPatient = new Patient(patient);
+        // Makes it easier to test
+        final Patient userPatient = new Patient( patient );
         userPatient.save();
 
         final User admin = new User( "admin", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
