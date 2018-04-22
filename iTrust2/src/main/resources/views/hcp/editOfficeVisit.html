@@ -222,7 +222,9 @@
                 	  labProcedure: $scope.visits[i].labRequests[k].procedure.code,
                 	  comments: $scope.visits[i].labRequests[k].comments,
                 	  labTech: $scope.visits[i].labRequests[k].labTech.username,
-                	  priority: $scope.visits[i].labRequests[k].priority
+                	  priority: $scope.visits[i].labRequests[k].priority,
+                	  status: $scope.visits[i].labRequests[k].status,
+                	  id: $scope.visits[i].labRequests[k].id
                 	});
                   }
                   
@@ -278,14 +280,16 @@
               $scope.errorMsg = "";
               $scope.selectedVisit.status = "PENDING";
               
-              // set the patient/hcp/status for all of the 
+              // set the patient/hcp/status for all of the lab requests
               for (var i = 0; i < $scope.labRequests.length; i++) {
-            	  $scope.labRequests[i].patient = $scope.visit.actualPatient.self.username;
-            	  $scope.labRequests[i].hcp = $scope.visit.hcp;
-            	  if ($scope.labRequests[i].status == null) {
+            	  $scope.labRequests[i].patient = $scope.selectedVisit.patient;
+            	  $scope.labRequests[i].hcp = $scope.selectedVisit.hcp;
+            	  if ($scope.labRequests[i].status == "") {
             	  	$scope.labRequests[i].status = "PENDING";
             	  }
               }
+              
+              $scope.selectedVisit.labRequests = $scope.labRequests;
 
               if ($scope.selectedVisit.type == null) {
                 $scope.errorMsg += "Please select a visit type\n";
@@ -367,6 +371,11 @@
                 data: $scope.selectedVisit
               }).then(function (response) {
                 $scope.message = "Office visit edited successfully";
+                for (var i = 0; i < $scope.visits.length; i++) {
+                	if ($scope.selectedVisit.id == $scope.visits[i].id) {
+                		$scope.visits[i] = response.data;
+                	}
+                }
               }, function (rejection) {
                 $scope.message = "Error occurred editing office visit";
               })
