@@ -57,7 +57,18 @@
 
               return err.join(". ");
             }
-
+            
+            var checkValidVacRecord = function(v) {
+          	  var err = [];
+          	  if (!v.vaccination) {
+          		  err.push("Vaccination record must be associated with a vaccination");
+          	  }
+          	  if (!isDate(v.administrationDate)) {
+          		  err.push("Administration date is in an invalid format");
+          	  }
+          	  
+          	  return err.join(".");
+            }
 
             $scope.getTime = function getTime(date) {
               var hour = date.hourOfDay;
@@ -114,7 +125,11 @@
 
             $scope.populateVisit = function () {
               $scope.prescriptions = [];
+
               $scope.labRequests = [];
+
+              $scope.vacRecords = [];
+
               $scope.diagnoses = [];
               $scope.showBHM = true;
               var visitsLength = $scope.visits.length;
@@ -189,7 +204,15 @@
                 	});
                   }
 
-
+               // vac records
+                  var vLength = $scope.visits[i].vacRecords.length;
+                  for( var j = 0; j < vLength; j++){
+                	var myAdministration = $scope.getDate($scope.visits[i].vacRecords[j].administrationDate);
+                	$scope.vacRecords.push({
+                		vaccination: $scope.visits[i].vacRecords[j].vaccination.code,
+                		administrationDate: myAdministration
+                	});
+                  }
 
                   $scope.three = false;
                   $scope.threeAndUp = false;
@@ -491,6 +514,39 @@
                                 <div class="col-md-2">
                                   {{p.renewals}}
                                 </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- Prescription Panel -->
+                        <div class="col-md-4">
+                          <div class="panel panel-info">
+                            <div class="panel-heading">
+                              <h4>Vaccinations</h4>
+                            </div>
+                            <div class="panel-body" ng-show="showVaccination">
+                              <div class="row">
+                                <div class="col-md-2">
+                                  <b>Vaccination</b>
+                                </div>
+                                <div class="col-md-2">
+                                  <b>Code</b>
+                                </div>
+                                <div class="col-md-2">
+                                  <b>Administration Date</b>
+                                </div>
+                              </div>
+                              <div class="row" ng-repeat="v in vacRecords">
+                                <div class="col-md-2">
+                                  {{v.vaccination}}
+                                </div>
+                                <div class="col-md-2">
+                                  {{v.vaccination.code}}
+                                </div>
+                                <div class="col-md-2">
+                                  {{v.administrationDate}}
+                                </div>>
                               </div>
                             </div>
                           </div>

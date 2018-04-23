@@ -30,13 +30,13 @@ public class LabTechController {
     }
 
     /**
-     * Returns the edit demographics page for lab techs
+     * Returns the edit demographics screen for Lab Techs
      *
-     * @return the page to edit demographics
+     * @return The page to display
      */
     @GetMapping ( "/labtech/editPatientDemographics" )
     @PreAuthorize ( "hasRole('ROLE_LABTECH')" )
-    public String editPatientDemographics () {
+    public String editDemographics () {
         return "/labtech/editPatientDemographics";
     }
 

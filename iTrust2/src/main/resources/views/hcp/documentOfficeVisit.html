@@ -82,6 +82,18 @@
             	  return err.join(". ");
               }
 
+              var checkValidVacRecord = function(v) {
+            	  var err = [];
+            	  if (!v.vaccination) {
+            		  err.push("Vaccination record must be associated with a vaccination");
+            	  }
+            	  if (!isDate(v.administrationDate)) {
+            		  err.push("Administration date is in an invalid format");
+            	  }
+            	  
+            	  return err.join(".");
+              }
+
 
             $scope.three = false;
             $scope.threeAndUp = false;
@@ -168,6 +180,10 @@
               function (response) {
                 $scope.drugs = response.data;
               });
+            $http.get("/iTrust2/api/v1/vaccinations").then(
+              function (response) {
+            	$scope.vaccinations = response.data;
+        	  });
             $http.get("/iTrust2/api/v1/icdcodes").then(
               function (response) {
                 $scope.icdcodes = response.data;
@@ -276,6 +292,10 @@
                 p.patient = $scope.visit.patient;
               });
               $scope.visit.labRequests = $scope.labRequests;
+              $scope.visit.vacRecords = $scope.vacRecords;
+              $scope.visit.vacRecords.forEach(function (v) {
+            	  v.patient = $scope.visit.patient;
+              });
 
               $http({
                 method: 'POST',
@@ -331,6 +351,12 @@
               $scope.endEntry = "";
               $scope.renewalEntry = "";
             }
+            
+            //clears local variables for prescription form
+            function resetVacRecordForm() {
+            	$scope.vaccinationEntry = "";
+            	$scope.administrationEntry = "";
+            }
 
             // capture each diagnosis into an array
             $scope.diagnoses = [];
@@ -383,6 +409,22 @@
   	              resetPrescriptionForm();
                 }
             }
+            
+            //capture each vacrecordinto an array
+            $scope.vacRecords = [];
+            $scope.fillVacRecord = function () {
+            	var v = {
+            			vaccination: $scope.vaccinationEntry,
+            			administrationDate: $scope.administrationEntry
+            	}
+            	var err = checkValidVacRecord(v);
+            	if (err) {
+            		$scope.errorMsg = err;
+            	} else {
+            		$scope.vacRecords.push(v);
+            		resetVacRecordForm();
+            	}
+            }
 
             //remove local diagnosis from list
             $scope.removeDiagnosis = function ($index) {
@@ -398,6 +440,11 @@
             $scope.removePrescription = function ($index) {
               $scope.prescriptions.splice($index, 1);
             }
+            
+            //remove local vacRecord from list
+            $scope.removeVacRecord = function ($index) {
+            	$scope.vacRecords.splice($index, 1);
+            }
 
             
             $scope.removeTag = function(p) {
@@ -408,7 +455,8 @@
             resetDiagnosisForm();
             resetPrescriptionForm();
             resetLabRequestForm();
-           	
+            resetVacRecordForm();
+
 
 
           });
@@ -419,48 +467,6 @@
 
 
       <div ng-app="myApp" ng-controller="documentOfficeVisitCtrl">
-        <nav class="navbar navbar-default">
-          <div class="container-fluid">
-            <ul class="nav navbar-nav">
-              <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Patient
-                  <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a href="/iTrust2/hcp/viewAppointmentRequests" id="viewrequests">View Appointment Requests</a>
-                  </li>
-                  <li>
-                    <a href="/iTrust2/hcp/viewAppointments" id="upcomingrequests">View Upcoming Appointments</a>
-                  </li>
-                  <li>
-                    <a href="#">Edit Patient -- Not Implemented</a>
-                  </li>
-                  <li>
-                    <a href="#">Add Patient -- Not Implemented</a>
-                  </li>
-                  <li>
-                    <a href="/iTrust2/hcp/documentOfficeVisit.html" id="documentOfficeVisit">Document Office Visit</a>
-                  </li>
-                </ul>
-              </li>
-              <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Edit
-                  <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a href="/iTrust2/personnel/editDemographics" id="editdemographics">Edit Demographics</a>
-                  </li>
-                  <li>
-                    <a href="/iTrust2/hcp/editOfficeVisit" id="editOfficeVisit">Edit Office Visit</a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </nav>
-
         <div class="row">
           <div class="col-md-12">
             <div class="panel panel-primary">
@@ -821,7 +827,6 @@
                       </div>
                     </div>
                   </div>
-                </div>
 
 
 
@@ -930,6 +935,74 @@
                       </div>
                     </div>
                   </div>
+                  
+                  <!-- Vaccination Panel -->
+                  <div class="col-md-6">
+                    <div class="panel panel-info">
+                      <div class="panel-heading">
+                        <h4>Vaccination Record</h4>
+                      </div>
+                      <div class="panel-body">
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Vaccination:</label>
+                          </div>
+                          <div class="col-xs-6 radio-box">
+                            <div class="form-check">
+                              <ul style="list-style: none;">
+                                <li ng-repeat="v in vaccinations">
+                                  <label>
+                                    <input type="radio" ng-model="$parent.vaccinationEntry" name="{{v.name}}" value="{{v.code}}" required="true" /> {{v.name}}
+                                  </label>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Administration Date:</label>
+                          </div>
+                          <div class="col-xs-6">
+                            <input type="text" class="form-control" placeholder="MM/DD/YYYY" name="administrationEntry" ng-model="administrationEntry" required/>
+                          </div>
+                        </div>
+                        <div class="form-group row text-center">
+                          <button class="btn btn-success" ng-click="fillVacRecord()" name="fillVacRecord">Add Vaccination Record</button>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-md-12">
+                            <div class="panel panel-default">
+                              <div class="panel-heading">
+                                Added Vaccination Records
+                              </div>
+                              <div class="panel-body">
+                                <div class="row" ng-repeat="v in vacRecords">
+                                  <div class="col-md-2">
+                                    {{v.vaccination}}
+                                  </div>
+                                  <div class="col-md-2">
+                                    {{v.administrationDate}}
+                                  </div>
+                                  <div class="col-md-2">
+                                    <button class="btn btn-danger btn-xs" ng-click="removeVacRecord($index)" name="removeVacRecord">
+                                      <b>x</b>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                  
+                  
+                  
+                  
+                  
                 </div>
 
 

@@ -16,6 +16,7 @@ import edu.ncsu.csc.itrust2.models.persistent.Diagnosis;
 import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Prescription;
+import edu.ncsu.csc.itrust2.models.persistent.VacRecord;
 
 /**
  * Office Visit form used to document an Office Visit by the HCP. This will be
@@ -171,6 +172,9 @@ public class OfficeVisitForm implements Serializable {
         this.labRequests = labRequests;
     }
 
+    private List<VacRecordForm>    vacRecords;
+
+
     /**
      * Creates an OfficeVisitForm from the OfficeVisit provided
      *
@@ -191,6 +195,8 @@ public class OfficeVisitForm implements Serializable {
         setPrescriptions( ov.getPrescriptions().stream().map( ( final Prescription p ) -> new PrescriptionForm( p ) )
                 .collect( Collectors.toList() ) );
         setLabRequests( ov.getLabRequests().stream().map( ( LabRequest lp ) -> new LabRequestForm( lp ) )
+                .collect( Collectors.toList() ) );
+        setVacRecords( ov.getVacRecords().stream().map( ( VacRecord v ) -> new VacRecordForm( v ) )
                 .collect( Collectors.toList() ) );
     }
 
@@ -591,5 +597,24 @@ public class OfficeVisitForm implements Serializable {
      */
     public List<PrescriptionForm> getPrescriptions () {
         return prescriptions;
+    }
+
+    /**
+     * Sets the list of vac records for this visit.
+     *
+     * @param vacRecords
+     *            the list of vac records
+     */
+    public void setVacRecords ( final List<VacRecordForm> vacRecords ) {
+        this.vacRecords = vacRecords;
+    }
+
+    /**
+     * Returns the list of vac records associated with this office visit.
+     *
+     * @return vacRecords the list of vac records
+     */
+    public List<VacRecordForm> getVacRecords () {
+        return vacRecords;
     }
 }

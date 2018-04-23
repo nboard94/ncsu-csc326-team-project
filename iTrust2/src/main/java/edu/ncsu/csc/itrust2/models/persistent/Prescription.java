@@ -245,8 +245,8 @@ public class Prescription extends DomainObject<Prescription> {
     }
 
     /**
-     * Rerieve all Prescriptions for the patient provided
-     * 
+     * Retrieve all Prescriptions for the patient provided
+     *
      * @param patient
      *            The Patient to find Prescriptions for
      * @return The List of records that was found

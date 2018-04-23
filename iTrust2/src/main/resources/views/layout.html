@@ -147,7 +147,11 @@ a {
 									User</a></li>
 							<li><a href="/iTrust2/admin/drugs" id="drugs">Manage Drugs</a></li>
 							<li><a href="/iTrust2/admin/manageICDCodes" id="manageICDCodes">Manage ICD-10 Codes</a></li>
+
 							<li><a href="/iTrust2/admin/labProcedures" id="manageProcedures">Manage Lab Procedures</a></li>
+
+							<li><a href="/iTrust2/admin/vaccinations" id="vaccinations">Manage Vaccinations</a></li>
+
 						</ul>
 					</li>
 					<li class="dropdown"><a class="dropdown-toggle"
@@ -160,7 +164,7 @@ a {
 				</ul>
 				<ul id="hcp-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
-						data-toggle="dropdown" href="#">Patient<span class="caret"></span></a>
+						data-toggle="dropdown" href="#">HCP<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 														<li><a href="/iTrust2/hcp/viewAppointmentRequests"
 								id="viewrequests">View Appointment Requests</a></li>
@@ -184,8 +188,11 @@ a {
 							      id="editOfficeVisit">Edit Office Visit</a></li>
 					      	<li> <a href="/iTrust2/hcp/editPrescriptions"
 							      id="editPrescriptions-personnel">Edit Prescriptions</a></li>
-						</ul>
+							 <li> <a href="/iTrust2/hcp/editVaccinations"
+							      id="editVaccinations-personnel">Edit Vaccinations</a></li>
+						</ul>       
 					</li>
+					<li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
 				</ul>
 				<ul id="patient-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
@@ -197,10 +204,9 @@ a {
 							<li><a href="/iTrust2/patient/viewAppointmentRequests"
 								id="viewrequests-patient">View Appointment Requests</a></li>
 							<li><a href="/iTrust2/patient/viewOfficeVisits">Past Office Visits</a></li>
-							<li><a href="/iTrust2/patient/viewDiagnoses" 
-								id="viewDiagnoses">Diagnoses</a></li>
-							<li><a href="/iTrust2/patient/viewPrescriptions" 
-								id="viewPrescriptions">Prescriptions</a></li>
+							<li><a href="/iTrust2/patient/viewDiagnoses" id="viewDiagnoses">Diagnoses</a></li>
+							<li><a href="/iTrust2/patient/viewPrescriptions" id="viewPrescriptions">Prescriptions</a></li>
+							<li><a href="/iTrust2/patient/viewVacRecords" id="viewVacRecords">Vaccination Records</a></li>
 						</ul>
 					</li>
 					<li class="dropdown"><a class="dropdown-toggle"
@@ -222,7 +228,8 @@ a {
 								id="editdemographics-er">Edit Demographics</a></li>
 						</ul>
 					</li>
-				</ul>
+					  <li><a href="/iTrust2/hcp/viewPatientRecords" id="emergencyHealthRecords">Lookup Patient</a></li>
+				  </ul>
 				<ul id="lt-dropdown" class="nav navbar-nav">
 					<li class="dropdown"><a class="dropdown-toggle"
 						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
