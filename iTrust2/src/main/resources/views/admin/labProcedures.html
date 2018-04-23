@@ -1,0 +1,230 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{})">
+  <title>Admin Lab Procedures</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+  <div th:fragment="content">
+
+
+    <script th:inline="javascript">
+      /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+      /*<![CDATA[*/
+      var app = angular.module("proceduresApp", []);
+      app.controller('proceduresCtrl', function ($scope, $http) {
+    	  
+    	var checkValidProcedure = function(procedure) {
+    		var err = [];
+    		if (procedure.commonName.length > 128) {
+    			err.push("Common name exceeds character limit of 128");
+    		}
+    		if (procedure.property.length > 16) {
+    			err.push("Property exceeds the character limit of 16");
+    		}
+    		if (!/^\d{6}-\d{2}$/.test(procedure.code)) {
+    			err.push("Code must be in the format XXXXXX-XX");
+    		}
+    		if (procedure.component.length > 16) {
+    			err.push("Component exceeds the character limit of 16");
+    		}
+    		return err.join(". ");
+    	}
+
+        $scope.procedures = [];
+        $scope.loadTable = function () {
+          $http.get("/iTrust2/api/v1/labprocedures").then(
+            function (response) {
+              $scope.procedures = response.data;
+              $scope.message = "";
+            }, function (rejection) {
+              $scope.procedures = [];
+              $scope.message = "Could not display lab procedures";
+            });
+        }
+
+        $scope.addProcedure = function () {
+          var err = checkValidProcedure($scope.procedure);
+          if (err) {
+            $scope.errorAdding = err;
+          } else {
+            $http.post("/iTrust2/api/v1/labprocedures", $scope.procedure).then(
+              function (response) {
+                $scope.loadTable();
+                $scope.procedure.commonName = "";
+                $scope.procedure.code = "";
+                $scope.procedure.property = "";
+                $scope.procedure.component = "";
+                $scope.errorAdding = "";
+              }, function (rejection) {
+                $scope.errorAdding = "Could not add lab procedure";
+              });
+          }
+
+        }
+
+        $scope.deleteProcedure = function (procedure) {
+          $http.delete('/iTrust2/api/v1/labprocedures/' + procedure.id).then(
+            function (response) {
+              $scope.loadTable();
+              $scope.message = "";
+            }, function (rejection) {
+              $scope.message = "Could not remove lab proccedures";
+            })
+        }
+
+        // gets the template to ng-include for a table row / item
+        $scope.selectedProcedure = {};
+
+        $scope.getTemplate = function (procedure) {
+          if (procedure.id === $scope.selectedProcedure.id) return 'edit';
+          else return 'view';
+        };
+
+        $scope.editProcedure = function (procedure) {
+          $scope.selectedProcedure = angular.copy(procedure);
+        };
+        $scope.saveProcedure = function () {
+       	  var err = checkValidProcedure($scope.selectedProcedure);
+          if (err) {
+            $scope.errorAdding = err;
+          } else {
+            $http.put("/iTrust2/api/v1/labprocedures", $scope.selectedProcedure).then(
+              function (response) {
+                $scope.loadTable();
+                $scope.resetSelected();
+              }, function (rejection) {
+                $scope.errorAdding = "Failed to edit lab procedure";
+              });
+          }
+        };
+
+        $scope.resetSelected = function () {
+          $scope.selectedProcedure = {};
+        };
+
+        // load table initially
+        $scope.loadTable();
+      });
+			/*]]>*/
+    </script>
+
+
+
+    <div ng-app="proceduresApp" ng-controller="proceduresCtrl">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h3>Admin Manage Lab Procedures</h3>
+              </div>
+              <div class="panel-body">
+                <table class="table table-bordered">
+                  <caption>Existing Medications:</caption>
+                  <thead>
+                    <tr>
+                      <th>LOINC</th>
+                      <th>Common Name</th>
+                      <th>Component</th>
+                      <th>Property</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr name="procedureTableRow" ng-repeat="p in procedures | orderBy: 'code'" ng-include="getTemplate(p)" procedureId={{p.id}}>
+                    </tr>
+                  </tbody>
+                </table>
+                <!-- table in view mode -->
+                <script type="text/ng-template" id="view">
+                  <td name="codeCell">{{p.code}}</td>
+                  <td name="nameCell">{{p.commonName}}</td>
+                  <td name="componentCell">{{p.component}}</td>
+				  <td name="propertyCell">{{p.property}}</td>
+                  <td>
+                    <div class="row text-center">
+                      <div class="col-md-6">
+                        <input type="button" value="Edit" class="btn btn-primary" name="editProcedure" ng-click="editProcedure(p)" />                         
+                      </div>
+                      <div class="col-md-6">
+                          <input type="button" value="Delete" class="btn btn-danger" name="deleteProcedure" ng-click="deleteProcedure(p)" />                          
+                      </div>
+                    </div>
+                  </td>
+                </script>
+
+                <!-- table in edit mode -->
+                <script type="text/ng-template" id="edit">
+                  <td name="editCodeCell">
+                    <input type="text" class="form-control" ng-model="selectedProcedure.code" />
+                  </td>
+                  <td name="editcommonNameCell">
+                    <input type="text" class="form-control" ng-model="selectedProcedure.commonName" />
+                  </td>
+                  <td name="editComponentCell">
+                    <input type="text" class="form-control" ng-model="selectedProcedure.component" />
+                  </td>
+				  <td name="editPropertyCell">
+					<input type="text" class="form-contorl" ng-model="selectedProcedure.property" />
+                  <td>
+                    <div class="row text-center">
+                      <div class="col-md-6">
+                          <input type="button" value="Save" class="btn btn-success" name="saveProcedure" ng-click="saveProcedure()" />                          
+                      </div>
+                      <div class="col-md-6">
+                          <input type="button" value="Cancel" class="btn btn-danger" name="cancelEdit" ng-click="resetSelected()" />                            
+                      </div>
+                    </div>
+                  </td>
+                </script>
+
+                <br>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="panel panel-default">
+                      <div class="panel-heading ">Add a Lab Procedure</div>
+                      <div class="panel-body">
+                        <form class="form-horizontal" role="form" name="addProcedureForm" ng-submit="addProcedure(addProcedureForm.$valid)">
+                          <div class="row">
+                            <div class="col-md-4">
+                              <label>Code</label>
+                              <input type="text" class="form-control" placeholder="xxxxxx-xx" name="code" ng-model="procedure.code" required/>
+                            </div>
+                            <div class="col-md-4">
+                              <label>Common Name</label>
+                              <input type="text" class="form-control" name="commonName" ng-model="procedure.commonName" required />
+                            </div>
+                            <div class="col-md-4">
+                              <label>Component</label>
+                              <input type="text" class="form-control" name="component" ng-model="procedure.component" required >
+                            </div>
+                            <div class="col-md-4">
+                              <label>Property</label>
+                              <input type="text" class="form-control" name="property" ng-model="procedure.property" required >
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-12 text-right">
+                              <button type="submit" class="btn btn-success" name="submit">Submit</button>
+                            </div>
+                          </div>
+                        </form>
+                        <div>
+                          <p style="color:red" ng-model="errorAdding" id="errP">{{errorAdding}}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+</body>
+
+</html>
+
+<!-- still here? -->

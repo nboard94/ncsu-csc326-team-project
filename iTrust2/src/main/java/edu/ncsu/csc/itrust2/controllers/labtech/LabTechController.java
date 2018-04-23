@@ -42,4 +42,15 @@ public class LabTechController {
 
     // Code for Lab Procedures
 
+    /**
+     * Returns the view lab requests page for lab techs
+     *
+     * @return the lab request page for lab techs
+     */
+    @GetMapping ( "/labtech/viewLabRequests" )
+    @PreAuthorize ( "hasRole('ROLE_LABTECH')" )
+    public String viewLabRequests () {
+        return "/labtech/viewLabRequests";
+    }
+
 }

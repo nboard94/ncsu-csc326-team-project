@@ -11,11 +11,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -27,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import edu.ncsu.csc.itrust2.config.RootConfiguration;
 import edu.ncsu.csc.itrust2.forms.admin.UserForm;
+import edu.ncsu.csc.itrust2.forms.hcp.LabRequestForm;
 import edu.ncsu.csc.itrust2.forms.hcp.OfficeVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
 import edu.ncsu.csc.itrust2.forms.patient.AppointmentRequestForm;
@@ -36,12 +41,15 @@ import edu.ncsu.csc.itrust2.models.enums.Ethnicity;
 import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.PatientSmokingStatus;
+import edu.ncsu.csc.itrust2.models.enums.Priority;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.State;
 import edu.ncsu.csc.itrust2.models.enums.Status;
 import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
+import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
+import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -56,6 +64,7 @@ import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
 @RunWith ( SpringJUnit4ClassRunner.class )
 @ContextConfiguration ( classes = { RootConfiguration.class, WebMvcConfiguration.class } )
 @WebAppConfiguration
+@FixMethodOrder ( MethodSorters.NAME_ASCENDING )
 public class APIOfficeVisitTest {
 
     private MockMvc               mvc;
@@ -73,6 +82,16 @@ public class APIOfficeVisitTest {
         final Patient p = Patient.getByName( "patient" );
         if ( p != null ) {
             p.delete();
+        }
+
+        LabProcedure lab = LabProcedure.getByCode( "111111-11" );
+        if ( lab == null ) {
+            lab = new LabProcedure();
+            lab.setCode( "111111-11" );
+            lab.setCommonName( "commonName" );
+            lab.setComponent( "component" );
+            lab.setProperty( "property" );
+            lab.save();
         }
 
     }
@@ -443,6 +462,117 @@ public class APIOfficeVisitTest {
 
         mvc.perform( delete( "/api/v1/officevisits" ) );
 
+    }
+
+    /**
+     * Tests functionality of a office visit that has a lab procedure
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testOfficeVisitWithLab () throws Exception {
+
+        /*
+         * Create a HCP, Patient, and labtech and to use. If they already exist,
+         * this will do nothing
+         */
+        Patient p = Patient.getByName( "patient" );
+        if ( p == null ) {
+            p = new Patient( User.getByName( "patient" ) );
+            final Calendar dob = Calendar.getInstance();
+            dob.add( Calendar.YEAR, -2 );
+            p.setDateOfBirth( dob );
+            p.save();
+        }
+        final UserForm hcp = new UserForm( "hcp", "123456", Role.ROLE_HCP, 1 );
+        mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( hcp ) ) );
+
+        final UserForm patient = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
+        mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( patient ) ) );
+
+        final UserForm labtech = new UserForm( "labtech", "123456", Role.ROLE_LABTECH, 1 );
+        mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( labtech ) ) );
+
+        /* Delete all OfficeVisits/LabRequests before continuing testing */
+        mvc.perform( delete( "/api/v1/officevisits" ) );
+        mvc.perform( delete( "/api/v1/labrequests" ) );
+
+        final OfficeVisitForm visit = new OfficeVisitForm();
+        visit.setDate( "4/16/2048" );
+        visit.setTime( "9:50 AM" );
+        visit.setHcp( "hcp" );
+        visit.setPatient( "patient" );
+        visit.setNotes( "Test office visit" );
+        visit.setType( AppointmentType.GENERAL_CHECKUP.toString() );
+        visit.setHospital( "iTrust Test Hospital 2" );
+
+        visit.setWeight( 172.3f );
+        visit.setTri( 150 );
+        visit.setSystolic( 102 );
+        visit.setPatientSmokingStatus( PatientSmokingStatus.FORMER );
+        visit.setLdl( 40 );
+        visit.setHouseSmokingStatus( HouseholdSmokingStatus.INDOOR );
+        visit.setHeight( 60.2f );
+        visit.setHeadCircumference( 8.7f );
+        visit.setHdl( 80 );
+        visit.setDiastolic( 85 );
+
+        LabRequestForm labForm = new LabRequestForm();
+        labForm.setHcp( "hcp" );
+        labForm.setPatient( "patient" );
+        labForm.setLabTech( "labtech" );
+        labForm.setComments( "comments" );
+        labForm.setPriority( Priority.PRIORITY_HIGH.toString() );
+        labForm.setStatus( Status.PENDING.toString() );
+        labForm.setLabProcedure( "111111-11" );
+        List<LabRequestForm> list = new ArrayList<LabRequestForm>();
+        list.add( labForm );
+        visit.setLabRequests( list );
+
+        /* Create the Office Visit */
+        mvc.perform( post( "/api/v1/officevisits" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
+
+        /* Set the id of the visit form to the office visit */
+        visit.setId( OfficeVisit.getForHCP( "hcp" ).get( 0 ).getId().toString() );
+
+        assertEquals( 1, OfficeVisit.getForHCP( "hcp" ).size() );
+        LabRequest savedLr = (LabRequest) OfficeVisit.getForHCP( "hcp" ).get( 0 ).getLabRequests().toArray()[0];
+        final Long oldId = savedLr.getId();
+
+        assertEquals( "comments", savedLr.getComments() );
+        assertEquals( "hcp", savedLr.getHcp().getUsername() );
+        assertEquals( "patient", savedLr.getPatient().getUsername() );
+        assertEquals( "labtech", savedLr.getLabTech().getUsername() );
+        assertEquals( Priority.PRIORITY_HIGH, savedLr.getPriority() );
+        assertEquals( Status.PENDING, savedLr.getStatus() );
+        assertEquals( "111111-11", savedLr.getLabProcedure().getCode() );
+
+        // Change lab request that is saved in the office visit
+        labForm = new LabRequestForm( savedLr );
+        assertNotNull( labForm.getId() );
+        labForm.setPriority( Priority.PRIORITY_LOW.toString() );
+
+        list = new ArrayList<LabRequestForm>();
+        list.add( labForm );
+        visit.setLabRequests( list );
+
+        mvc.perform( put( "/api/v1/officevisits/" + visit.getId() ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
+        assertEquals( 1, OfficeVisit.getForHCP( "hcp" ).get( 0 ).getLabRequests().size() );
+        savedLr = (LabRequest) OfficeVisit.getForHCP( "hcp" ).get( 0 ).getLabRequests().toArray()[0];
+        assertEquals( Priority.PRIORITY_LOW, savedLr.getPriority() );
+        assertEquals( oldId, savedLr.getId() );
+
+        // Remove lab request
+        visit.setLabRequests( new ArrayList<LabRequestForm>() );
+        mvc.perform( put( "/api/v1/officevisits/" + visit.getId() ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
+        assertEquals( 0, OfficeVisit.getForHCP( "hcp" ).get( 0 ).getLabRequests().size() );
+        assertEquals( 0, LabRequest.getLabRequests().size() );
     }
 
 }

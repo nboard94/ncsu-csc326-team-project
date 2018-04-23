@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -28,6 +29,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.criterion.Criterion;
 
+import edu.ncsu.csc.itrust2.forms.hcp.LabRequestForm;
 import edu.ncsu.csc.itrust2.forms.hcp.OfficeVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp.PrescriptionForm;
 import edu.ncsu.csc.itrust2.forms.hcp.VacRecordForm;
@@ -241,10 +243,17 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
                     .collect( Collectors.toList() ) );
         }
 
+
+        final List<LabRequestForm> ls = ovf.getLabRequests();
+        if ( ls != null ) {
+            setLabRequests( ls.stream().map( ( final LabRequestForm lf ) -> new LabRequest( lf ) )
+                    .collect( Collectors.toSet() ) );
+
         final List<VacRecordForm> vs = ovf.getVacRecords();
         if ( vs != null ) {
             setVacRecords( vs.stream().map( ( final VacRecordForm vf ) -> new VacRecord( vf ) )
                     .collect( Collectors.toList() ) );
+
         }
     }
 
@@ -615,6 +624,13 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     private transient List<VacRecord> vacRecords    = Collections.emptyList();
 
     /**
+     * List of all of the lab requests associated with this office visit
+     */
+    @OneToMany ( fetch = FetchType.EAGER )
+    @JoinColumn ( name = "labRequests_id" )
+    private Set<LabRequest>          labRequests   = new HashSet<LabRequest>();
+
+    /**
      * Overrides the basic domain object save in order to save basic health
      * metrics and the office visit.
      */
@@ -663,6 +679,8 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
         }
 
         //// END PRESCRIPTIONS ////
+
+        saveLabRequests();
 
         //// SAVE VACRECORDS ////
 
@@ -793,12 +811,73 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
     }
 
     /**
+     * Helper method that saves LabRequests whenever the OfficeVisit.save()
+     * method is called
+     */
+    private void saveLabRequests () {
+        // Get saved visit
+        final OfficeVisit oldVisit = OfficeVisit.getById( id );
+
+        // Get LabRequest ids included in this office visit
+        final Set<Long> currentIds = this.getLabRequests().stream().map( LabRequest::getId )
+                .collect( Collectors.toSet() );
+
+        // Get LabRequest ids saved previously
+        final Set<Long> savedIds = oldVisit == null ? Collections.emptySet()
+                : oldVisit.getLabRequests().stream().map( LabRequest::getId ).collect( Collectors.toSet() );
+
+        // Save each lab request
+        for ( final LabRequest lr : this.getLabRequests() ) {
+            final boolean isSaved = savedIds.contains( lr.getId() );
+            if ( isSaved ) {
+                LoggerUtil.log( TransactionType.LAB_REQUEST_EDIT, LoggerUtil.currentUser(), getPatient().getUsername(),
+                        "Editing Lab Request with id " + lr.getId() );
+            }
+            else {
+                LoggerUtil.log( TransactionType.LAB_REQUEST_CREATE, LoggerUtil.currentUser(),
+                        getPatient().getUsername(), "Creating Lab Request with id " + lr.getId() );
+            }
+            lr.save();
+        }
+
+        if ( !savedIds.isEmpty() ) {
+            for ( final Long savedId : savedIds ) {
+                final boolean isMissing = !currentIds.contains( savedId );
+                if ( isMissing ) {
+                    LoggerUtil.log( TransactionType.LAB_REQUEST_DELETE, LoggerUtil.currentUser(),
+                            getPatient().getUsername(), "Deleting Lab Request with id " + savedId );
+                    LabRequest.getById( savedId ).delete();
+                }
+            }
+        }
+    }
+
+    /**
      * Deletes all Office visits, and all Diagnoses (No diagnoses without an
      * office visit)
      */
     public static void deleteAll () {
         DomainObject.deleteAll( Diagnosis.class );
         DomainObject.deleteAll( OfficeVisit.class );
+    }
+
+    /**
+     * Gets the lab requests associated with this office visit
+     *
+     * @return a set of LabRequests
+     */
+    public Set<LabRequest> getLabRequests () {
+        return labRequests;
+    }
+
+    /**
+     * Sets the set of lab requests
+     *
+     * @param labRequests
+     *            the set of LabRequests that are to be set
+     */
+    public void setLabRequests ( final Set<LabRequest> labRequests ) {
+        this.labRequests = labRequests;
     }
 
 }
