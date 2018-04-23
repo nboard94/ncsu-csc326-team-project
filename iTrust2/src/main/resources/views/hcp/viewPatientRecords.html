@@ -9,6 +9,7 @@
 		<script th:inline="javascript">
 			var app = angular.module('recordsApp', []);
 			app.controller('recordsCtrl', function($scope, $http) {
+				$scope.attempt = 0;
 				$scope.records = [];
 				$scope.getRecords = function() {
 					$http.get("/iTrust2/api/v1/viewPatientRecords/"
@@ -16,8 +17,10 @@
 							.then(function(response) {
 								$scope.records = response.data;
 								$scope.message = "Successfully retrieved patient records.";
+								$scope.attempt = 1;
 							}, function(error) {
 								$scope.message = "Getting pateint records encountered a problem.";
+								$scope.attempt = -1;
 							});
 						}
 					});
@@ -108,6 +111,15 @@
 						</table>
 					</div>
 				</div>
+			</div>
+			<div class="col-md-8">
+				<table>
+					<tbody>
+						<tr ng-if="attempt = 1">
+						{{message}}
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
