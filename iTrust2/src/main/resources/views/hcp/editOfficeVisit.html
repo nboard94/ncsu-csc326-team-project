@@ -460,7 +460,7 @@
             		hcp: "",
             		patient: "",
             		priority: $scope.priority,
-            		status: ""
+            		status: "PENDING"
             	}
             	var err = checkValidRequest(r);
             	if (err) {
@@ -1029,9 +1029,10 @@
                                   <div class="col-md-2">{{l.labProcedure}}</div>
                                   <div class="col-md-2">{{l.labTech}}</div>
                                   <div class="col-md-2">{{removeTag(l.priority)}}</div>
-                                  <div class="col-md-4">{{l.comments}}</div>
+                                  <div class="col-md-2">{{l.comments}}</div>
+                                  <div class="col-md-2">{{l.status}}</div>
                                   <div class="col-md-2">
-                                    <button class="btn btn-danger btn-xs"
+                                    <button class="btn btn-danger btn-xs" ng-disabled="l.status != 'PENDING'"
                                       ng-click="removeLabRequest($index)" name="removeLabRequest">
                                       <b>x</b>
                                     </button>

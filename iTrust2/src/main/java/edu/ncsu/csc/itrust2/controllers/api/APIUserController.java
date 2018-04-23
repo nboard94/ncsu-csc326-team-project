@@ -170,7 +170,7 @@ public class APIUserController extends APIController {
      *
      * @return a list of all of lab techs within the system
      */
-    @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_ADMIN')" )
+    @PreAuthorize ( "hasRole('ROLE_HCP') or hasRole('ROLE_ADMIN') or hasRole('ROLE_LABTECH')" )
     @GetMapping ( BASE_PATH + "/users/labtechs" )
     public List<User> getLabTechs () {
         return User.getLabTechs();
