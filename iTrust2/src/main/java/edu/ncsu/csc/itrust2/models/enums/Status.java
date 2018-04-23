@@ -19,21 +19,21 @@ public enum Status {
     /**
      * Approved by staff
      */
-    APPROVED ( 3 ),
+    APPROVED ( 2 ),
     /**
      * Request is currently being worked on
      */
-    WORKING ( 4 ),
+    WORKING ( 3 ),
     /**
      * Request is now completed
      */
-    COMPLETED ( 5 ),
+    COMPLETED ( 4 ),
 
     /* Negative statuses */
     /**
      * Rejected by staff
      */
-    REJECTED ( 2 ),;
+    REJECTED ( 4 );
 
     /**
      * Code of the status

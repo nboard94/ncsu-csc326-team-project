@@ -28,10 +28,10 @@
           $http.get("/iTrust2/api/v1/labrequests/labtech").then(
             function (response) {
               $scope.requests = response.data;
-              $scope.message = "";
+              $scope.errorMessage = "";
             }, function (rejection) {
               $scope.procedures = [];
-              $scope.message = "Could not display lab requests";
+              $scope.errorMessage = "Could not display lab requests";
             });
         }
         
@@ -39,10 +39,10 @@
           $http.get("/iTrust2/api/v1/labrequests/statuses").then(
               function (response) {
             	$scope.statuses = response.data;
-                $scope.message = "";
+                $scope.errorMessage = "";
               }, function (rejection) {
                 $scope.statuses = [];
-                $scope.message = "Could retrieve statuses";
+                $scope.errorMessage = "Could retrieve statuses";
               });
         }
         
@@ -54,21 +54,23 @@
             				$scope.labTechs.push(response.data[i].username);
             			}
             		}
-                    $scope.message = "";
+                    $scope.errorMessage = "";
             	}, function (rejection) {
                     $scope.labTechs = [];
-                    $scope.message = "Could retrieve statuses";
+                    $scope.errorMessage = "Could retrieve statuses";
                 });
         }
         
         $scope.editRequest = function (request) {
             $scope.selectedRequest = angular.copy(request);
             $scope.toTransfer = false;
+            $scope.errorMessage = "";
           };
           
         $scope.transferRequest = function (request) {
             $scope.selectedRequest = angular.copy(request);
             $scope.toTransfer = true;
+            $scope.errorMessage = "";
           };
         
         $scope.getTemplate = function (request) {
@@ -86,6 +88,7 @@
         $scope.resetSelected = function () {
             $scope.selectedRequest = {};
             $scope.toTransfer = false;
+            $scope.errorMessage = "";
           };
           
         $scope.saveRequest = function() {
@@ -94,7 +97,7 @@
                       $scope.loadTable();
                       $scope.resetSelected();
                     }, function (rejection) {
-                      $scope.errorAdding = "Failed to edit lab request";
+                      $scope.errorMessage = rejection.data.message;
                     });
         }
         
@@ -215,7 +218,12 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div>                         
+              
+           <!-- Error messages shown here -->
+           <div class="row">
+           	  <span ng-disabled="errorMessage == ''">{{errorMessage}}</span>                        
+           </div>
 		</div>
 	</div>
 </body>

@@ -153,6 +153,18 @@ public class APILabRequestController extends APIController {
                 return new ResponseEntity( errorResponse( "No lab request found with id " + lr.getId() ),
                         HttpStatus.NOT_FOUND );
             }
+            if ( saved.getStatus().getCode() > lr.getStatus().getCode() ) {
+                LoggerUtil.log( TransactionType.LAB_REQUEST_EDIT, LoggerUtil.currentUser(),
+                        "Invalid status change for lab request with id " + lr.getId() );
+                return new ResponseEntity( errorResponse( "Cannot change status to an earlier value" ),
+                        HttpStatus.NOT_ACCEPTABLE );
+            }
+            if ( lr.getComments().length() > 128 ) {
+                LoggerUtil.log( TransactionType.LAB_REQUEST_EDIT, LoggerUtil.currentUser(),
+                        "Invalid comment length for lab request with id " + lr.getId() );
+                return new ResponseEntity( errorResponse( "Comment length has to be less than 128 characters" ),
+                        HttpStatus.NOT_ACCEPTABLE );
+            }
             lr.save(); /* Overwrite existing */
             LoggerUtil.log( TransactionType.LAB_REQUEST_EDIT, LoggerUtil.currentUser(), lr.getHcp().getUsername(),
                     "Edited lab procedure with id " + lr.getId() );

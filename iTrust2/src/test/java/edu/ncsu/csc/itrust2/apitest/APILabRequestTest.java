@@ -234,6 +234,29 @@ public class APILabRequestTest {
                 .getResponse().getContentAsString();
         lrl = gson.fromJson( content, listType );
         assertEquals( 3, lrl.size() );
+
+        // Test invalid status
+        lr = new LabRequest();
+        lr.setComments( "comments" );
+        lr.setHcp( User.getByName( "hcp" ) );
+        lr.setLabTech( User.getByName( "test_labtech" ) );
+        lr.setPatient( User.getByName( "patient" ) );
+        lr.setLabProcedure( LabProcedure.getByCode( "111111-11" ) );
+        lr.setPriority( Priority.PRIORITY_VERY_HIGH );
+        lr.setStatus( Status.WORKING );
+        lr.save();
+
+        final LabRequestForm badStatus = new LabRequestForm( lr );
+        badStatus.setStatus( "PENDING" );
+        mvc.perform( put( "/api/v1/labrequests" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( badStatus ) ) ).andExpect( status().isNotAcceptable() );
+
+        // Test invalid comment
+        badStatus.setStatus( "WORKING" );
+        badStatus.setComments( "1111111111111111111111111111111111111111111111111111111"
+                + "1111111111111111111111111111111111111111111111111111111111111111111111" + "111111111111" );
+        mvc.perform( put( "/api/v1/labrequests" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( badStatus ) ) ).andExpect( status().isNotAcceptable() );
     }
 
     /**
