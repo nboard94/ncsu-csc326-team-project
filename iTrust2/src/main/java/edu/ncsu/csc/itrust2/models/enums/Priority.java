@@ -42,12 +42,21 @@ public enum Priority {
     }
 
     /**
-     * Get the priority
+     * Gets the priority
+     *
+     * @return the priority of the enum
      */
     public int getPriority () {
         return priority;
     }
 
+    /**
+     * Converts the enum into a string object
+     *
+     * @param pri
+     *            the priority
+     * @return the string version of the priority
+     */
     public static String toString ( final Priority pri ) {
         if ( pri == Priority.PRIORITY_HIGH ) {
             return "PRIORITY_HIGH";

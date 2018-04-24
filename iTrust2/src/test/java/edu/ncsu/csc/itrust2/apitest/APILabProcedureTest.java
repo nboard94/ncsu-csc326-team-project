@@ -30,7 +30,6 @@ import edu.ncsu.csc.itrust2.config.RootConfiguration;
 import edu.ncsu.csc.itrust2.forms.admin.LabProcedureForm;
 import edu.ncsu.csc.itrust2.forms.personnel.PersonnelForm;
 import edu.ncsu.csc.itrust2.models.enums.Role;
-import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
 import edu.ncsu.csc.itrust2.models.persistent.Personnel;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -85,8 +84,15 @@ public class APILabProcedureTest {
     public void testLabProcedureAPI () throws Exception {
         // Delete all lab procedure before testing
 
-        DomainObject.deleteAll( LabProcedure.class );
-
+        if ( LabProcedure.getByCode( "123456-78" ) != null ) {
+            LabProcedure.getByCode( "123456-78" ).delete();
+        }
+        if ( LabProcedure.getByCode( "222222-22" ) != null ) {
+            LabProcedure.getByCode( "222222-22" ).delete();
+        }
+        if ( LabProcedure.getByCode( "876543-21" ) != null ) {
+            LabProcedure.getByCode( "876543-21" ).delete();
+        }
         final LabProcedureForm lpf1 = new LabProcedureForm();
         lpf1.setCode( "876543-21" );
         lpf1.setCommonName( "commonName" );
