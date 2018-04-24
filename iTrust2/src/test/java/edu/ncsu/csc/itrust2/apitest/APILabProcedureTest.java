@@ -82,19 +82,8 @@ public class APILabProcedureTest {
     @Test
     @WithMockUser ( username = "admin", roles = { "USER", "ADMIN" } )
     public void testLabProcedureAPI () throws Exception {
-        // Delete all lab procedure before testing
-
-        if ( LabProcedure.getByCode( "123456-78" ) != null ) {
-            LabProcedure.getByCode( "123456-78" ).delete();
-        }
-        if ( LabProcedure.getByCode( "222222-22" ) != null ) {
-            LabProcedure.getByCode( "222222-22" ).delete();
-        }
-        if ( LabProcedure.getByCode( "876543-21" ) != null ) {
-            LabProcedure.getByCode( "876543-21" ).delete();
-        }
         final LabProcedureForm lpf1 = new LabProcedureForm();
-        lpf1.setCode( "876543-21" );
+        lpf1.setCode( "345678-21" );
         lpf1.setCommonName( "commonName" );
         lpf1.setComponent( "compnonent" );
         lpf1.setProperty( "property" );
@@ -110,7 +99,7 @@ public class APILabProcedureTest {
 
         /** Test editing */
         // Edit the lab procedure
-        LabProcedure lp1 = LabProcedure.getByCode( "876543-21" );
+        LabProcedure lp1 = LabProcedure.getByCode( "345678-21" );
         final LabProcedureForm lpf2 = new LabProcedureForm( lp1 );
         lpf2.setCommonName( "newCommonName" );
 
@@ -124,20 +113,20 @@ public class APILabProcedureTest {
                 .content( TestUtils.asJsonString( lpf1 ) ) ).andExpect( status().isNotFound() );
 
         // Attempt to change code of lab to a code that already exists
-        lpf1.setCode( "123456-78" );
+        lpf1.setCode( "555555-55" );
         mvc.perform( post( "/api/v1/labprocedures" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( lpf1 ) ) ).andExpect( status().isOk() );
 
-        lp1 = LabProcedure.getByCode( "876543-21" );
+        lp1 = LabProcedure.getByCode( "345678-21" );
         final LabProcedureForm lpf3 = new LabProcedureForm( lp1 );
-        lpf3.setCode( "123456-78" );
+        lpf3.setCode( "555555-55" );
 
         mvc.perform( put( "/api/v1/labprocedures" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( lpf3 ) ) ).andExpect( status().isConflict() );
 
         /** Test delete */
         // Delete existing lab
-        String id = Long.toString( LabProcedure.getByCode( "876543-21" ).getId() );
+        String id = Long.toString( LabProcedure.getByCode( "345678-21" ).getId() );
 
         mvc.perform( delete( "/api/v1/labprocedures/" + id ) ).andExpect( status().isOk() );
 
@@ -149,7 +138,7 @@ public class APILabProcedureTest {
                 .andExpect( content().string( Matchers.containsString( lpf1.getCode() ) ) );
 
         /** Delete any lab procedures that were added */
-        id = Long.toString( LabProcedure.getByCode( "123456-78" ).getId() );
+        id = Long.toString( LabProcedure.getByCode( "555555-55" ).getId() );
         mvc.perform( delete( "/api/v1/labprocedures/" + id ) ).andExpect( status().isOk() );
 
     }
