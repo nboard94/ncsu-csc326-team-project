@@ -125,7 +125,11 @@
 
             $scope.populateVisit = function () {
               $scope.prescriptions = [];
+
+              $scope.labRequests = [];
+
               $scope.vacRecords = [];
+
               $scope.diagnoses = [];
               $scope.showBHM = true;
               var visitsLength = $scope.visits.length;
@@ -183,6 +187,22 @@
                       renewals: $scope.visits[i].prescriptions[j].renewals
                     });
                   }
+                  
+                  // lab requests
+                  var rLength = $scope.visits[i].labRequests.length;
+                  if(rLength > 0){
+                      $scope.showLabRequest = true;  
+                    }
+                  for( var k = 0; k < rLength; k++) {
+                	$scope.labRequests.push({
+                	  labProcedure: $scope.visits[i].labRequests[k].procedure.code,
+                	  comments: $scope.visits[i].labRequests[k].comments,
+                	  labTech: $scope.visits[i].labRequests[k].labTech.username,
+                	  priority: $scope.visits[i].labRequests[k].priority,
+                	  status: $scope.visits[i].labRequests[k].status,
+                	  id: $scope.visits[i].labRequests[k].id
+                	});
+                  }
 
                // vac records
                   var vLength = $scope.visits[i].vacRecords.length;
@@ -225,9 +245,11 @@
                 }
               }
             }
-
-
-
+            
+            $scope.removeTag = function(p) {
+            	return p.slice(p.indexOf('_') + 1);
+            }
+            
           });
 
 			/*]]>*/
@@ -496,9 +518,57 @@
                             </div>
                           </div>
                         </div>
+                      </div>
+                       
+                      <div class="row">
+                        <!-- labrequest Panel -->
+                        <div class="col-md-6">
+                          <div class="panel panel-info">
+                            <div class="panel-heading">
+                              <h4>Lab Requests</h4>
+                            </div>
+                            <div class="panel-body" ng-show="showLabRequest">
+                              <div class="row">
+                                <div class="col-md-2">
+                                  <b>Code</b>
+                                </div>
+                                <div class="col-md-2">
+                                  <b>Lab Technician</b>
+                                </div>
+                                <div class="col-md-2">
+                                  <b>Priority</b>
+                                </div>
+                                <div class="col-md-3">
+                                  <b>Comments</b>
+                                </div>
+                                <div class="col-md-2">
+                                  <b>Status</b>
+                                </div>
+                              </div>
+                              <div class="row" ng-repeat="r in labRequests">
+                                <div class="col-md-2">
+                                  {{r.labProcedure}}
+                                </div>
+                                <div class="col-md-2">
+                                  {{r.labTech}}
+                                </div>
+                                <div class="col-md-2">
+                                  {{removeTag(r.priority)}}
+                                </div>
+                                <div class="col-md-3">
+                                  {{r.comments}}
+                                </div>
+                                <div class="col-md-2">
+                                  {{r.status}}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         
+                                                
                         <!-- Prescription Panel -->
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                           <div class="panel panel-info">
                             <div class="panel-heading">
                               <h4>Vaccinations</h4>
@@ -530,6 +600,8 @@
                           </div>
                         </div>
                       </div>
+                      
+                      
 
                       <!-- Notes and Error Messages -->
                       <div class="row">
@@ -548,6 +620,7 @@
                           </div>
                         </div>
                       </div>
+                      </div>
                     </div>
 
                   </div>
@@ -562,7 +635,6 @@
 
       </div>
     </div>
-  </div>
 </body>
 
 </html>

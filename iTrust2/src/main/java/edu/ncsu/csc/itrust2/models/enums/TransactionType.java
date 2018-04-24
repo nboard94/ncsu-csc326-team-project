@@ -303,6 +303,35 @@ public enum TransactionType {
     VIEW_REPS ( 1704, "User viewed list of patient's representatives", true ),
 
     /**
+     * Admin creates a lab procedure
+     */
+    LAB_CREATE ( 1801, "Admin created a new lab procedure", false ),
+    /**
+     * Admin deletes a lab procedure
+     */
+    LAB_DELETE ( 1802, "Admin deleted an existing lab procedure", false ),
+    /**
+     * Admin edits an existing lab procedure
+     */
+    LAB_EDIT ( 1803, "Admin edited an existing lab procedure", false ),
+    /**
+     * User creates a lab request
+     */
+    LAB_REQUEST_CREATE ( 1804, "User created new lab request", false ),
+    /**
+     * User deletes lab request from the data base
+     */
+    LAB_REQUEST_DELETE ( 1805, "User deleted existing lab request", false ),
+    /**
+     * User edits lab request in the database
+     */
+    LAB_REQUEST_EDIT ( 1806, "User edited existing lab request", false ),
+    /**
+     * User views lab request(s)
+     */
+    LAB_REQUEST_VIEW ( 1807, "User viewed a list of lab requests", false ),
+
+    /**
      * HCP created a new vacrecord
      */
     VACRECORD_CREATE ( 1910, "HCP created a new vaccination record", true ),
@@ -318,6 +347,7 @@ public enum TransactionType {
      * User viewed an existing vacrecord
      */
     VACRECORD_VIEW ( 1913, "User viewed an existing vaccination record", true );
+
 
     /**
      * Creates a TransactionType for logging events

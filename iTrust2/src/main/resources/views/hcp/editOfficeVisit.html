@@ -75,6 +75,23 @@
             	  return err.join(".");
               }
 
+              var checkValidRequest = function(r) {
+            	  var err = [];
+            	  if (!r.labProcedure) {
+            		  err.push("Request must be associated with a procedure");
+            	  }
+            	  if (!r.labTech) {
+            		  err.push("Request must be associated with a lab technician");
+            	  }
+            	  if (!r.priority) {
+            		  err.push("Request must have a priority");
+            	  }
+            	  if (!r.comments) {
+            		  err.push("Request must have a comment");
+            	  }
+            	  
+            	  return err.join(". ");
+              }
 
             $scope.getTime = function getTime(date) {
               var hour = date.hourOfDay;
@@ -147,6 +164,18 @@
               function (response) {
                 $scope.icdcodes = response.data;
               });
+            $http.get("/iTrust2/api/v1/labprocedures").then(
+           	  function (response) {
+           		$scope.labProcedures = response.data;
+           	  });
+            $http.get("/iTrust2/api/v1/users/labtechs").then(
+              function (response) {
+                $scope.labTechs = response.data;
+              });
+            $http.get("/iTrust2/api/v1/officevisits/priorities").then(
+              function (response) {
+                $scope.priorities = response.data;
+              });
 
             $scope.selectedVisitID = null;
             $scope.selectedVisit = {};
@@ -162,6 +191,7 @@
               $scope.prescriptions = [];
               $scope.vacRecords = [];
               $scope.diagnoses = [];
+              $scope.labRequests = [];
               var visitsLength = $scope.visits.length;
               $scope.noVisitSelected = false;
               for (var i = 0; i < visitsLength; i++) {
@@ -201,6 +231,19 @@
 	                        });
 	                      }
                    });
+                  
+                  //Lab Requests
+                  var rLength = $scope.visits[i].labRequests.length;
+                  for( var k = 0; k < rLength; k++) {
+                	$scope.labRequests.push({
+                	  labProcedure: $scope.visits[i].labRequests[k].procedure.code,
+                	  comments: $scope.visits[i].labRequests[k].comments,
+                	  labTech: $scope.visits[i].labRequests[k].labTech.username,
+                	  priority: $scope.visits[i].labRequests[k].priority,
+                	  status: $scope.visits[i].labRequests[k].status,
+                	  id: $scope.visits[i].labRequests[k].id
+                	});
+                  }
                   
                   // prescriptions
                   var pLength = $scope.visits[i].prescriptions.length;
@@ -263,6 +306,17 @@
               $scope.selectedVisit.hcp = /*[[${#httpServletRequest.remoteUser}]]*/null; /* Ugly hack; use this to retrieve the name of the HCP who is currently logged in.  This grabs it from Thymeleaf */
               $scope.errorMsg = "";
               $scope.selectedVisit.status = "PENDING";
+              
+              // set the patient/hcp/status for all of the lab requests
+              for (var i = 0; i < $scope.labRequests.length; i++) {
+            	  $scope.labRequests[i].patient = $scope.selectedVisit.patient;
+            	  $scope.labRequests[i].hcp = $scope.selectedVisit.hcp;
+            	  if ($scope.labRequests[i].status == "") {
+            	  	$scope.labRequests[i].status = "PENDING";
+            	  }
+              }
+              
+              $scope.selectedVisit.labRequests = $scope.labRequests;
 
               if ($scope.selectedVisit.type == null) {
                 $scope.errorMsg += "Please select a visit type\n";
@@ -348,6 +402,11 @@
                 data: $scope.selectedVisit
               }).then(function (response) {
                 $scope.message = "Office visit edited successfully";
+                for (var i = 0; i < $scope.visits.length; i++) {
+                	if ($scope.selectedVisit.id == $scope.visits[i].id) {
+                		$scope.visits[i] = response.data;
+                	}
+                }
               }, function (rejection) {
                 $scope.message = "Error occurred editing office visit";
               })
@@ -371,6 +430,8 @@
                 });
                 resetDiagnosisForm();
               }
+           
+     
             
             /** prescriptions **/
             
@@ -406,6 +467,50 @@
               }
             }
             
+            
+            
+            /** Lab Requests */
+            
+            // Lab request variables
+            $scope.labProcedure= "";
+            $scope.labTech = "";
+            $scope.patient = "";
+            $scope.hcp = "";
+            $scope.priority = "";
+            $scope.comments = "";
+            
+            
+            //Capture each lab request into an array
+            $scope.labRequests = [];
+            $scope.fillLabRequests = function () {
+            	$scope.errorMsg = "";
+            	var r = {
+            		comments: $scope.comments,
+            		labProcedure: $scope.labProcedure,
+            		labTech: $scope.labTech,
+            		hcp: "",
+            		patient: "",
+            		priority: $scope.priority,
+            		status: "PENDING"
+            	}
+            	var err = checkValidRequest(r);
+            	if (err) {
+            		$scope.errorMsg = err;
+            	} else {
+            		$scope.labRequests.push(r);
+                	resetLabRequestForm();
+            	}
+            }
+            
+            
+            //clears local variavles for lab request form
+            function resetLabRequestForm() {
+				$scope.labProcedure = "";
+				$scope.labTech = "";
+				$scope.priority = "";
+				$scope.comments = "";
+            }
+           
             /** vacrecords **/
             $scope.vaccinationEntry = "";
             $scope.administrationEntry = "";
@@ -440,15 +545,30 @@
               $scope.prescriptions.splice($index, 1);
             }
             
+
+            //remove local lab request from list
+            $scope.removeLabRequest = function ($index) {
+              $scope.labRequests.splice($index, 1);
+            }
+            
+            
+            $scope.removeTag = function(p) {
+            	return p.slice(p.indexOf('_') + 1);
+            }
             //remove local vacrecords from list
             $scope.removeVacRecord = function ($index) {
             	$scope.vacRecords.splice($index, 1);
+
             }
 
             //call initally 
             resetPrescriptionForm();
             resetDiagnosisForm();
+
+            resetLabRequestForm();
+
             resetVacRecordForm();
+
 
 
           });
@@ -840,9 +960,117 @@
                         </div>
                       </div>
                     </div>
-                    
+                  </div>
+                  
+                <!-- Lab request panel -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="panel panel-info">
+                      <div class="panel-heading">
+                        <h4>Lab Requests</h4>
+                      </div>
+                      <div class="panel-body">
+
+
+                        <!-- CHOOSE LAB PROCEDURE -->
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Lab Procedure:</label>
+                          </div>
+                          <div class="col-xs-6 radio-box">
+                            <div class="form-check">
+                              <ul style="list-style: none;">
+                                <li ng-repeat="l in labProcedures"><label> <input
+                                    type="radio" ng-model="$parent.labProcedure" name="{{l.name}}"
+                                    value="{{l.code}}" required="true" /> {{l.code}}
+                                </label></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- CHOOSE LAB TECH -->
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Lab Technician:</label>
+                          </div>
+                          <div class="col-xs-6 radio-box">
+                            <div class="form-check">
+                              <ul style="list-style: none;">
+                                <li ng-repeat="l in labTechs"><label> <input
+                                    type="radio" ng-model="$parent.labTech" name="{{l.username}}"
+                                    value="{{l.username}}" required="true" /> {{l.username}}
+                                </label></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <!-- CHOOSE PRIORITY -->
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Priority:</label>
+                          </div>
+                          <div class="col-xs-6 radio-box">
+                            <div class="form-check">
+                              <ul style="list-style: none;">
+                                <li ng-repeat="p in priorities"><label> <input
+                                    type="radio" ng-model="$parent.priority" name="{{p}}"
+                                    value="{{p}}" required="true" /> {{removeTag(p)}}
+                                </label></li>
+                              </ul>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        <!-- ADD COMMENTS -->
+                        <div class="form-group row">
+                          <div class="col-xs-6">
+                            <label>Comments:</label>
+                          </div>
+                          <div class="col-xs-6">
+                            <input class="form-control" name="commentsBox" ng-model="comments"
+                              required="true" type="text">
+                          </div>
+                        </div>
+
+                        <!-- ADD BUTTON -->
+                        <div class="form-group row text-center">
+                          <button class="btn btn-success" ng-click="fillLabRequests()"
+                            name="fillPrescription">Add Lab Request</button>
+                        </div>
+
+                        <!-- ADDED LAB REQUESTS -->
+                        <div class="form-group row">
+                          <div class="col-md-12">
+                            <div class="panel panel-default">
+                              <div class="panel-heading">Added Lab Requests</div>
+                              <div class="panel-body">
+                                <div class="row" ng-repeat="l in labRequests">
+                                  <div class="col-md-2">{{l.labProcedure}}</div>
+                                  <div class="col-md-2">{{l.labTech}}</div>
+                                  <div class="col-md-2">{{removeTag(l.priority)}}</div>
+                                  <div class="col-md-2">{{l.comments}}</div>
+                                  <div class="col-md-2">{{l.status}}</div>
+                                  <div class="col-md-2">
+                                    <button class="btn btn-danger btn-xs" ng-disabled="l.status != 'PENDING'"
+                                      ng-click="removeLabRequest($index)" name="removeLabRequest">
+                                      <b>x</b>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                                      
                     <!-- Vaccination Panel -->
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                         <div class="panel panel-info">
                           <div class="panel-heading">
                             <h4>Vaccinations</h4>
@@ -902,7 +1130,7 @@
                         </div>
                       </div>
                     </div>
-                  </div>
+                </div>
 
                   <!-- Notes and Error Messages -->
                   <div class="row">

@@ -9,5 +9,5 @@
 #Given the patient in question exists
 #When I login as an HCP
 #When I navigate to the Emergency Health Records page
-#When I enter the patients MID <mid>
+#When I enter the patients MID
 #Then I am given an emergency health record for the patient

@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.PatientSmokingStatus;
 import edu.ncsu.csc.itrust2.models.persistent.Diagnosis;
+import edu.ncsu.csc.itrust2.models.persistent.LabRequest;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Prescription;
 import edu.ncsu.csc.itrust2.models.persistent.VacRecord;
@@ -150,7 +151,29 @@ public class OfficeVisitForm implements Serializable {
 
     private List<PrescriptionForm> prescriptions;
 
+    private List<LabRequestForm>   labRequests;
+
+    /**
+     * Gets the lab requests associated with this office visit form
+     *
+     * @return the labRequests
+     */
+    public List<LabRequestForm> getLabRequests () {
+        return labRequests;
+    }
+
+    /**
+     * Sets the lab requests
+     *
+     * @param labRequests
+     *            the labRequests to set
+     */
+    public void setLabRequests ( final List<LabRequestForm> labRequests ) {
+        this.labRequests = labRequests;
+    }
+
     private List<VacRecordForm>    vacRecords;
+
 
     /**
      * Creates an OfficeVisitForm from the OfficeVisit provided
@@ -169,7 +192,9 @@ public class OfficeVisitForm implements Serializable {
         setId( ov.getId().toString() );
         setPreScheduled( ( (Boolean) ( ov.getAppointment() != null ) ).toString() );
         setDiagnoses( new ArrayList<Diagnosis>() );
-        setPrescriptions( ov.getPrescriptions().stream().map( ( Prescription p ) -> new PrescriptionForm( p ) )
+        setPrescriptions( ov.getPrescriptions().stream().map( ( final Prescription p ) -> new PrescriptionForm( p ) )
+                .collect( Collectors.toList() ) );
+        setLabRequests( ov.getLabRequests().stream().map( ( LabRequest lp ) -> new LabRequestForm( lp ) )
                 .collect( Collectors.toList() ) );
         setVacRecords( ov.getVacRecords().stream().map( ( VacRecord v ) -> new VacRecordForm( v ) )
                 .collect( Collectors.toList() ) );
