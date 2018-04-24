@@ -1,5 +1,6 @@
 package edu.ncsu.csc.itrust2.cucumber;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.openqa.selenium.By;
@@ -11,6 +12,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import edu.ncsu.csc.itrust2.models.persistent.LabProcedure;
 
 /**
  * Step definitions for accessing lab procedures
@@ -22,15 +24,18 @@ public class LabProceduresStepDefs {
 
     private final WebDriver driver  = new HtmlUnitDriver( true );
     private final String    baseUrl = "http://localhost:8080/iTrust2";
-    private final String    code    = "111111-11";
+    private final String    code    = "111111-12";
+    private LabProcedure    l       = null;
 
     /**
      * Check that the lab procedure doesn't exist
      */
     @Given ( "that the lab procedure doesn't exist" )
     public void checkForProcedure () {
-        // Check the database for the lab procedure
-        // Delete it if found
+        l = LabProcedure.getByCode( code );
+        if ( l != null ) {
+            l.delete();
+        }
     }
 
     /**
@@ -55,8 +60,8 @@ public class LabProceduresStepDefs {
      */
     @When ( "I navigate to the lab procedures page" )
     public void proceduresPage () {
-        ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('idOfElement').click();" );
-        assertTrue( driver.getPageSource().contains( "Something on page" ) );
+        ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('manageProcedures').click();" );
+        assertTrue( driver.getPageSource().contains( "Admin Manage Lab Procedures" ) );
     }
 
     /**
@@ -64,7 +69,26 @@ public class LabProceduresStepDefs {
      */
     @When ( "I select to add a lab procedure with new information" )
     public void addProcedure () {
-        // Add the lab procedure
+        final WebElement code = driver.findElement( By.name( "code" ) );
+        code.clear();
+        code.sendKeys( "111111-12" );
+        final WebElement commonName = driver.findElement( By.name( "commonName" ) );
+        commonName.clear();
+        commonName.sendKeys( "Procedure 1" );
+        final WebElement component = driver.findElement( By.name( "component" ) );
+        component.clear();
+        component.sendKeys( "comp" );
+        final WebElement property = driver.findElement( By.name( "property" ) );
+        property.clear();
+        property.sendKeys( "prop" );
+        final WebElement submit = driver.findElement( By.name( "submit" ) );
+        submit.click();
+        try {
+            Thread.sleep( 500 );
+        }
+        catch ( final InterruptedException e ) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -72,6 +96,6 @@ public class LabProceduresStepDefs {
      */
     @Then ( "the lab procedure is created" )
     public void verifyProcedure () {
-        // check back end for the procedure
+        assertEquals( "Procedure 1", LabProcedure.getByCode( code ).getCommonName() );
     }
 }
