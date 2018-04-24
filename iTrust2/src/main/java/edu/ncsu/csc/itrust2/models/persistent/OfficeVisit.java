@@ -243,11 +243,11 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
                     .collect( Collectors.toList() ) );
         }
 
-
         final List<LabRequestForm> ls = ovf.getLabRequests();
         if ( ls != null ) {
             setLabRequests( ls.stream().map( ( final LabRequestForm lf ) -> new LabRequest( lf ) )
                     .collect( Collectors.toSet() ) );
+        }
 
         final List<VacRecordForm> vs = ovf.getVacRecords();
         if ( vs != null ) {
@@ -628,7 +628,7 @@ public class OfficeVisit extends DomainObject<OfficeVisit> {
      */
     @OneToMany ( fetch = FetchType.EAGER )
     @JoinColumn ( name = "labRequests_id" )
-    private Set<LabRequest>          labRequests   = new HashSet<LabRequest>();
+    private Set<LabRequest>           labRequests   = new HashSet<LabRequest>();
 
     /**
      * Overrides the basic domain object save in order to save basic health

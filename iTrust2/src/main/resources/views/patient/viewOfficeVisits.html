@@ -518,39 +518,6 @@
                             </div>
                           </div>
                         </div>
-                        
-                        <!-- Prescription Panel -->
-                        <div class="col-md-4">
-                          <div class="panel panel-info">
-                            <div class="panel-heading">
-                              <h4>Vaccinations</h4>
-                            </div>
-                            <div class="panel-body" ng-show="showVaccination">
-                              <div class="row">
-                                <div class="col-md-2">
-                                  <b>Vaccination</b>
-                                </div>
-                                <div class="col-md-2">
-                                  <b>Code</b>
-                                </div>
-                                <div class="col-md-2">
-                                  <b>Administration Date</b>
-                                </div>
-                              </div>
-                              <div class="row" ng-repeat="v in vacRecords">
-                                <div class="col-md-2">
-                                  {{v.vaccination}}
-                                </div>
-                                <div class="col-md-2">
-                                  {{v.vaccination.code}}
-                                </div>
-                                <div class="col-md-2">
-                                  {{v.administrationDate}}
-                                </div>>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
                       </div>
                        
                       <div class="row">
@@ -598,11 +565,43 @@
                             </div>
                           </div>
                         </div>
+                        
+                                                
+                        <!-- Prescription Panel -->
+                        <div class="col-md-6">
+                          <div class="panel panel-info">
+                            <div class="panel-heading">
+                              <h4>Vaccinations</h4>
+                            </div>
+                            <div class="panel-body" ng-show="showVaccination">
+                              <div class="row">
+                                <div class="col-md-2">
+                                  <b>Vaccination</b>
+                                </div>
+                                <div class="col-md-2">
+                                  <b>Code</b>
+                                </div>
+                                <div class="col-md-2">
+                                  <b>Administration Date</b>
+                                </div>
+                              </div>
+                              <div class="row" ng-repeat="v in vacRecords">
+                                <div class="col-md-2">
+                                  {{v.vaccination}}
+                                </div>
+                                <div class="col-md-2">
+                                  {{v.vaccination.code}}
+                                </div>
+                                <div class="col-md-2">
+                                  {{v.administrationDate}}
+                                </div>>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       
                       
-                      
-                      </div>
 
                       <!-- Notes and Error Messages -->
                       <div class="row">
@@ -621,6 +620,7 @@
                           </div>
                         </div>
                       </div>
+                      </div>
                     </div>
 
                   </div>
@@ -635,7 +635,6 @@
 
       </div>
     </div>
-  </div>
 </body>
 
 </html>
