@@ -46,10 +46,10 @@ public class EmergencyRecordsStepDefs {
         patient1.save();
 
         // check for hcp
-        final User hcp = User.getByNameAndRole( "hcp1", Role.ROLE_HCP );
+        User hcp = User.getByNameAndRole( "hcp1", Role.ROLE_HCP );
         if ( hcp == null ) {
-            u = new User( "hcp1", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_HCP, 1 );
-            u.save();
+            hcp = new User( "hcp1", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.", Role.ROLE_HCP, 1 );
+            hcp.save();
         }
 
         assertEquals( patient1, Patient.getByName( "patient1" ) );
@@ -104,7 +104,8 @@ public class EmergencyRecordsStepDefs {
     public void checkForRecord () throws InterruptedException {
         // assertEquals( "patient1", driver.findElement( By.name(
         // "patientNameCell" ) ).getText() );
-        final String tableText = driver.findElement( By.tagName( "tr" ) ).getText();
+        // final String tableText = driver.findElement( By.tagName( "tr" )
+        // ).getText();
         final String source = driver.getPageSource();
         assertTrue( source.contains( "Successfully retrieved patient records" ) );
     }
