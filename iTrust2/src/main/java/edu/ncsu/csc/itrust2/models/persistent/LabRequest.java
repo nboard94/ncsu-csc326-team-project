@@ -1,6 +1,5 @@
 package edu.ncsu.csc.itrust2.models.persistent;
 
-import java.text.ParseException;
 import java.util.Comparator;
 import java.util.List;
 
