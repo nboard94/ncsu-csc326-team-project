@@ -70,6 +70,8 @@ public class LabProcedureForm {
     }
 
     /**
+     * Sets the component of the lab procedure
+     *
      * @param component
      *            the component to set
      */
